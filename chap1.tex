@@ -1,0 +1,222 @@
+\Chapter{Introduction}
+\label{intro}
+
+The availability of data only continues to grow. Datasets often contain a large number of features which pose a challenging problem for the statistician. One example would be the goal of predicting a disease outcome based on the medical records for patients in the University of Iowa Hospital system. With the increasing interest of multi-omic data, lab results are becoming increasingly available for analysis and are linked back to the patient's medical records. If the number of observations is large relative to the number of biomarkers in this example, then classical methods are a viable (but likely less than ideal) option. This is not the case if the number of variables exceeds the number of observations. However, penalized regression, the general topic of this thesis, has become one of the most used tools in statistics, in part because it can handle when the number of variables exceeds the number of observations. Particularly, this thesis is concerned with producing confidence intervals for sparse penalized regression. Sparse simply meaning that many of the estimates are 0. 
+
+While penalized regression is extremely popular, there is a gap in constructing confidence intervals. This is in part because several very prominent statisticians have produced great works which have been widely accepted. However, such methods can be seen as debiasing procedures. The details of these methods are covered in Section~\ref{sec:cm}. Unfortunately, a clear disconnect arises when penalized regression is used to obtain point estimates and then one of these methods is used to construct intervals and the two are put side-by-side. Nevertheless, it appears the foregone conclusion is that biased confidence intervals are bad and that the behavior of confidence intervals in high dimensions should have traditional frequentist properties. That being said, the statistical community has grown comfortable with biased estimators, so why not allow intervals to also be biased, especially when a biased estimator has been selected for a particular problem. To my knowledge, there have been no methods proposed for constructing intervals that actually align with the point estimates. The closest thing proposed has been the suggestion of using the bootstrap to obtain such intervals. However, we discuss in Chapter~\ref{sec:chap2} why this is not a good idea, agreeing with the work in \cite{Chatterjee2010}. Any successful bootstrap based approaches have focused on the de-sparsifying (de-biasing) and will also be discussed further in Section~\ref{sec:cm}. 
+
+% It should be noted that this thesis arose from the question of ``does the bootstrap work for the lasso in any sense?'' Ultimately, this lead down the path of average coverage, which is the core focus of Chapter~\ref{sec:chap2}. While in the end we determined that the bootstrap is in fact not even viable in this alternate sense when attempting to provide intervals that reflect the original lasso estimates, I would be remiss not to acknowledge the role it played in setting the final direction of this thesis. 
+
+The goal of this thesis is three fold. First, it is to argue for the acceptance of biased intervals. Second, it is to begin to define what properties biased intervals should have, a question which is not entirely clear. Third, it is to provide methods that align with the criteria put forth in goal 2. 
+
+To this end, Chapter~\ref{sec:chap2} will start the argument for the reasonableness of average coverage and the role it plays in allowing intervals to be constructed that more closely reflect the penalized regression estimates. In this Chapter, the first of three methods will be introduced. This method produces reasonable average coverage while being built on the idea of the relaxed lasso, a familiar concept in high dimensional regression.
+
+In Chapter~\ref{sec:chap3} a new property for biased intervals will be introduced. The intervals proposed in Chapter~\ref{sec:chap2} do not satisfy this new property, so two additional methods will be proposed and compared to the method introduced in Chapter~\ref{sec:chap2}. This chapter will also continue the argument in favor of constructing biased intervals for a biased estimation method.
+
+Chapter~\ref{sec:chap4} extends the three methods proposed in Chapters~\ref{sec:chap2}~and~\ref{sec:chap3} to various settings. This chapter starts with an overview of computing quantiles from the Laplace-Normal distribution, which is a vital component of all three methods. Then, I extend this sampling to other outcome types and other penalties as well as discuss how the various extensions fit together.
+
+For the remainder of this section, I will provide an overview of lasso penalized linear regression before discussing a number of different penalties along with penalized regression for other out come types. Lasso penalized linear regression will be the main focus for Chapters~\ref{sec:chap2}~and~\ref{sec:chap3}, but, as mentioned, Chapter~\ref{sec:chap4} will extend the methods introduced to other penalties and outcome types. Then, I will provide a review of the current interval construction methods used for the lasso. Finally, I will provide a brief discussion on Frequentist vs Bayesian inference in high dimensions which will serve as a primer for the work to follow in Chapter~\ref{sec:chap2}.
+
+\section{Lasso Penalized Linear Regression}
+
+Regression is a broad tool that allows the analysis of the relationship between a length $n$ outcome $\y$ and many features contained in an $n \times p$ data matrix, $\X$. The relationship between the outcome and predictors is done by specifying the outcome as a function of the features that depends on $p$ parameters $\bb$ and a probability model with a corresponding link function. In linear regression, the function is just a linear combination of the predictors, $\X\bb$, and accordingly the probability model is gaussian with mean $\X\bb$, some variance $\sigma^2$, and an identity link function. 
+
+When we are in low dimensions (n $\gg$ p), regression models can be fit using ordinary least squares and valid inference obtained (lets just assume here no model selection was done). A general guideline is that there should be at least 10 observations for every variable in the model. As $p \rightarrow n$, solutions can still be obtained through OLS, but the stability of solutions degenerates leading to a high amount of variability. Of course, when $p > n$, OLS fails all together and model selection techniques need to be employed.
+
+This is where penalized regression enters the picture (although, I'd argue there are benefits to using penalized regression even when (n $\gg$ p)). As we will see throughout the chapters, the general form of the objective function for penalized linear regression is
+
+$$
+Q(\bb) = \frac{1}{2n}\norm{\y - \X\bb}^2 + \sum_{j = 1}^p \rho(\beta_j, \lambda, \ldots).
+$$
+
+The first piece is the same squared error loss that is used in OLS. The second component is the penalty that shrinks the estimates for $\bbh$. For all the penalties in this thesis, how much penalization is introduced depends on $\lam$. However, the form of this penalty is left general, with the $\ldots$ indicating parameters other than $\lambda$ that control the behavior of regularization. For lasso, the objective function is simply
+
+$$
+Q(\bb) = \frac{1}{2n}\norm{\y - \X\bb}^2 + \lam \norm{\bb}_1.
+$$
+
+Once a penalty is selected, estimates for $\bb$ can be obtained by minimizing $Q$. Due to the fact that the penalties of interest for this thesis (those that induce sparsity) are not differentiable at 0, minimizing the objective function is not as straight forward as differentiating the objective function and setting it equal to zero. The full details of how the minimizing proceeds are outside the scope of this manuscript, but proceeds via coordinate descent. Understanding coordinate descent will help in understanding some of the ideas in Chapters 2 and 3. While I am sure the reader is familiar with the idea of coordinate descent, the idea is to iteratively optimize a target function for a single parameter at a time until convergence is reached. Coordinate descent is attractive for minimizing objective functions like that for the lasso which has no closed form solution in high dimensions but does in a single dimension.
+
+For lasso, the target function is defined by minimizing $Q$ with respect to a single $\beta_j$ while treating the other coefficients, $\bb_{-j}$, as fixed at their current values $\tilde{\bb}_{-j}$. That is
+
+$$
+\begin{aligned}
+\Q(\beta_j|\tilde{\bb}_{-j}) &= \frac{1}{2n}\norm{\y - \X_{-j}\tilde{\bb}_{-j} - \x_j \beta_j}^2 + \lam \abs{\beta_j} + C \\
+&= \frac{1}{2n}\norm{\tilde{\r}_j - \x_j \beta_j}^2 + \lam \abs{\beta_j} + C
+\end{aligned}
+$$
+
+where, $\tilde{\r}_j = \y - \X_{-j}\tilde{\bb}_{-j}$. Letting, $\tilde{\z}_j = \frac{1}{n}\x_j \r_j$, the one dimensional solution is $\tilde{\beta_j} = S(\tilde{z_j}|\lam)$. $S(z_j|\lam)$ is the soft thresholding operator defined as 
+
+$$
+S(z_j|\lam) =
+\begin{cases}
+z_j-\lambda & \text{if } z_j>\lambda,\\[4pt]
+0          & \text{if } |z_j|\le \lambda,\\[4pt]
+z_j+\lambda & \text{if } z_j<-\lambda.
+\end{cases}
+$$
+
+Sparsity inducing penalties like the lasso are especially attractive when dealing with a high dimensional dataset when the underlying model is assumed to be driven by a small subset of the features. Such penalties carry out both estimation and variable selection (by setting estimates exactly to 0) simultaneously. In Section~\ref{sec:sparse-pen} a few other sparsity induced penalties will be discussed which will come up in Chapter 4.
+
+
+\section{Other Sparse Penalties}
+\label{sec:sparse-pen}
+
+\subsection{Elastic Net}
+
+Before defining the Elastic Net penalty, it helps to first understand ridge regression. In linear regression, the maximum likelihood estimate is equal to the least squares estimates $(\X^T \X)^{-1} \X^T \y$. Ridge gets its name because $\bbh^{ridge} = (\frac{1}{n}\X^T\X + \lambda I_p)^{-1} \frac{1}{n} \X^T \y$. The additional $\frac{1}{n}$ factors here are simply to keep consistent with the remainder of this thesis and relate to the scale used for $\lam$. The form of the ridge solution is otherwise similar to the OLS solution but with a ``ridge'' added down the diagonal of $\X^T \X$. This ridge corresponds to applying a penalty on the squared L2 norm of $\bb$, $\norm{\bb}_2^2$, so the objective for ridge regression is
+
+$$
+Q(\bb) = \frac{1}{2n}\norm{\y - \X\bb}^2 + \lam \sum_{j = 1}^p |\beta_j|.
+$$
+
+The ridge penalty introduces shrinkage to the estimates, however, it does not result in sparsity. While this means ridge does not fall into the penalties of interest for this dissertation, the notable detail about ridge is that it is well know that for some value of $\lam$, ridge regression will have smaller mean squared error than the corresponding OLS estimates. This is due to the fact that the ridge adds stability to the estimates, including in high dimensional settings, where the OLS solution cannot be obtained. Additionally, ridge produces a unique solution. Both of these facts can be beneficial when correlation is high among predictors.
+
+A penalty that will be considered in chapter~\ref{sec:chap4} is Elastic Net. The lasso is a great model, but it does have its trade offs. In particular, when pairwise correlation is high between a set of predictors, the lasso tends to attribute all of the signal to just a single one of the predictors from the group. Additionally, the lasso is not guaranteed to provide a unique solution. The Elastic Net addresses these issues by combining the L1 penalty of the lasso with the L2 penalty of ridge regression. 
+
+$$
+Q(\bb) = \frac{1}{2n}\norm{\y - \X\bb}^2 +  \alpha \lam ||\bb||_1 + \frac{(1 - \alpha) \lam }{2} ||\bb||^2_2.
+$$
+
+The results is the stability of the ridge is combined with the sparsity of the lasso. Written this way, $\lam$ controls the overall amount of penalization while $\alpha$ controls the balance between the lasso and ridge penalties with $\alpha = 1$ resulting in the lasso and $\alpha = 0$ resulting in ridge regression.
+
+\subsection{SCAD and MCP}
+
+While the lasso is perhaps the most popular sparsity inducing penalty, it introduces bias that does not go away even as $n \rightarrow \infty$. Non-convex penalties, considering here SCAD and MCP, are alternatives that do result in sparsity but also unbiased estimation (as $n \rightarrow \infty$) as a result of reducing the degree of penalization for larger coefficient estimates. 
+
+This is another place (like Elastic Net) where the more general form of the penalty, $\sum_{j = 1}^p \rho(\beta_j, \lambda, \ldots)$, comes into play. SCAD and MCP both have an additional parameter $\gamma$ which controls how the penalty is tapered off. SCAD (smoothly clipped absolute deviation) was one of the earliest proposed and has the following form:
+
+$$
+\displaystyle
+p_\lambda\!\bigl(|\beta|;\,\lambda,\gamma\bigr)=
+\begin{cases}
+\lambda|\beta|, &
+0 \le |\beta| \le \lambda, \\[4pt]
+\dfrac{2\gamma\lambda|\beta| - |\beta|^{2} - \lambda^{2}}
+      {2(\gamma-1)}, &
+\lambda < |\beta| < \gamma\lambda, \\[10pt]
+\dfrac{\lambda^{2}(\gamma+1)}{2}, &
+|\beta| \ge \gamma\lambda
+\end{cases} 
+$$
+
+Another popular penalty is the minimax concave penalty (MCP) with the form:
+
+$$
+\displaystyle
+p_\lambda\!\bigl(|\beta|;\,\lambda,\gamma\bigr)=
+\begin{cases}
+\lambda|\beta| - \dfrac{|\beta|^{2}}{2\gamma}, &
+0 \le |\beta| \le \gamma\lambda, \\[6pt]
+\dfrac{\gamma\lambda^{2}}{2}, &
+|\beta| \ge \gamma\lambda
+\end{cases}
+$$
+
+Both SCAD and MCP have penalties that reduce and eventually become constant when $|\beta|$ is large enough. For both penalties, when $|\beta| \geq \gamma \lam$, the penalty does not involve $\beta$. So, taking the derivative of the penalties shows that under these conditions the derivative is $0$, that is, no additional penalty is being applied for increasingly large estimates of $\beta$. This is what gives the penalties a diminishing bias. Alternatively, when $\beta = 0$, the derivative for either penalty is $\lam$, so, near zero, SCAD and MCP apply the same rate of penalization as the lasso, but this is gradually lessened until the rate of penalization is zero when $|\beta|$ is large enough. How fast the rate of penalization goes to zero is controlled by $\gamma$ and as $\gamma \rightarrow \infty$, both SCAD and MCP resemble the lasso. For SCAD the minimum $\gamma$ is 2, and for MCP the minimum $\gamma$ is 1. The smaller $\gamma$ is, the more quickly estimates become unbiased, but the more they also tend to become unstable due to the greater concavity resulting from small values of $\gamma$. Of note here is that the elastic net idea can be combined with SCAD and MCP, which helps with the overall convexity of the objective function, providing greater stability. Often, only a little ridge penalty is needed to introduce a relatively large gain in stability. 
+
+It should be noted that compared to the lasso, non-convex penalties tend to be more sparse. This can be of great benefit when a small number of predictors have large signals, in which case the predictive ability of these non-convex penalties is similar to that of the lasso. Because SCAD and MCP penalties taper off, estimates for larger signal variables can be large without permitting many noise variables into the model. This cannot be said for the lasso which, in the presence of large signal variables, often chooses a small $\lambda$ using cross validation ultimately resulting in noise variables sneaking into the model.
+
+\section{Penalized regression for other outcome types}
+
+So far the focus has been on gaussian outcomes, however, there are many other important outcome types. In the previous section we discussed alternative options for the second part of the objective function, now we turn our attention to the first component: the loss. Particularly of interest for this thesis is logistic and poisson penalized regression.
+
+I'll leave the details to be covered fully in Chapter~\ref{sec:chap4}, however, the key point is that the the form of the penalties discussed do not change and the loss is just the same as in unpenalized regression. That is the corresponding objective functions are:
+
+\[
+\begin{aligned}
+\text{Logistic:}\quad
+Q_{\text{bin}}(\bb\mid\X,\y,\lambda)
+  &= \frac{1}{n}\sum_{i=1}^{n}
+     \Bigl[
+       \log\!\bigl(1+e^{\X_i^{\!\top}\bb}\bigr)
+       - y_i\,\X_i^{\!\top}\bb
+     \Bigr]
+     + \sum_{j = 1}^p \rho(\beta_j, \lambda, \ldots), \\[6pt]
+\text{Poisson:}\quad
+Q_{\text{pois}}(\bb\mid\X,\y,\lambda)
+  &= \frac{1}{n}\sum_{i=1}^{n}
+     \Bigl[
+       e^{\X_i^{\!\top}\bb}
+       - y_i\,\X_i^{\!\top}\bb
+     \Bigr]
+     + \sum_{j = 1}^p \rho(\beta_j, \lambda, \ldots).
+\end{aligned}
+\]
+
+\section{Current Methods}
+\label{sec:cm}
+
+In general, sparsity is an attractive property that has lead to widespread adoption of penalized regression. However, these penalties all share the same issue of their sampling distributions containing point masses at zero. Another issue is that (unless n is sufficiently large) the estimates are necessarily biased. The techniques that have gained traction so far are described below, however, a point that will continue to be repeated is that each method can be seen as being debiased on some way. This is most clearly seen for the de-sparsified lasso described in Section~\ref{sec:desparsified-lasso}. This essentially gets around both the issue of a point mass at zero and bias by constructing a de-biased estimator. A key question this thesis raises is whether this is the only path forward, as seems to be the conclusion based on the methods proposed so far. 
+
+\subsection{Selective Inference}
+\label{sec:selective-inference}
+
+Selective Inference, introduced by \cite{Tibshirani2016}, allows for the use of the same data for both selection and inference, hence the name Selective Inference. The general idea being to account for the selection uncertainty by conditioning on the selected features and their signs. 
+
+Specifically, for the lasso the variable selection event can be expressed as $\lbrace\A \y \leq \b \rbrace$. If we assume that $\y \sim \Norm(\boldsymbol{\mu}, \sigma^2 \I)$ as we do in linear regression, the goal is to make inference on a linear combination of $\boldsymbol{\mu}$ conditional on the selection event. Letting $\hat{S}$ denote the active features in a lasso fit, for confidence interval construction we would be interested in the linear combination $(\X_{\hat{S}}^T \X_{\hat{S}})^{-1} \X_{\hat{S}}^T \mu$.
+
+Because of a result known as the polyhedral lemma, it can be shown that the conditional distribution of $\boldsymbol{\eta}^T \y | \lbrace\A \y \leq \b \rbrace$ follows a truncated normal distribution with support determined by $\A$ and $\b$. Thus, hypothesis tests can be carried out as well as inverted to construct confidence intervals. 
+
+There are a few drawbacks of Selective Inference which make me question why it is even a consideration. Specifically, it is beautiful mathematically but quite fragile in practice. It more often than not produces extremely wide intervals as well as only produces intervals for predictors with non-zero coefficients. 
+
+\subsection{De-sparsified Lasso}
+\label{sec:desparsified-lasso}
+
+\cite{ZhangZhang2014} introduced the de-sparsified lasso (also known as the debiased lasso) which has been further developed by \cite{Javanmard2014} and \cite{buhlmann2015}. The de-sparsified lasso uses the lasso as a starting point and constructs intervals by first de-biasing the original lasso estimates.
+
+They introduce the idea by considering linear regression in a low dimensional setting. Letting $\bh_j^{OLS}$ denote the OLS estimate for the $j^{th}$ feature, the estimate can be written as
+
+$$
+\bh_j^{OLS} = \frac{\x_j^T \Q_{-j} \y}{\x_j^T \Q_{-j} \x_j},
+$$
+
+where $\Q_{-j} = \I - \X_{-j}(\X_{-j}^T\X_{-j})^{-1}\X_{-j}^T$.
+
+Now let $\tilde{\x}_j = \Q_{-j}\x_j$, that is the residuals from regressing $\x_j$ on $\X_j$. The estimate can then be written as
+
+$$
+\bh_j^{OLS} = \frac{\x_j^T \Q_{-j} \y}{\x_j^T \Q_{-j} \x_j} = \frac{\tilde{\x}_j^T \y}{\tilde{\x}_j^T \x_j} = \beta_j + \sum_{k \neq j} \frac{\tilde{\x}_j^T \x_k \beta_k}{\tilde{\x}_j^T \x_j} + \frac{\tilde{\x}_j^T \epsilon}{\tilde{\x}_j^T \x_j}
+$$
+
+Since $\x_j$ is projected onto the $Col(\X_{-j})$, $\tilde{\x}_j \perp \x_k$ and so the middle term is 0. This implies 
+
+$$
+\beta_j = \bh_j^{OLS} -  \frac{\tilde{\x}_j^T \epsilon}{\tilde{\x}_j^T \x_j}.
+$$
+
+That is, the OLS solution equals the true value of $\beta_j$ up to an irreducible component that depends on the noise (this component is absorbed into the OLS estimate).
+
+Extending this to the lasso, let $\bbh$ be the coefficient estimates from lasso. Let $\tilde{\x}_j^*$ be the residuals for $\x_j$ regressed on $\X_j$ through $p$ additional lasso fits. The de-sparsified lasso is defined as:
+
+$$
+\begin{aligned}
+\tilde{\beta}_j &= \hat{\beta}_j -  \sum_{k \neq j} \frac{\tilde{\x}_j^T \x_k \beta_k}{\tilde{\x}_j^T \x_j} - \frac{\tilde{\x}_j^{*T} \epsilon}{\tilde{\x}_j^{*T} \x_j} \\
+&= \hat{\beta}_j + \frac{\tilde{\x}_j^{*T} (\y - \X \bbh)}{\tilde{\x}_j^{*T} \x_j} - \frac{\tilde{\x}_j^{*T} \epsilon}{\tilde{\x}_j^{*T} \x_j}
+\end{aligned}
+$$
+
+Because the projection of $\x_j$ onto $Col(\X_{-j})$ is approximated using lasso fits, the middle term here is not 0. In fact, the authors suggest it as a bias correction for the original lasso estimate. Note that the last term similarly is absorbed into $\hat{\beta}_j$ and can be used for estimating the variance of $\tilde{\beta}_j$.  
+
+From here, the authors proved that the de-sparsified lasso is asymptotically normal and unbiased under certain conditions. With asymptotic normality in mind, confidence intervals are constructed.
+
+It should be noted that the $p+1$ lasso regressions needed for this method can make this procedure computationally very expensive and scale poorly with $p$.
+
+\subsection{Relaxed Lasso}
+
+While not a method formally proposed for interval for construction, it is a common approach in practice is to use the Relaxed Lasso. The relaxed lasso is a straightforward two-step procedure which uses the lasso for variable selection then refits using only the selected variables with a reduced penalty (commonly no penalty) \citep{Meinshausen2007}. Part of the popularity is likely due to the work by \cite{hastie2017} that compared best-subset selection, forward stepwise selection, lasso, and the relaxed lasso. This paper did an extensive simulation study with varying levels of dimensionality, sparsity, signal-to-noise ratios, correlation, and coefficient patterns across a range of metrics. Overall they suggested that the relaxed lasso provided the best performance. 
+
+As such, it has not been surprising that a question raised during the presentation of this work is why not just use the relaxed lasso and construct confidence intervals? 
+
+There are a few reasons, but nevertheless this will be considered as an alternative for its straightforwardness. Of particular note is that the previous work by \cite{hastie2017} is concerned with estimation error, so it is unclear how this translates to confidence interval behavior. That said, another clear downside is that the data are used for both selection and inference, with no adjustments being made acknowledging this fact. There are also a few other minor complaints I have with the typical implementation and while I have explored related improvements, they are outside the scope of this thesis. In this thesis, where used, the relaxed lasso will be considered in its traditional and most used form. 
+
+\section{Frequentist vs Bayesian in High Dimensions}
+
+This thesis asks the question of what properties should high-dimensional intervals should have. Treating them as a separate entity, should they behave more like single parameter frequentist confidence intervals or Bayesian credible intervals?
+
+In low dimensional settings there is a considerable difference in the motivation behind frequentist and Bayesian inference. Notably, the Bayesian believes that the parameter under study follows some distribution and imposes their beliefs about this parameter on the problem via a prior. On the other hand, the frequentist believes that the parameter has some true fixed but unknown quantity which we want to estimate, often in a way that jointly minimizes bias and variance. 
+
+However, these lines become blurred when we enter a high dimensional setting where p is large. Here, the frequentist will have a harder time arguing that the parameters do not have a distribution. For example, say p = 100 and we are estimating the parameters using lasso. Some we expect to be small, perhaps zero, others we expect to be larger, and we also likely expect that there are some in between. The frequentist's sparsity assumption (L1 penalty) essentially plays the same role as a Bayesian prior.
+
+This is foundational in the ideas introduced in this thesis, particularly Chapter~\ref{sec:chap2}. This will motivate the alternative definition of coverage proposed as well as the interval construction methods. That being said, while much of the work is inspired by Bayesian inference, the intervals themselves are not credible intervals. 

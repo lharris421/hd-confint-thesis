@@ -1,0 +1,85 @@
+\documentclass[12pt]{report}
+
+%% Thesis style file
+\usepackage{uithesis}
+
+%% Other packages
+%% These are optional, depending on what is in your thesis.
+%% However, assuming that you have equations, figures, and tables,
+%% I would recommend including all of them.
+%% This may require installation of missing packages
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\graphicspath{{code/out}}
+\usepackage{natbib}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, citecolor=black, linkcolor=., urlcolor=cyan}
+\usepackage[font = small]{caption}
+\captionsetup{width=\linewidth}
+\usepackage[shortlabels]{enumitem}
+\numberwithin{equation}{section}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\algdef{SxnE}[FOR]{For}{EndFor}[1]{\algorithmicfor\ #1 }
+\usepackage{tikz}
+\usetikzlibrary{tikzmark}
+\usepackage{array} %% required by kableExtra if column_spec
+\usepackage[normalem]{ulem}
+\usepackage{appendix}
+
+% Theorems and algorithms
+\newtheorem{thm}{Theorem}
+\algnewcommand\algorithmicswitch{\textbf{switch}}
+\algnewcommand\algorithmiccase{\textbf{case}}
+\algnewcommand\algorithmicassert{\textbf{then }}
+\algnewcommand\Assert[1]{\State \algorithmicassert #1}%
+\algnewcommand\Assertif[2]{\State \textbf{if} #1 \algorithmicassert #2}
+\algnewcommand\Assertelse[1]{\State \textbf{else} #1}
+\algdef{SE}[SWITCH]{Switch}{EndSwitch}[1]{\algorithmicswitch\ #1}{\algorithmicend\ \algorithmicswitch}%
+\algdef{SE}[CASE]{Case}{EndCase}[1]{\algorithmiccase\ #1}{\algorithmicend\ \algorithmiccase}%
+\algtext*{EndSwitch}%
+\algtext*{EndCase}%
+
+\input{newcommands}
+
+% Notes to each other
+\newcommand{\pb}[1]{\textcolor{red}{#1}}
+\newcommand{\logan}[1]{\textcolor{blue}{#1}}
+
+\begin{document}
+\include{front}
+\include{chap1}
+\include{chap2}
+\begin{appendices}
+\input{chap2-sup}                       
+\end{appendices}
+\include{chap3}
+\include{chap4}
+\begin{appendices}
+\renewcommand{\thesection}{Appendix~\Alph{section}}
+\renewcommand{\thefigure}{Figure~\Alph{section}\arabic{figure}}
+\renewcommand{\thetable}{Table~\Alph{section}\arabic{table}}
+\renewcommand{\thealgorithm}{Algorithm~\Alph{section}\arabic{algorithm}}
+
+% Reset counters manually at each new section
+\makeatletter
+\@addtoreset{figure}{section}
+\@addtoreset{table}{section}
+\@addtoreset{algorithm}{section}
+\makeatother
+
+% Remove default float prefixes in captions
+\captionsetup[figure]{name={}}
+\captionsetup[table]{name={}}
+\floatname{algorithm}{} 
+  
+\input{chap4-sup}                       
+\end{appendices}
+\include{chap5}
+\include{back}
+\include{references}
+\end{document}
+

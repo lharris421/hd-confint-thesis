@@ -1,0 +1,70 @@
+% This file specifies information specific to your thesis, such as your
+% title, advisor, dedication, etc.
+
+
+% To remove optional components, comment out the line
+\abtitlepgtrue
+\abstractpgtrue
+\titlepgtrue
+\copyrighttrue %(optional)
+%\signaturepagetrue %remove signature page
+\acktrue %(optional)
+\tablecontentstrue
+\tablespagetrue
+\figurespagetrue
+\prefacetrue
+
+\newcommand{\prefacetext}{
+The core of this thesis contains three papers which are intended to serve as stand alone publications. As such, there are redundancies in some content particularly in introduction sections or where a previous concept introduced in an earlier Chapter is vital for setting the ground work of a later Chpater. 
+}
+
+\title{A New Paradigm for Penalized Regression Confidence Intervals and Supporting Methods}
+\author{Logan Harris}
+\advisor{Professor Firstname Lastname}
+\dept{Biostatistics}   % e.g., Biostatistics
+\submitdate{September 2025}
+%\copyrightyear{2024}   % Only necessary if different from submit year
+\supervisor{Patrick Breheny}
+\membera{Joseph Lang}
+\memberb{Joseph Cavanaugh}
+\memberc{Daniel Sewell}
+
+\newcommand{\acknowledgement}
+{
+A PhD is not done without a team, and I am thankful to have so many who helped me achieve this goal.
+
+First, to my wife, Olivia, for supporting me, regardless of the circumstances and no matter how reasonable I was being (which was often very unreasonable). You have been my rock for a decade and together we have made it through the hardest times. I am so thankful that my wife is my best friend and adventure buddy, I look forward to years of death hikes to come. 
+
+I would be remiss to not thank my dog-hters, Athena and Aurora, for spending countless hours with me at the part while I mulled over ideas. I also have to say their unconditional love gave me comfort, knowing that even if I failed miserably and we lived in a box that they'd be happy all the same (as long as I have a ball to throw and a hand to pet with).
+
+I cannot over emphasize the gratitude I have for the role my parents played in shaping me to the individual I have become. I am also especially thankful for the fact that they always made sure I had a bike to ride which got me to class but more importantly helped me keep sane (for the most part). 
+
+I'd like to thank Amy, my mother-in-law, Sandy, my grand-mother-in-law, and Payton, my brother-in-law, for the constant prayers which I'm certain is the only reason I made it to the end of this arduous journey.
+
+I'd like to thank my brother, Cody, for being my first introduction to programming (even if it was python) and for always believing in me more than I believed in myself. He's always looked out for me and paved the way for me in more ways than I can count. 
+
+To my friends, especially Alan and Eliezer, with whom I spent countless hours on zoom with trying to figure out homework problems (thanks Dan and Patrick).
+
+I'd like to thank my committee members, Joe Cavanaugh, Joe Lang, and Dan Sewell for the constructive feedback which made this a dissertation one I could be proud of. You challenged me and this dissertation would have looked far different without your thought-provoking questions.
+
+Finally, I'd like to thank my advisor Patrick Breheny. I remember sitting in his ISIB lab in the summer of 2019. I knew then I'd need to learn more from him. I took Patrick's Likelihood Theory and Extensions course as well as his High-Dimensional Data Analysis course, and he also advised me for my Master's preceptorship. While I learned a lot from his teaching, I am most thankful for the statistician he has pushed me to become over the years. He is a constant stream of ideas which has challenged me to become a better student, teacher, programmer, and statistician. Patrick drives anyone who works with him to their best and while I'm not there yet, I am confident I am on the right path thanks to Patrick. We could have stayed more on topic during meetings, but the endless laughs were worth it.
+
+Glory be to God for all that he has done and brought me through and for placing all of these individuals in my life. 
+}
+
+\newcommand{\abstextwithesis}
+{
+The lasso (least absolute shrinkage and selection operator), or more generally sparse penalized regression, is a popular approach for data with a large number of predictors. The reason being, as the name suggests, their ability to perform both selection and estimation simultaneously. With that said, inference on sparse penalized regression is difficult which has led to a wide array of procedures, many of which focus on significance through the use of false discovery rate (FDR) control. Methods for constructing confidence intervals exist, but the bias introduced by the penalties poses a particular challenge. The majority of approaches de-bias as a way to get around these challenges and obtain traditional confidence interval behavior (i.e. correct $1 - \alpha$ coverage for each parameter individually). However, the clear drawback to these approaches is that the intervals do not align with the original estimates. Alternatively, this dissertation proposes a new paradigm which allows for biased intervals which results in intervals that do align with the original point estimates. 
+
+Specifically, while the intervals proposed are still confidence intervals, they borrow from Bayesian ideas. This is borrowing is motivated by the connection between a penalty and a prior and the argument that in high dimensions the lines between Frequentist and Bayesian becomes blurred. Chapter~\ref{sec:chap2} outlines this alternative paradigm and provides an initial approach for interval construction, Chapter~\ref{sec:chap3} proposes an additional criteria for intervals in this paradigm and two alternative approaches, and Chapter~\ref{sec:chap4} extends the proposed methods to a broader range of penalties and outcome types. Throughout, the argument for biased intervals will be made as the primary goal of this thesis is to convince readers of the merit to this alternate approach for high dimensional confidence intervals.
+}
+
+\newcommand{\pubabstextwithesis}
+{
+With the growing availability of data, a primary challenge is analyzing data with a large number of predictors. This becomes particularly challenging if the number of observations is small in comparison. For example, say a physician at a research hospital wants to build a tool to predict if patients with a rare cancer will achieve remission. In efforts to build the best tool possible, the doctor submits for a large research grant allowing them to collect biomarkers via many patient samples and countless lab tests. This information is of course linked to the patient's medical record which is going to be the primary source of analysis. Over the study, data from 73 patients is obtained with over 10,000 variables collected on each. 
+
+In this setting, traditional methods break down and a broad tool called sparse penalized regression is popular for its ability to simultaneously select important features and provide estimates which also perform well in prediction. Penalized regression introduces a little bit of bias in order to introduce stability in the estimation process, which is what allows penalized regression to be used when the number of predictors is greater than the number of observations. Once estimates are obtained, it is often of interest to know how important selected features are or, put differently, how much their estimated effects vary. One approach is to construct confidence intervals which provide a plausible range of values for the estimates. However, the bias and sparsity introduced by sparse penalized regression leads to difficulties. Current approaches debias to address this issue, but in doing so produce intervals that are mis-aligned with the original estimates. This work proposes a new paradigm for interval construction that accepts the bias to allow intervals and estimates that are coherent. Then a number of methods are proposed and evaluated both with each other and existing de-biased approaches and finally the methods are extended to a wide range of sparse penalties. 
+}
+
+\beforepreface
+\afterpreface

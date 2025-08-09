@@ -1,0 +1,293 @@
+\chapter{Average Coverage CIs: Alternative Likelihood Constructions}\label{sec:chap3}
+
+\section{Introduction}
+
+The lasso (least absolute shrinkage and selection operator) is a popular penalized regression method that applies an $L_1$ penalty, $\lambda \sum_{j = 1}^p |\beta_j|$, to a loss function. In lasso-penalized linear regression (\cite{Tibshirani1996}), the objective function is \as{Q(\bb) = \frac{1}{2n} \sum ( y_i - X_i \Tr \bb )^2 + \lambda \sum_{j = 1}^p |\beta_j|.} The resulting fit is generally sparse, a hallmark of the $L_1$ penalty. However, because of complexities introduced by the $L_1$ penalty, methods for obtaining confidence intervals for the lasso have lagged well behind the usage of the lasso itself.
+
+As discussed by Chapter 2, all methods that we were previously aware of are inherently debiased in some way in order to facilitate more traditional forms of inference \citep{ZhangZhang2014, Javanmard2014, Lee2016}. Creating debiased intervals is certainly a nobel endeavor, however, we provided a new perspective on coverage properties for high dimensional confidence intervals (HDCIs). Instead of requiring HDCIs to have proper coverage for each parameter individually, we instead proposed that average coverage may be a more reasonable target (and a necessary one if one desires the intervals to be aligned with the lasso estimates). To this end, we proposed an approach that met such definition. Specifically, we leveraged the connection between the lasso penalty and a laplace prior to construct distributions for $\beta_j$ conditional the selected model. These distributions use a likelihood that can be seen as a mild extension of the likelihood for the relaxed lasso. We called this method the Relaxed Lasso Posterior (RL-P) method.
+
+The RL-P approach performs well in a wide range of scenarios under the newly proposed definition of coverage. That being said, it is worth considering if the likelihood used is the best option for constructing intervals for lasso. Of particular interest, the usage of this likelihood results in posteriors which have modes that are not equal to the lasso point estimates. This can lead to the unsightly side effect of the intervals constructed not containing their corresponding lasso point estimates, which is an important motivation for constructing intervals which accept the bias introduced by the lasso.
+
+In Section~\ref{sec:proj-int}, we propose two alternative interval construction methods to the  RL-P  intervals that are built using the same posterior construction introduced for the  RL-P  but with different normal likelihoods. The resulting construction guarantees the resulting HDCIs will always contain the lasso estimates as the lasso estimates are the modes of the posteriors being used to construct the CIs. In Section~\ref{sec:results}, we then compare how these methods to the Profile Likelihood Posterior intervals. In Section~\ref{sec:biased-intervals}, we visit the question of biased vs unbiased interval construction, showing that debiasing does not necessarily mean better coverage properties. Finally, in Section~\ref{Sec:Scheetz2006-2}, we revisit one of the real data analyses from Chapter 2 as a further comparison between the three average coverage methods proposed so far.
+
+\section{Projection Based Posterior Confidence Intervals}
+\label{sec:proj-int}
+
+Chapter 2 leveraged the idea that the lasso can be formulated as a Bayesian regression model by setting a Laplace prior, an idea original pointed out by \cite{Tibshirani1996}. In this section, we propose two alternative likelihoods for the use of interval construction. Note that given a likelihood and a selected value of $\lam$ that the prior is completely defined, hence why the focus has been placed on finding alternative normal likelihoods. In fact, under the condition that HDCIs be constructed around the lasso estimates, this leads to a further refinement of the problem to exploration of normal likelihoods with a specific mean. So, the problem becomes the best way to define the variance of the normal likelihood.
+
+
+In Section~\ref{sec:pipep}, we propose a likelihood based on an estimator introduced by Biyue Dai in her dissertation. This approach tends to be sensitive to sample correlation between predictors and so in Section~\ref{Sec:LQAP} we propose an approach that is less sensitive to correlation.
+
+\subsection{PIPE Posterior}
+\label{sec:pipep}
+
+If we construct a likelihood conditional on the lasso estimates we end up with the following:
+
+$$L(\beta_j|\bbh_{-j}) \propto \exp(-\frac{n}{2\sigma^2}(\beta_{j} - z_{j})^2).$$
+
+\noindent With this likelihood and an appropriately specified Laplace prior, then $\bbh(\lam)$ is the posterior mode for $\bb$. This satisfies the criteria of having a distribution which has its mode equal to the lasso point estimates. That being said, this construction is fully conditional on the lasso point estimates and as such does not adjust for the fact that there is correlation between features. As a result, outside of the purely orthogonal setting, intervals constructed from the resulting posterior break down.
+
+Instead, in Chapter 2, we use a likelihood that accounts for the selected model. To recap, let $\hat{S} = \lbrace k: \hat{\beta}_k \neq  0 \rbrace$ denote the set of selected features. Then, let $\hat{S}_j$ denote the set of selected features that excludes feature $j$, so that $\hat{S}_j = \hat{S} \text{ if } j \notin \hat{S}$ and $\hat{S}_j = \hat{S} - \lbrace j \rbrace \text{ if } j \in \hat{S}$. Now, define $\Q_{\hat{S}_j}$ as $\I - \X_{\hat{S}_j}(\X_{\hat{S}_j} \Tr \X_{\hat{S}_j})^{-1} \X_{\hat{S}_j} \Tr$, the projection matrix onto the features selected by the lasso excluding feature $j$. Then, the likelihood for $\beta_j$ conditional on the selected model is:
+
+\as{L(\beta_j|\hat{S}_j) \propto \exp(-\frac{\x_j \Tr \Q_{\hat{S}_j} \x_j}{2\sigma^2}(\beta_{j}^2 - \tilde{\beta}_j)^2),}
+where $\tilde{\beta}_j = (\x_j \Tr \Q_{\hat{S}_j} \x_j)^{-1} \x_j \Tr \Q_{\hat{S}_j} \y$.  This can be seen as a mild extension of the relaxed lasso, and the resulting intervals were named Relaxed Lasso Posterior (RL-P) intervals. As shown in Chapter 2, using this likelihood leads to good average coverage, however, the resulting posterior modes are different than the point estimates produced by the lasso fit.
+
+With this in mind, Biyue Dai in her dissertation introduced PIPE, an estimator that is asymptotically normally distributed with mean $z_j = \frac{1}{n}\x_j \Tr\r_{-j}$ but with variance $\frac{\sigma^2}{\x_j \Tr \Q_{\hat{S}_j} \x_j}$. Accordingly, the PIPE estimator could be seen to imply the following normal likelihood:
+
+\as{L(\beta_j|\hat{S}_j) \propto \exp(-\frac{\x_j \Tr \Q_{\hat{S}_j} \x_j}{2\sigma^2}(\beta_{j} - z_{j})^2).}
+
+\noindent Note that this likelihood is a middle ground between the likelihood conditional on the lasso estimates and the RL-P likelihood. It leaves the mean alone and just makes an adjustment to the variance. As a result, posteriors built off of this PIPE based likelihood have the mode equal to the estimate from the original lasso fit but adjust for the uncertainty given the selected covariates. We call the intervals produced using this likelihood PIPE Posterior (PIPE-P) intervals.
+
+With this likelihood, using the same steps from Chapter 2, the resulting posterior can be shown to be
+
+\as{
+p(\beta_j | \hat{S}_j) &\propto
+\begin{cases}
+C_{-} \exp\{-\frac{\x_j \Tr \Q_{\hat{S}_j} \x_j}{2\sigma^2} (\beta_j - (z_j + \lambda))^2\}, \text{ if } \beta_j < 0, \\
+C_{+} \exp\{-\frac{\x_j \Tr \Q_{\hat{S}_j} \x_j}{2\sigma^2} (\beta_j - (z_j - \lambda))^2\}, \text{ if } \beta_j \geq 0 \\
+\end{cases}
+}
+where $C_{-} = \exp(\frac{z_j \lambda \x_j \Tr \Q_{\hat{S}_j} \x_j}{\sigma^2})$ and $C_{+} = \exp(-\frac{z_j \lambda \x_j \Tr \Q_{\hat{S}_j} \x_j}{\sigma^2})$.
+
+The details can be found in Chapter 2, but this formulation is attractive because it allows efficient computation of quantiles from. That is, although the above distribution is piecewise, it is still possible to compute quantiles directly.
+
+Of course, the above formulation depends on a specific lasso model fit, that is, a specific value of $\lam$. We recommend performing cross validation and selecting the $\lam$ which minimizes the cross validation error ($\lam_{\CV}$). Likewise, the resulting posterior also depends on an estimate for $\sigma^2$. Here, as in the original PIPE manuscript, we take the suggestion of \cite{Reid2016} and estimate $\sigma^2$ with $\hat{\sigma}^2 = \frac{1}{n - |\hat{S}_{\CV}|} ||\y - \X\bbh({\lambda_{\CV}})||_2^2$, where $|\hat{S}_{\CV}|$ = $\sum \left( \bbh({\lambda_{\CV}}) \neq 0 \right)$.
+
+
+Putting this all together we can arrive at the following implementation to construct CIs with significance level $\alpha$ (assuming $\X$ has been standardized):
+
+
+\begin{algorithm}[!ht]
+\caption{PIPE-P Confidence Intervals at a single CV–chosen \(\lambda\)}
+\label{alg:singlelambda-ci}
+\begin{algorithmic}[1]
+\Require \(X\in\mathbb{R}^{n\times p},\;y\in\mathbb{R}^n,\;\alpha\in(0,1)\)
+\Ensure \(\{\mathrm{CI}_j\}_{j=1}^p\)
+  \State \(\lambda_{\mathrm{CV}}\gets\arg\min_{\lambda}\mathrm{CV\mbox{-}Error}(\lambda)\)
+    \Comment{10‐fold CV on \((X,y)\)}
+  \State \(\hat\beta\gets\mathrm{Lasso}(X,y;\lambda_{\mathrm{CV}})\)
+  \For{\(j=1,\dots,p\)}
+    \State \(r_{-j}\gets y - X_{-j}\,\hat\beta_{-j}\)
+    \State \(z_j\gets \tfrac{1}{n}\,x_j^\top r_{-j}\)
+    \State \(\hat S_j\gets\{\,k\neq j : \hat\beta_k\neq0\}\)
+    \State \(Q_{\hat S_j}\gets I_n - X_{\hat S_j}(X_{\hat S_j}^\top X_{\hat S_j})^{-1}X_{\hat S_j}^\top\)
+    \State \(\mathrm{CI}_j\gets \bigl[P^{-1}(\tfrac{\alpha}{2}\mid\hat S_j),\,P^{-1}(1-\tfrac{\alpha}{2}\mid\hat S_j)\bigr]\)
+  \EndFor
+  \State \Return \(\{\mathrm{CI}_j\}_{j=1}^p\)
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Local Quadratic Approximation Posterior}
+\label{Sec:LQAP}
+
+PIPE-P is sensitive to feature correlation: as correlations grow, its interval widths inflate sharply. Higher levels of correlation cause the projection of $\x_j$ onto $\text{Col}(\X_{\hat{S}_j})^{\perp}$ to be small (i.e. contain little information) which leads to wide intervals. This behavior is particularly pertinent for high dimensions where the active set can be on the order of $n$. Even in the absence of high amounts of correlation, there will be little information in $\x_j$ orthogonal to $\text{Col}(\X_{\hat{S}_j})$ due to high dimensionality.
+
+This projection fails to account for the fact that selected features are not fully active, that is, they have been shrunk. This is arguably more appropriate for the  RL-P  intervals as the mean of the likelihood is computed by regressing $\y$ on $\x_j$ in the subspace $\text{Col}(\X_{\hat{S}_j})^{\perp}$. PIPE-P on the other hand regresses $\r_{-j}$ on $\x_j$ to compute the mean where $\r_{-j} = \y - X_{-j}\hat\beta_{-j}$. To be explicit, whereas the mean computation for  RL-P  is truly just conditional on the active features, PIPE-P relies on the lasso estimates. When the projection of $\x_j$ is done directly onto $\Q_{\hat S_j}$, all of the information in $\x_j$ not orthogonal to the active features is removed, essentially treating those feature as fully active and not acknowledging the fact that the estimates for the active set have been shrunk. This, in turn, leads to a larger than necessary variance for the PIPE estimator, and, as a result, generally conservative coverage behavior.
+
+To mitigate PIPE's sensitivity to correlation, we adopt the local quadratic approximation (LQA) of \cite{FanLi2001}. The goal here is to form a quadratic approximation for the lasso penalty and evaluate it at $\hat{\beta}_j$ and then use this to get a well adjusted projection matrix onto $\text{Col}(\X_{\hat{S}_j})^{\perp}$ in order to set the variance in the normal likelihood. Because $\hat{\beta}_j \neq 0$ for $j \in \hat{S}_j$, $\abs{\beta_j}$ is differentiable at $\hat{\beta}_j$. We approximate the lasso penalty by the smallest quadratic majorant
+
+$$q(\beta_j) = \abs{\bh_j} + \text{sign}(\bh_j)(\beta_j - \bh_j) + c(\beta_j - \bh_j)^2$$
+
+\noindent where $\beta_j \neq 0$ and $c > 0$ is chosen so that $q(\beta_j) \geq \abs{\beta_j}$ for all $\beta_j$. This occurs when $q(\beta_j)$ is also tangent to $\abs{\beta_j}$ at the mirror point $-\bh_j$, i.e. $q(-\bh_j) = \bh_j$. Solving this tangency condition yields
+
+$$
+\begin{aligned}
+\abs{\bh_j} &= \abs{\bh_j} + \text{sign}(\bh_j)(-2\bh_j) + 4c\bh_j^2 \\
+\Rightarrow 4c\bh_j^2 &= -\text{sign}(\bh_j)(-2\bh_j) \\
+\Rightarrow c &= \frac{1}{2\abs{\bh_j}}
+\end{aligned}
+$$
+
+\noindent Thus, we have the following quadratic approximation for $\abs{\beta_j}$:
+
+$$
+\abs{\beta_j} \approx \abs{\bh_j} + \sign(\hat{\beta}_j)(\beta_j - \hat{\beta}_j) + \frac{1}{2}\frac{(\beta_j - \hat{\beta}_j)^2}{\abs{\bh_j}}
+$$
+
+\noindent Summing over $j \in \hat{S}_j$ we get:
+
+$$
+\begin{aligned}
+\lam \sum_{j \in \hat{S}_j}\abs{\beta_j} &\approx \lam \s_{\hat{S}_j} \Tr \bb_{\hat{S}_j} + \frac{\lam}{2} (\bb_{\hat{S}_j} - \bbh_{\hat{S}_j}) \Tr \W^{-1} (\bb_{\hat{S}_j} - \bbh_{\hat{S}_j}) + C \\
+&= \lam \s_{\hat{S}_j} \Tr \bb_{\hat{S}_j}  - \lam \bbh_{\hat{S}_j} \Tr\W^{-1} \bb_{\hat{S}_j} + \frac{\lam}{2} \bb_{\hat{S}_j} \Tr \W^{-1} \bb_{\hat{S}_j} + C^* \\
+&= \frac{1}{2} \bb_{\hat{S}_j} \Tr \lam\W^{-1} \bb_{\hat{S}_j} + C^*, \\
+\end{aligned}
+$$
+
+\noindent where $\W = \diag(|\bh_j|)_{j \in \hat{S}_j}$. This leads to the following loss surrogate:
+
+$$
+\min_{\beta_{\hat{S}_j}} \bigl[ \frac{1}{2n}\norm{\y - \X_{\hat{S}_j} \bb_{\hat{S}_j}}_2^2 + \frac{1}{2} \bb_{\hat{S}_j} \Tr \lam\W^{-1} \bb_{\hat{S}_j} \bigr].
+$$
+
+\noindent This form is the same as a ridge regression with a weighted penalty, so as a function of $\y$ the fitted values can be written as:
+
+$$
+\hat{y} = \X_{\hat{S}_j}(\frac{1}{n}\X_{\hat{S}_j} \Tr\X_{\hat{S}_j} + \lam\W^{-1})^{-1}\frac{1}{n}\X_{\hat{S}_j} \Tr \y.
+$$
+
+\noindent This suggests the hat matrix $\tilde{\H} = \X_{\hat{S}_j}(\frac{1}{n}\X_{\hat{S}_j} \Tr\X_{\hat{S}_j} + \lam\W^{-1})^{-1}\frac{1}{n}\X_{\hat{S}_j} \Tr$ leading to an a adjusted projection matrix of $\tilde{\Q}_{\hat{S}_j} = \I_n - \X_{\hat{S}_j}(\frac{1}{n}\X_{\hat{S}_j} \Tr\X_{\hat{S}_j} + \lam\W^{-1})^{-1}\frac{1}{n}\X_{\hat{S}_j} \Tr$. Implementation follows exactly along the same lines as Algorithm~\ref{alg:singlelambda-ci} but with $\tilde{\Q}_{\hat{S}_j}$ instead of $\Q_{\hat{S}_j}$ where in $\tilde{\Q}_{\hat{S}_j}$, $\lam = \lam_{\CV}$. We refer to the intervals constructed using this likelihood as the Local Quadratic Approximation Posterior (LQA-P) intervals.
+
+To build intuition for this adjustment, consider the case of an orthonormal setup. That is, let $\frac{1}{n}\X_{\hat{S}_j} \Tr\X_{\hat{S}_j} = \I_n$, then
+
+$$
+\begin{aligned}
+\tilde{\Q}_{\hat{S}_j} &= \I_n - \X_{\hat{S}_j}(\I_n + \lam\W^{-1})^{-1}\frac{1}{n}\X_{\hat{S}_j} \Tr\\
+&= \I_n - \frac{1}{n}\X_{\hat{S}_j}\tilde{\W}\X_{\hat{S}_j} \Tr \\
+&= \I_n - \frac{1}{n}\X_{\hat{S}_j}\tilde{\W}^{1/2}(\frac{1}{n}\X_{\hat{S}_j} \Tr\X_{\hat{S}_j})^{-1}\tilde{\W}^{1/2}\X_{\hat{S}_j} \Tr,
+\end{aligned}
+$$
+
+\noindent where $\tilde{\W} = \diag(\frac{|\bh_j|}{|\bh_j| + \lam})_{j \in \hat{S}}$. So, when features are orthogonal, the projection weights reflect the proportion of the lasso estimate relative to it's pre-shrinkage value ($|\bh_j| + \lam = |z_j|$).
+
+\section{Results}
+\label{sec:results}
+
+In Section~\ref{Sec:coverage2}, we benchmark PIPE-P and LQA-P against RL-P in the ``ideal'' setting of Chapter 2, where $\bb$ follows a Laplace, the distribution implicit in the Lasso. Section~\ref{Sec:Distributions} then explores alternative $\bb$ distributions, and Sections~\ref{Sec:correlation2}~and~\ref{Sec:highcorr} assess how each method responds to inter-feature correlation -- revealing their most pronounced differences. The nominal coverage rate is fixed at 80\% in all experiments.
+
+\subsection{Coverage}\label{Sec:coverage2}
+
+The first simulation we consider is identical to that in Chapter 2. That is, we generated 1000 independent data sets and each data set was simulated as follows. The elements of $\bb$ were set to be equally spaced quantiles from a Laplace. We then scaled the coefficients so that $\bb \Tr\bb = \sigma^2 = 100$. With independent features, this results in a signal-to-noise ratio (SNR) of 1. Then, each element of $\X$ was generated independently from a $N(0, 1)$ with $p = 101$ and three different values of n, 50, 100, and 400. Finally, $\y$ was generated as $\y = \X\bb + \bvep$, where $\veps_i \iid N(0, \sigma^2)$. The results for this simulation are provided in Figure~\ref{Fig:laplace_comparison2}.
+
+\begin{figure}[hbt!]
+    \begin{center}
+    \includegraphics[width=0.8\linewidth]{figure1-man2}
+    \caption{\label{Fig:laplace_comparison2} Results from the simulation described in Section~\ref{Sec:coverage2}. The fitted curves are from Binomial GAMs fit with coverage being modeled as a smooth function of $\beta$. The dashed lines represent the average for each method across all 1000 independently generated datasets and the solid black line indicates the nominal coverage rate. The shaded distribution in the background depicts the Laplace distribution the $\beta$s were drawn from. }
+    \end{center}
+\end{figure}
+
+PIPE-P and LQA-P display the same qualitative coverage profile as RL-P in Chapter 2. In particular, coverage is high when the true coefficient is near zero and falls as $|\beta|$ grows. Near zero, the lasso penalty shrinks estimates towards the truth, resulting in overcoverage. As $|\beta|$ increases, more bias is introduced, resulting in undercoverage. This pattern lessens and coverage becomes more flat for smaller values of $\lam$, which is why as $n$ increases, we see such behavior, as $\lam_{\CV}$ decreases with increasing $n$. That said, the methods do differ slightly in their manifestation of the described coverage profile. PIPE-P tends to be slightly more conservative, and while this decreases with increasing sample size, it is the slowest to converge to the nominal coverage rate. Alternatively, LQA-P has coverage nearly exactly equal to the nominal coverage rate for all values of $n$, producing just a slight under coverage when $n = 100$.
+
+\subsection{Alternative distributions}\label{Sec:Distributions}
+
+Although RL-P was motivated under the idea that average coverage should hold if the empirical distribution of $\beta$ values resembles the prior implied by the lasso penalty, it was also shown to be robust to this assumption. Here, we show that PIPE-P and LQA-P exhibit similar behavior in robustness to the distribution of $\beta$.
+
+As done in Chapter 2, Table~\ref{Tab:dist_beta2} shows the results of $\bb$ generated under 7 distributions alternative to the Laplace for 4 sample sizes, $n = 50, 100, 400, \text{ and } 1000$. As before, to maintain the specified SNR of 1, $\bb$ is normalized. Prior to normalization, Sparse 1 had $\bb_{1-10} = \pm(0.5, 0.5, 0.5, 1, 2)$ with the rest equal to zero, Sparse 2 had $\bb_{1-30}$ as equally spaced quantiles from $N(0, 1)$ with the rest equal to zero, and Sparse 3 had $\bb_{1-50}$ as equally spaced quantiles from $N(0, 1)$ with the rest equal to zero. For the T distribution, the degrees of freedom was set to 3 and for Beta, the distribution was generated from Beta(0.1, 0.1) - 0.5, prior to normalization.
+
+\begin{table}[hbt!]
+    \centering
+    \input{code/out/table1-man2}
+    \caption{\label{Tab:dist_beta2} Results are from the simulation described in Section~\ref{Sec:Distributions}. The nominal coverage rate is 80\%. The first column of the table gives a depiction of the distributions and details of these distributions.}
+\end{table}
+
+Across the three methods, average coverage is broadly comparable. At the smallest sample size ($n = 50$) the differences are most pronounced. PIPE-P is the most conservative and LQA-P is the least so. However, as $n$ increases, all three methods approach the nominal 80\% level -- provided $\bb$ is not generated with a point mass at zero. Coverage behavior follows a simple pattern: a distribution that puts more mass / density at zero than the Laplace yields overcoverage, whereas a distribution with less mass / density at zero yields undercoverage. Consequently, coverage in sparse designs is higher. Furthermore, LQA-P and PIPE-P intervals by definition will contain $0$ whenever a variable is not selected. Coupled with the lasso's selection consistency makes it clear why, for example, Sparse 1 doesn't have coverage that drops below 90\%. By contrast, when $\bb \sim $ Beta(0.1, 0.1) - 0.5, a dense signal setting unfavorable for the lasso, the $\sim$70\% coverage observed when $n = 100$ is acceptable and rises to nearly 80\% for larger sample sizes.
+
+\subsection{Correlation and Average Coverage}
+\label{Sec:correlation2}
+
+We next examine the effect of feature correlation, a setting in which the three procedures diverge most noticeably. LQA-P was designed to handle correlation differently from PIPE-P and RL-P:
+
+\begin{itemize}
+  \item LQA-P vs. PIPE-P. These methods share the same likelihood mean, so any discrepancy arises from their distinct variance specifications.
+  \item PIPE-P vs. RL-P. Here, the likelihood variance is identical, but the means differ.
+\end{itemize}
+
+\noindent This decomposition clarifies the source of performance differences once correlation is introduced.
+
+Other than the addition of correlation, $\rho = \cor(\x_i, \x_j)$ for $\abs{i-j} = 1$, the set up of the simulation for the results displayed in Figure~\ref{Fig:correlation_pipe_posterior} is the same as for the simulation described in Section~\ref{Sec:coverage2}. The violin plots provide the distributions of average coverages across the 1000 simulated datasets for four values of $n$ and three values of $\rho$. For each $n$, the amount of correlation is increased from $\rho = 0$ to $0.5$ to $0.8$. The results for RL-P are in the top row, PIPE-P in the middle row, and LQA-P in the bottom row.
+
+\begin{figure}[hbt!]
+    \begin{center}
+    \includegraphics[width=\linewidth]{figure2-man2}
+    \caption{\label{Fig:correlation_pipe_posterior} This figure presents results for the simulation described in Section~\ref{Sec:correlation2}. The violin plots are the distributions of average coverages across 1000 simulated datasets for the three methods and across three different levels of autoregressive correlation among the covariates, $\rho = 0 \text{ (no correlation)}, 0.5, 0.8$. For this simulation, p = 101 with $\bb$ set to be equally spaced quantiles from a laplace distribution, and the results for each level of correlation are presented across four different sample sizes, n = p/2, p, 4p, 10p. The horizontal black line provides reference for the 80\% nominal coverage rate.}
+    \end{center}
+\end{figure}
+
+The results for RL-P have previously been described in Chapter 2. In comparison, PIPE-P is much more conservative to increasing levels of correlation with significant levels of over coverage even when n is large. LQA-P on the other hand, has coverage behaviors in between PIPE-P and RL-P. So, while LQA-P is still over conservative it does provide a noticeable improvement over PIPE-P. Curiously, although PIPE-P shares a component with both RL-P and LQA-P (and RL-P and LQA-P share neither a mean or variance), PIPE-P's behavior is more conservative than either of the other two methods. This supports the conjecture, noted in Section~\ref{Sec:LQAP}, that a mean-variance mismatch inflates PIPE-P's coverage, but a rigorous proof lies beyond the scope of this manuscript.
+
+Figure~\ref{Fig:width_pipe_posterior} -- based on the same simulations as Figure~\ref{Fig:correlation_pipe_posterior} -- displays the median and inter-quartile range (Q1, Q3) of the interval widths across the 1000 replicates. PIPE-P and RL-P behave similarly; as feature correlation rises, both the median widths and the IQR increase, with the effect most pronounced at smaller sample sizes. LQA-P exhibits the same qualitative trend but in an attenuated form, producing noticeably narrower intervals on average. Thus, although all three methods attain comparable coverage, LQA-P achieves it with substantially shorter intervals -- especially in highly correlated settings. The impact of this behavior has notable implications when the methods are applied to high dimensional data sets, a point that will be returned to in Section~\ref{Sec:Scheetz2006-2}.
+
+\begin{figure}[hbt!]
+    \begin{center}
+    \includegraphics[width=0.8\linewidth]{figure3-man2}
+    \caption{\label{Fig:width_pipe_posterior} This figure presents results for the simulation described in Section~\ref{Sec:correlation2}. The plots give the median and Q1 and Q3 widths of the intervals across 1000 simulated datasets for the three methods, varying both the level of autoregressive correlation among the covariates, $\rho = 0 \text{ (no correlation)}, 0.5, 0.8$ and the sample size, n = p/2, p, 4p, 10p. For this simulation, p = 101 and $\bb$ was set to be equally spaced quantiles from a laplace distribution.}
+    \end{center}
+\end{figure}
+
+\subsection{Correlation and Individual Intervals}
+\label{Sec:highcorr}
+
+Now we turn to another simulation that depicts how the methods deal with correlation. As noted in Chapter 2, Figure~\ref{Fig:correlation_pipe_posterior} demonstrated that that the average coverage of the proposed methods are robust to increasing correlation. In this section, we illustrate the effect of correlation between features on the intervals themselves.
+
+In this example, we have $n = p = 100$. However, only one $\beta_j$ is non-zero: $\beta_{A} = 1$ and $\beta_{B}, \beta_{N1}, \ldots, \beta_{N98} = 0$. Additionally, the data are simulated such that $\cor(\x_{A}, \x_{B}) = .99$ but all of the N (noise) variables are uncorrelated with $A$, $B$, and each other. The distribution of $\X$ and $\y$ is unchanged from Section~\ref{Sec:coverage2}, although here $\sigma^2 = 1$.
+Figure~\ref{Fig:highcorr2} depicts the results from $1,000$ simulated data sets. On top, 1000 CIs are shown for for 3 features: $A$, $B$, and $N1$; the CIs are colored black if they contain the true parameter value and red if they do not. On bottom, confidence intervals for the first 20 variables for a randomly selected example data set are displayed. Although $A$ is the only feature with a true signal, its high correlation with $B$ produces uncertainty about which feature contains the signal, or whether both $A$ and $B$ contain signal. As we will see, PIPE-P handles this uncertainty the same as RL-P while LQA-P differs considerably in its treatment of the uncertainty.
+
+\begin{figure}[hbt!]
+    \begin{center}
+    \includegraphics[width=\linewidth]{figure4-man2}
+    \caption{\label{Fig:highcorr2} Provides results for simulation described in Section~\ref{Sec:highcorr}. The bottom plots show a single example of intervals produced by the RL Posterior (left), PIPE Posterior (middle), and the LQA Posterior (right) from one (randomly selected) of the 1000 datasets for the first 20 variables. The top plots summarizes the resulting CIs for the variables $A$, $B$, and $N1$ across the 1000 simulations. All 1000 CIs are plotted, sorted by their midpoint, with those colored red that did not contain contain the true coefficient value (indicated by the horizontal dashed gold line).}
+    \end{center}
+\end{figure}
+
+For RL-P and PIPE-P, when A is selected, the interval for B is wide and vice versa. This leads to intervals which are highly polarized in their widths. The differences between RL-P and PIPE-P are introduced by using different means for the normal likelihoods. This causes a noticeable shift between the two methods. Whereas the mean for PIPE-P is computed based on the partial residuals (which depend on the lasso estimates),  RL-P's mean is computed by regressing $\y$ on $\x_j$ within the active feature subspace. As a result, there is a noticeable shift downward for a number of the RL-P intervals due to this re-estimation. The LQA intervals have strikingly different behavior for features A and B. The intervals for A and B are noticeably narrower and the widths exists on a continuum. This occurs because instead of having an on / off switch like the other methods, the projection is done in a way that accounts for how much each variable is included in the model. The larger the estimate for a given coefficient, the more it contributes to the projection.
+
+While we would argue that this behavior is more natural, a clear objection to LQA-P is that we go from an already low coverage rate to a far lower one for the one true signal variable. However, it is worth keeping in mind that the coverage is expected to be low given the lasso penalty. Within the average coverage paradigm, it is ambiguous if PIPE-P/RL-P have too high of coverage or if LQA-P has too low of coverage. Crucially, our objective is not only to hit the global 80\% target but also to represent the uncertainty in the lasso estimates. In comparison of LQA-P with the other two methods, it comes down to what behavior one finds more reasonable, an abrupt inflation of variance for feature $j$ as soon as any feature is selected that $\x_j$ is correlated with, or a gradual adjustment based on how much that feature is entered into the model (as measured by its estimate relative to the penalty).
+
+\section{An argument for biased intervals}
+\label{sec:biased-intervals}
+
+The intervals introduced in this manuscript have the objective of obtaining nominal average coverage while constructing the interval around the lasso estimates. This inherently requires one to accept a framework that allows for biased intervals. The common concern here is that biased intervals are expected to have the most bias for larger coefficients leading to under coverage of the parameters that the practitioner presumably cares most about. Additionally, this appeals to having good average coverage in part due to high amounts of over coverage for parameters more aligned with the sparse penalty (i.e. those near zero) which some would argue are not deserving of confidence intervals if they are not selected by the lasso. To address these concerns, we consider a simulation set up that compares the coverage behavior of intervals proposed here with common debiased approaches used in practice. Specifically we will compare PIPE-P and LQA-P methods to selective inference, the de-sparsified lasso, and the relaxed lasso.
+
+The de-sparsified lasso \citep{ZhangZhang2014}, as the name suggests, provides a method to debias the original point estimates from a lasso fit to facilitate classical approaches to inference. Alternatively, Selective Inference \citep{Lee2016,Tibshirani2016} aims to account for the uncertainty in model selection by conditioning on the selected model. This conditioning is also a form of bias correction, although it accomplishes this in a less direct way than de-sparsified lasso, which adds a term to explicitly counteract bias. Note that through conditioning on the selected model, Selective Inference only directly provides intervals for the covariates that were selected. Lastly, the relaxed lasso is a is a two-step procedure which uses the lasso for variable selection then refits using only the selected variables with a reduced penalty (commonly no penalty) \citep{Meinshausen2007}.
+
+For this simulation, 4 different set ups were used for $\bb$:
+
+\begin{enumerate}
+  \item $p = 16$: $4$ large signals ($\beta = \pm 5$)
+  \item $p = 100$: $4$ large signals ($\beta = \pm 5$)
+  \item $p = 50$: $10$ moderate signals ($\beta = \pm 1$)
+  \item $p = 100$: $50$ small signals ($\beta = \pm 0.5$)
+\end{enumerate}
+
+\noindent For all 4 set ups, $n = 50$ and $\boldsymbol{X}$ was generated from an iid $\Norm(0,1)$. Then $\y$ was generated as $\boldsymbol{X}\boldsymbol{\beta} + \epsilon$, $\epsilon \iid \Norm(0, 1)$. Each of the set ups was used to generate $1000$ independent data sets. For each data set, a value of $\lambda$ was selected using cross validation then each method was applied at the selected value of $\lambda$ to construct confidence intervals. In this simulation, the coverage of interest will be on the coverage of the parameters with non-zero coefficient estimates. In comparison to considering average coverage across all p parameters like the rest of the manuscript, this definition of coverage appeals to the argument that the only intervals of interest are those for the features selected. One might argue another coverage to consider is the coverage of the true signal variables, however, we find this coverage an unreasonable target as it is not usually possible to know which are the true signal variables in practice. A summary of the coverage and intervals widths for the selected (non-zero) features is presented in Table~\ref{tab:debiased_compare-2}.
+
+\begin{table}[hbt!]
+  \centering
+  \input{code/out/table2-man2}
+  \caption{\label{tab:debiased_compare-2} Average coverage and median widths for two biased interval construction methods (PIPE-P and LQA-P) compared to three debiased methods across 4 set ups described in Section~\ref{sec:biased-intervals} for features with non-zero lasso estimates.}
+\end{table}
+
+For Scenarios 1-3, while the coverage for the selected covariates is less than the nominal coverage rate for all methods, the two biased approaches (PIPE-P and LQA-P) are only out performed in terms of coverage by Selective Inference. In Scenario 4, PIPE-P and LQA-P provide coverage closer to the nominal rate set than all three debiased approaches. Although Selective Inference has better performance in Scenarios 1-3, it is important to note that Selective Inference produces wide intervals; in the first scenario Selective Inference produces intervals over twice as wide as the other methods and in Scenarios 2-4 orders of magnitude wider.  Setting Selective Inference aside, the other methods all tend to produce similar width intervals.
+
+While this is only four scenarios, it suggests the argument against biased interval construction methods on the grounds of coverage is more complex than anticipated. These preliminary results suggest that even if the interest is only in intervals for the selected features that perhaps one of the biased approaches proposed here is a better alternative than common debiased approaches. This would also suggest that the explicit bias introduced by the lasso penalty is less of a hazard to coverage than the variability introduced by trying to correct for this bias.
+
+\section{Applications to Real Data: Study of gene expression in the mammalian eye}
+\label{Sec:Scheetz2006-2}
+
+To end, we return to a real data application used in Chapter 2. To review, \citet{Scheetz2006} measured the RNA levels from the eyes of 120 rats. Of 31000 different probes used, 18976 were detected at a sufficient level to be considered ``expressed.'' For this analysis we treat one of the genes, Trim32, as the outcome since it is known to be linked to the genetic disorder Bardet-Biedl Syndrome (BBS). The remaining 18975 genes are used as covariates with the goal of determining other genes whose expression is associated with Trim32 and thus may also contribute to BBS. In Figure~\ref{Fig:scheetz}, confidence intervals for the 30 variables with the largest absolute point estimates are provided for each of the three methods.
+
+\begin{figure}[hbt!]
+    \begin{center}
+    \includegraphics[width=0.9\linewidth]{figure5-man2}
+    \caption{\label{Fig:scheetz} Confidence intervals produced by three different methods for the 30 variables with the largest absolute point estimates in the Scheetz2006 dataset described in Section~\ref{Sec:Scheetz2006-2}.}
+    \end{center}
+\end{figure}
+
+That aside, there are two important considerations here. First, recall that RL-P does not have a guarantee with it that the intervals will contain the lasso point estimate. Alternatively, the construction for PIPE-P and LQA-P was done in a way that not only contains this guarantee but constructs the intervals from distributions where the lasso point estimates are the modes. So, while all PEs are in the corresponding intervals for PIPE-P and LQA-P, 71 of the intervals do not contain the corresponding point estimate for RL-P.
+
+Second is to consider how many genes are determined to be significant based on the criteria of the interval not containing zero. In total, 66 of the 18975 genes were selected by the lasso. Note that, as expected, the LQA-P intervals are noticeably narrower than the PIPE-P and RL-P intervals. This has direct implications for whether or not the intervals contain zero. RL-P constructs 73 intervals which do not contain zero, PIPE-P only has 3 intervals not containing zero, and LQA-P 20. While RL-P produces the most significant variables by a long shot, this is not the full story. Figure~\ref{Fig:sig_vars} displays the genes identified as significant by each of the three methods plotted against their corresponding lasso point estimates. Note that all three methods agree on the significance for the three genes identified by PIPE-P. However, the additional 70 intervals not containing zero for RL-P are for features which had lasso point estimates of zero. This is not the case (and by construction can not be the case) for the other 17 genes identified by LQA-P.
+
+\begin{figure}[hbt!]
+    \begin{center}
+    \includegraphics[width=\linewidth]{figure6-man2}
+    \caption{\label{Fig:sig_vars} Genes identified as significant (CIs not containing zero) by three different methods for the Scheetz2006 dataset described in Section~\ref{Sec:Scheetz2006-2}.}
+    \end{center}
+\end{figure}
+
+
+
+\section{Discussion}
+
+With the alternative coverage objective of average coverage, we believe that constructing intervals around the lasso point estimates is a vital piece of the process and thus see the methods proposed here are a step in the right direction. However, given that most of the literature for high-dimensional intervals focuses on debiased intervals, it still remains to be clear what properties biased intervals should have. So far we have proposed that they have
+
+\begin{enumerate}
+  \item correct average coverage when the empirical distribution of $\bb$ follows a laplace distribution, and
+  \item be centered around the lasso point estimate.
+\end{enumerate}
+
+The methods proposed here meet criteria 1 with increasing sample size and meet criteria 2 via their construction. Ideally, 1 should be met regardless of sample size and correlation structure. The current approaches are  conservative when n is smaller than p. The same could be said with respect to the introduction of correlation. Between the two methods proposed here, LQA is the closest to meeting criteria 1 outright, but future methods are still needed to further refine these methods and to develop a construction that has correct average coverage period. Additionally, we also saw that LQA-P led to a lower coverage rate for feature A in Figure~\ref{Fig:highcorr2}, the one true signal variable, something we suspect that many readers will struggle to accept, even if this is acceptable as part of the argument for average coverage. What might be redeeming is that in this same set up it lead to a much higher rate of determined significance, which can be confirmed by visually expecting the proportion of intervals for Variable A that contain 0.
+
+It is our hope that this work continues to help define and show merit for this alternative framework for high dimensional confidence intervals so that further guidelines can be developed to outline what properties these intervals should have and how to choose between differing methods.
+
+\newpage
+
