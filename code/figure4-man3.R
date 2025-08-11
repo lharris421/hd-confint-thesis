@@ -49,9 +49,9 @@ gg <- ggplot(penalty_data, aes(x = beta, y = Penalty, color = Type)) +
   theme_minimal()
 
 if (interactive()) {
-  pdf("out/figure4-man3.pdf", height = 5.6, width = 6.5)
+  pdf("out/figure4-man3.pdf", height = 2.5, width = 3.9)
 } else {
-  pdf("code/out/figure4-man3.pdf", height = 5.6, width = 6.5)
+  pdf("code/out/figure4-man3.pdf", height = 2.5, width = 3.9)
 }
 gg
 dev.off()

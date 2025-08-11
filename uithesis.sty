@@ -36,6 +36,8 @@
 
 \newcommand{\singlespace}{\baselineskip 1.0\li}
 \newcommand{\doublespace}{\baselineskip 1.5\li}
+\AtBeginEnvironment{table}{\singlespace}
+\AtBeginEnvironment{table}{\singlespace\renewcommand{\arraystretch}{1.0}}
 
 % Define headers and footers
 % frontstyle = style for front material

@@ -114,12 +114,9 @@ for (i in seq_len(nrow(bounds))) {
                         colnum     = n_cols)       # ← key fix
 }
 
-writeLines(as.character(k), "out/debiased_comparison.tex")
-
-
 if (interactive()) {
   path_pre <- "out/"
 } else {
   path_pre <- "code/out/"
 }
-  write(k, glue('{path_pre}/table2-man2.tex'))
+write(k, glue('{path_pre}/table2-man2.tex'))

@@ -4,10 +4,6 @@
 \usepackage{uithesis}
 
 %% Other packages
-%% These are optional, depending on what is in your thesis.
-%% However, assuming that you have equations, figures, and tables,
-%% I would recommend including all of them.
-%% This may require installation of missing packages
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
@@ -45,6 +41,22 @@
 
 \input{newcommands}
 
+% \renewcommand{\thefigure}{Figure~section~figure}
+% \renewcommand{\thetable}{Table~section~table}
+\renewcommand{\thealgorithm}{Algorithm~\thechapter.\arabic{algorithm}}
+
+% Reset counters manually at each new chapter
+\makeatletter
+\setcounter{page}{1}
+\@addtoreset{figure}{chapter}
+\@addtoreset{table}{chapter}
+\@addtoreset{algorithm}{chapter}
+\makeatother
+
+% \captionsetup[figure]{name={}}
+% \captionsetup[table]{name={}}
+\floatname{algorithm}{}
+
 % Notes to each other
 \newcommand{\pb}[1]{\textcolor{red}{#1}}
 \newcommand{\logan}[1]{\textcolor{blue}{#1}}
@@ -53,31 +65,10 @@
 \include{front}
 \include{chap1}
 \include{chap2}
-\begin{appendices}
-\input{chap2-sup}                       
-\end{appendices}
+\input{chap2-sup}
 \include{chap3}
 \include{chap4}
-\begin{appendices}
-\renewcommand{\thesection}{Appendix~\Alph{section}}
-\renewcommand{\thefigure}{Figure~\Alph{section}\arabic{figure}}
-\renewcommand{\thetable}{Table~\Alph{section}\arabic{table}}
-\renewcommand{\thealgorithm}{Algorithm~\Alph{section}\arabic{algorithm}}
-
-% Reset counters manually at each new section
-\makeatletter
-\@addtoreset{figure}{section}
-\@addtoreset{table}{section}
-\@addtoreset{algorithm}{section}
-\makeatother
-
-% Remove default float prefixes in captions
-\captionsetup[figure]{name={}}
-\captionsetup[table]{name={}}
-\floatname{algorithm}{} 
-  
 \input{chap4-sup}                       
-\end{appendices}
 \include{chap5}
 \include{back}
 \include{references}

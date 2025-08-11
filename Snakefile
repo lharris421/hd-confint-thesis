@@ -678,6 +678,7 @@ rule tableA1man3:
 rule manuscript:
     input:
         "thesis.tex",
+        "uithesis.sty",
         "chap1.tex",
         "chap2.tex",
         "chap3.tex",

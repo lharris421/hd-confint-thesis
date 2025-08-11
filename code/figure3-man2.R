@@ -17,6 +17,7 @@ results_lookup <- expand.grid(
   method = c("rlp", "pipep", "lqap")
 )
 
+
 results <- list()
 for (i in 1:nrow(results_lookup)) {
   results[[i]] <- readRDS(glue("{opt$loc}rds/{iterations}/original/laplace_autoregressive_{results_lookup[i,'rho']}_{results_lookup[i,'n']}_101_gaussian_100_{results_lookup[i,'method']}.rds"))

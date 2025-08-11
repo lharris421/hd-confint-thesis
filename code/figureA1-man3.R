@@ -29,7 +29,8 @@ line_data <- bind_rows(results) %>%
   mutate(
     method = method_labels[method],
     n      = factor(n, levels = c(50, 100, 400, 1000)),
-    family = factor(family, levels = c("binomial", "poisson"))
+    family = ifelse(family == "binomial", "logistic", family),
+    family = factor(stringr::str_to_title(family), levels = c("Logistic", "Poisson"))
   )
 
 cutoff <- max(line_data$x)
@@ -47,9 +48,9 @@ p1 <- ggplot(data = line_data) +
   facet_wrap(vars(family), scales = "free_x")
 
 if (interactive()) {
-  pdf("out/figureA1-man3.pdf", width = 5.2, height = 3)
+  pdf("out/figureA1-man3.pdf", width = 5.2, height = 2.5)
 } else {
-  pdf("code/out/figureA1-man3.pdf", width = 5.2, height = 3)
+  pdf("code/out/figureA1-man3.pdf", width = 5.2, height = 2.5)
 }
 p1
 dev.off()

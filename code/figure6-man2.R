@@ -16,6 +16,7 @@ results_lookup <- expand.grid(
   method = methods
 )
 
+
 results <- list()
 for (i in 1:nrow(results_lookup)) {
   results[[i]] <- readRDS(glue("{opt$loc}rds/Scheetz2006_{results_lookup[i,'method']}.rds"))
@@ -28,7 +29,7 @@ sig_vars <- results %>%
   mutate(is_not_zero = lower > 0 | upper < 0) %>%
   filter(is_not_zero) %>%
   ggplot(aes(x = coef, y = method)) +
-  geom_label(aes(label = variable), position = position_dodge2(width = .8), size = 1.8) +
+  geom_label(aes(label = variable), position = position_dodge2(width = .8), size = 2) +
   theme_minimal() +
   ylab("") + xlab("LASSO Estimate")
 

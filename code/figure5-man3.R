@@ -45,9 +45,9 @@ gg <- cis %>%
   coord_cartesian(xlim = c(-0.5, 0.5))
 
 if (interactive()) {
-  pdf("out/figure5-man3.pdf", height = 3.9, width = 5.9)
+  pdf("out/figure5-man3.pdf", height = 7, width = 6.5)
 } else {
-  pdf("code/out/figure5-man3.pdf", height = 3.9, width = 5.9)
+  pdf("code/out/figure5-man3.pdf", height = 7, width = 6.5)
 }
 gg
 dev.off()

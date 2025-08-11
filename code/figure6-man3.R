@@ -57,7 +57,7 @@ for (i in 1:length(unique(results$method))) {
   coverage_labels <- pdat %>%
     group_by(variable) %>%
     summarise(coverage = mean(covered)) %>%
-    mutate(label = glue::glue("{round(coverage, 3)*100}%"))
+    mutate(label = sprintf("%.1f%%", coverage * 100))
 
   plots[[1 + 2*(i-1)]] <- pdat %>%
     mutate(variable = factor(variable, levels = c("A", "B", "N1"))) %>%
@@ -82,7 +82,7 @@ for (i in 1:length(unique(results$method))) {
     geom_text(
       data = coverage_labels,
       aes(x = -Inf, y = Inf, label = label),
-      hjust = -0.5, vjust = 1,
+      hjust = -0.25, vjust = 1,
       inherit.aes = FALSE,
       size = 4
     ) +
@@ -102,9 +102,9 @@ for (i in 1:length(unique(results$method))) {
 }
 
 if (interactive()) {
-  pdf("out/figure6-man3.pdf", height = 5.6, width = 6.5)
+  pdf("out/figure6-man3.pdf", height = 5.5, width = 6.5)
 } else {
-  pdf("code/out/figure6-man3.pdf", height = 5.6, width = 6.5)
+  pdf("code/out/figure6-man3.pdf", height = 5.5, width = 6.5)
 }
 (plots[[3]] + plots[[1]] + plots[[5]] + patchwork::plot_layout(axes = "collect")) /
   (plots[[4]] + plots[[2]] + plots[[6]] + patchwork::plot_layout(axes = "collect"))

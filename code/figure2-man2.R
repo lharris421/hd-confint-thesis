@@ -36,6 +36,7 @@ coverage_data <- res %>%
   group_by(iteration, method, rho, n) %>%
   summarise(coverage = mean(covered, na.rm = TRUE), .groups = 'drop')
 
+
 # Create a single plot with facets for each rho
 final_plot <- coverage_data %>%
   ggplot(aes(x = rho, y = coverage, fill = rho)) +

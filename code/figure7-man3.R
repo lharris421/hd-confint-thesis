@@ -52,7 +52,7 @@ gg1 <- res %>%
     hjust = -0.25, vjust = 1,
     inherit.aes = FALSE,
     size = 3
-  )
+  ) + coord_cartesian(ylim = c(-4, 4))
 
 r_it <- sample(res$iteration, 1)
 gg2 <- res %>%
@@ -62,12 +62,13 @@ gg2 <- res %>%
   geom_point() +
   geom_errorbar(aes(ymin = lower, ymax = upper), width = .1) +
   theme_minimal() +
-  xlab("") + ylab("Estimate (80% CI)")
+  xlab("") + ylab("Estimate (80% CI)") +
+  coord_cartesian(ylim = c(-4, 4))
 
 if (interactive()) {
-  pdf("out/figure7-man3.pdf", height = 5.6, width = 6.5)
+  pdf("out/figure7-man3.pdf", height = 5, width = 6.5)
 } else {
-  pdf("code/out/figure7-man3.pdf", height = 5.6, width = 6.5)
+  pdf("code/out/figure7-man3.pdf", height = 5, width = 6.5)
 }
 gg1 / gg2
 dev.off()

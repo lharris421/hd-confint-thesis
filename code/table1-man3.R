@@ -95,6 +95,12 @@ bounds <- tbl %>%
             end   = last(row_id),
             .groups = "drop")
 
+hdr <- c(
+  "Method",
+  "\\shortstack{Average\\\\Selected}",
+  "\\shortstack{Coverage\\\\(mean, sd)}",
+  "\\shortstack{Width\\\\(median, Q1--Q3)}"
+)
 k <- tbl %>%
   select(-scenario) %>%
   kbl(format      = "latex",
@@ -102,10 +108,7 @@ k <- tbl %>%
       align       = c("lccc"),
       linesep     = "",
       escape      = FALSE,
-      col.names   = c("Method",
-                      "Avg Selected",
-                      "Coverage (mean, sd)",
-                      "Width (median, Q1--Q3)"))
+      col.names   = hdr)
 
 n_cols <- ncol(tbl) - 1           # minus the scenario column we dropped
 

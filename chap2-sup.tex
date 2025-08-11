@@ -1,6 +1,6 @@
-\section*{Supplementary Materials}
+\section{Supplemental Materials}
 
-\section{Traditional Bootstrap Example}
+\subsection{Traditional Bootstrap Example}
 \label{sec:boot-fail}
 
 Figure~\ref{Fig:boot-fail} shows the coverage as a function of the value of $\beta$ (solid line) and the average coverage (dashed line) using a traditional pairs bootstrapping approach on the simulation setup described in Section~\ref{Sec:coverage}. Compare to the right side of Figure~\ref{Fig:laplace}.
@@ -14,7 +14,7 @@ Figure~\ref{Fig:boot-fail} shows the coverage as a function of the value of $\be
 
 \clearpage
 
-\section{Sampling from the Full Conditional Posterior}\label{Sup:A}
+\subsection{Sampling from the Full Conditional Posterior}\label{Sup:A}
 
 Here we assume $\X$ has been standardized s.t. $\x_j^T\x_j = n$. Define $\Q_{\hat{S}_j}$ as $\I - \X_{\hat{S}_j}(\X_{\hat{S}_j}^T \X_{\hat{S}_j})^{-1} \X_{\hat{S}_j}^T$, the projection matrix onto the features selected by the lasso. For $\beta_j$ conditional on the selected features
 
@@ -101,7 +101,7 @@ Once the respective probability is mapped, one can simply use the inverses of th
 
 \clearpage
 
-\section{Coverage Behavior Under Alternative Sample Sizes}\label{Sup:alt_ns}
+\subsection{Coverage Behavior Under Alternative Sample Sizes}\label{Sup:alt_ns}
 
 Figure~\ref{Fig:coverage_by_n} displays coverage estimates as a smooth function of $\beta$ for three values of n: 50, 100, and 400 but otherwise uses the same setup as the simulation described in Section~\ref{Sec:coverage}.
 
@@ -116,7 +116,7 @@ For $n = 50$, coverage is overconservative with the characteristic high coverage
 
 \clearpage
 
-\section{Selective Inference Intervals}\label{Sup:si_int_info}
+\subsection{Selective Inference Intervals}\label{Sup:si_int_info}
 
 
 \begin{table}[hb]
@@ -135,7 +135,7 @@ For the intervals that were constructed, the third and fourth columns provide th
 \clearpage
 
 
-\section{MCP Example}\label{Sup:MCP}
+\subsection{MCP Example}\label{Sup:MCP}
 
 \begin{table}[hbtp]
   \centering
@@ -147,7 +147,7 @@ The results here provide an example of a version of the RL-P method but with an 
 
 \clearpage
 
-\section{Additional Details on Bootstrap Bias}\label{Sup:proof}
+\subsection{Additional Details on Bootstrap Bias}\label{Sup:proof}
 
 \begin{figure}[htb!]
   \begin{center}
@@ -352,7 +352,7 @@ Note, the bias for $\bh_j \neq 0$ is $\frac{1}{n}\x_j^T \epsilon + \frac{1}{n}\x
 While the derivation above suggests that increasing correlation is the main contributor to increased bootstrap bias, we see that it is actually the cumulative effect of the 98 N variables that drives the bias rather than the correlation with variable $B$. This has important implications in that even when overall correlations are low, that the sparsity in high dimensional settings is going to lead to a significant bootstrap bias. It is important to differentiate this bias and the bias inherent in the motivation for Section~\ref{Sec:IAC}. The framework put forth in Section~\ref{Sec:IAC} allows for the bias introduced by penalization which we are arguing is permissible in this newly suggested coverage framework, however, the additional bootstrap bias here is what inherently leads to the breakdown of the bootstrap even for average coverage.
 
 \clearpage
-\section{A note about stability selection}
+\subsection{A note about stability selection}
 \label{sec:stability}
 
 It is no secret that bootstrapping lasso has fundamental issues. The related work in this manuscript is simply meant to show easy to comprehend details to this end. With these issues in mind, it is not common to see a traditional bootstrapping approach applied to the lasso for the purposes of interval construction. Rather, the popular use of resampling techniques for the lasso is in stability selection introduced by  \cite{Meinshausen2010}. However, here, we show that stability selection is still affected by bootstrap bias.

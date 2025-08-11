@@ -80,9 +80,9 @@ gg <- ggplot() +
 
 # Print the plot
 if (interactive()) {
-  pdf("out/figure2-man3.pdf", width = 6.5, height = 4.5)
+  pdf("out/figure2-man3.pdf", width = 3.9, height = 2)
 } else {
-  pdf("code/out/figure2-man3.pdf", width = 6.5, height = 4.5)
+  pdf("code/out/figure2-man3.pdf", width = 3.9, height = 2)
 }
 gg
 dev.off()

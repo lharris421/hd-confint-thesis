@@ -26,9 +26,9 @@ for (i in 1:length(zjs)) {
 }
 
 if (interactive()) {
-  pdf("out/figure1-man3.pdf", width = 5.2, height = 3)
+  pdf("out/figure1-man3.pdf", width = 3.9, height = 2.2)
 } else {
-  pdf("code/out/figure1-man3.pdf", width = 5.2, height = 3)
+  pdf("code/out/figure1-man3.pdf", width = 3.9, height = 2.2)
 }
 do.call(dplyr::bind_rows, res) %>%
   ggplot2::ggplot(aes(x = x, y = y)) +

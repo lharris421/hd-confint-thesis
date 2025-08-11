@@ -87,54 +87,67 @@ def process_content(content: str) -> str:
     content = normalize_citations(content)
     return content
 
-def _write_processed(src: Path, dst: Path, header: str) -> None:
-    """Strip preamble, normalise content, write with header."""
+def _demote_sections_to_subsections(text: str) -> str:
+    """
+    Turn any \section{...}, \section*[...]{...}, or \section[opt]{...}
+    into the corresponding \subsection... form. Leaves other macros alone.
+    """
+    # Replace the command token only; preserve any star and following args
+    return re.sub(r'\\section(?=\s*\*?\s*[\[{])', r'\\subsection', text)
+
+def _write_processed(src: Path, dst: Path, header: str, transform=lambda s: s) -> None:
+    """Strip preamble, normalize, optionally transform body, then write with header."""
     raw = src.read_text()
     m   = re.search(r"\\begin\{document\}(.*)\\end\{document\}", raw, flags=re.S)
     body = m.group(1).strip() if m else raw
-    dst.write_text(header + process_content(body) + "\n")
+    body = process_content(body)
+    body = transform(body)
+    dst.write_text(header + body + "\n")
 
 def copy_manuscripts() -> None:
     """
     Copy *main* and (optionally) *supp* TeX for every entry in PAPERS.
 
-    * chapN looks for main-man{N-1}.tex / supp-man{N-1}.tex first,
-      otherwise falls back to main.tex / supp.tex.
-    * Output names are always chapN.tex and chapN-sup.tex.
-    * Supplements start with an unnumbered section called
-      “Supplementary Materials”, **not** a new chapter.
+    chapN tries main-man{N-1}.tex / supp-man{N-1}.tex first, then falls back.
+    Output names: chapN.tex and chapN-sup.tex
+
+    Supplements:
+      - start with \section{Supplemental Materials}
+      - demote all \section to \subsection inside the copied content
     """
     for p in PAPERS:
         src_dir = Path(p["dir"]).resolve()
-        chap_no = int(re.search(r"\d+", p["name"]).group())      # chap3 → 3
-        man_tag = f"man{chap_no - 1}" if chap_no > 2 else None   # chap3 → man2
+        chap_no = int(re.search(r"\d+", p["name"]).group())
+        man_tag = f"man{chap_no - 1}" if chap_no > 2 else None
 
-        # ---------------- locate main -----------------
-        main_src = next(
-            (f for f in ([src_dir / f"main-{man_tag}.tex"] if man_tag else [])
-                       + [src_dir / "main.tex"]
-             if f.exists()), None)
-
+        # main
+        main_candidates = [src_dir / f"main-{man_tag}.tex"] if man_tag else []
+        main_candidates.append(src_dir / "main.tex")
+        main_src = next((f for f in main_candidates if f.exists()), None)
         if main_src is None:
             print(f"[WARN] no main*.tex found in {src_dir}")
             continue
 
-        # ---------------- locate supplement -----------
-        supp_src = next(
-            (f for f in ([src_dir / f"supp-{man_tag}.tex"] if man_tag else [])
-                       + [src_dir / "supp.tex"]
-             if f.exists()), None)
+        # supp
+        supp_candidates = [src_dir / f"supp-{man_tag}.tex"] if man_tag else []
+        supp_candidates.append(src_dir / "supp.tex")
+        supp_src = next((f for f in supp_candidates if f.exists()), None)
 
-        # ---------------- write MAIN ------------------
+        # write main
         main_out = Path(f"chap{chap_no}.tex")
-        header   = f"\\chapter{{{p['title']}}}\\label{{sec:chap{chap_no}}}\n\n"
-        _write_processed(main_src, main_out, header)
+        main_header = f"\\chapter{{{p['title']}}}\\label{{sec:chap{chap_no}}}\n\n"
+        _write_processed(main_src, main_out, main_header)
 
-        # ---------------- write SUPP ------------------
+        # write supplement (if any)
         if supp_src:
-            supp_out   = Path(f"chap{chap_no}-sup.tex")
-            SUPP_HEADER = "\\section*{Supplementary Materials}\n\n"
-            _write_processed(supp_src, supp_out, SUPP_HEADER)
+            supp_out = Path(f"chap{chap_no}-sup.tex")
+            supp_header = "\\section{Supplemental Materials}\n\n"
+            _write_processed(
+                supp_src,
+                supp_out,
+                supp_header,
+                transform=_demote_sections_to_subsections
+            )
 
     print("Main and supplementary TeX files copied to project root.")
 
