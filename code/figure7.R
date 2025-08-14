@@ -26,12 +26,12 @@ for (i in 1:nrow(results_lookup)) {
 
 results <- bind_rows(results) %>%
   mutate(method = method_labels[method],
-         estimate = ifelse(method == "Relaxed Lasso Posterior", coef, estimate))
+         estimate = ifelse(method == "RL Posterior", coef, estimate))
 
 if (interactive()) {
   pdf("out/figure7.pdf", height = 3.9, width = 5.9)
 } else {
   pdf("code/out/figure7.pdf", height = 3.9, width = 5.9)
 }
-plot_ci_comparison(results, nvars = 30, ref = "Relaxed Lasso Posterior")
+plot_ci_comparison(results, nvars = 30, ref = "RL Posterior")
 dev.off()

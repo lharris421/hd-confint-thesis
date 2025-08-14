@@ -3,12 +3,12 @@
 \subsection{Traditional Bootstrap Example}
 \label{sec:boot-fail}
 
-Figure~\ref{Fig:boot-fail} shows the coverage as a function of the value of $\beta$ (solid line) and the average coverage (dashed line) using a traditional pairs bootstrapping approach on the simulation setup described in Section~\ref{Sec:coverage}. Compare to the right side of Figure~\ref{Fig:laplace}.
+Figure~\ref{fig:A1} shows the coverage as a function of the value of $\beta$ (solid line) and the average coverage (dashed line) using a traditional pairs bootstrapping approach on the simulation setup described in Section~\ref{Sec:coverage}. Compare to the right side of Figure~\ref{fig:1}.
 
 \begin{figure}[hbtp]
   \begin{center}
   \includegraphics[width=0.7\linewidth]{figureA1}
-  \caption{\label{Fig:boot-fail} Corresponds to the setup used in the right side of Figure~\ref{Fig:laplace}, but using a traditional bootstrapping approach.}
+  \caption{\label{fig:A1} Corresponds to the setup used in the right side of Figure~\ref{fig:1}, but using a traditional bootstrapping approach.}
   \end{center}
 \end{figure}
 
@@ -103,12 +103,12 @@ Once the respective probability is mapped, one can simply use the inverses of th
 
 \subsection{Coverage Behavior Under Alternative Sample Sizes}\label{Sup:alt_ns}
 
-Figure~\ref{Fig:coverage_by_n} displays coverage estimates as a smooth function of $\beta$ for three values of n: 50, 100, and 400 but otherwise uses the same setup as the simulation described in Section~\ref{Sec:coverage}.
+Figure~\ref{fig:C1} displays coverage estimates as a smooth function of $\beta$ for three values of n: 50, 100, and 400 but otherwise uses the same setup as the simulation described in Section~\ref{Sec:coverage}.
 
 \begin{figure}[hbtp]
   \begin{center}
   \includegraphics[width=0.6\linewidth]{figureC1}
-  \caption{\label{Fig:coverage_by_n} The results displayed are from a simulation with the same set up as in Section~\ref{Sec:coverage} but with n set to three different values: 50, 100, 400. The fitted curves are from Binomial GAMs fit with coverage being modeled as a smooth function of $\beta$. The dashed lines represent the average coverages across all 1000 independently generated datasets and the solid black line indicates the 80\% nominal coverage rate.}
+  \caption{\label{fig:C1} The results displayed are from a simulation with the same set up as in Section~\ref{Sec:coverage} but with n set to three different values: 50, 100, 400. The fitted curves are from Binomial GAMs fit with coverage being modeled as a smooth function of $\beta$. The dashed lines represent the average coverages across all 1000 independently generated datasets and the solid black line indicates the 80\% nominal coverage rate.}
   \end{center}
 \end{figure}
 
@@ -124,13 +124,13 @@ For $n = 50$, coverage is overconservative with the characteristic high coverage
   \centering
   \input{code/out/tableD1}
   \caption{Additional information on the results for Selective Inference in the simulation described in Section~\ref{Sec:Comparison}.}
-  \label{Tab:selective_inference}
+  \label{tab:D1}
 \end{table}
 
 
-Because Selective Inference only provides intervals for the subset of parameters with nonzero coefficients, the results in Figures~\ref{Fig:laplace_comparison} are just for this subset. This is in contrast to the results for de-sparsified lasso and RL-P which are over all parameters. The first two columns of Table~\ref{Tab:selective_inference} provide more details on the size of the lasso models selected by cross validation, and hence, on the number of intervals constructed. The first column indicates how many simulations (out of 1000) the intercept-only model was selected, in which case no intervals are produced. The second column gives the average number of selected parameters (inclusive of when none were selected). It is the subset of parameters represented by column 2 that are the results in Figures~\ref{Fig:laplace_comparison} are from.
+Because Selective Inference only provides intervals for the subset of parameters with nonzero coefficients, the results in Figure~\ref{fig:5} are just for this subset. This is in contrast to the results for de-sparsified lasso and RL-P which are over all parameters. The first two columns of Table~\ref{tab:D1} provide more details on the size of the lasso models selected by cross validation, and hence, on the number of intervals constructed. The first column indicates how many simulations (out of 1000) the intercept-only model was selected, in which case no intervals are produced. The second column gives the average number of selected parameters (inclusive of when none were selected). It is the subset of parameters represented by column 2 that are the results in Figures~\ref{fig:5} are from.
 
-For the intervals that were constructed, the third and fourth columns provide the number of simulations that had a infinite median width or any interval with an infinite width, respectively, features that were not evident in the right side of Figure~\ref{Fig:laplace_comparison}. Note that simulations where the null model was chosen by definition can not have intervals of infinite width.
+For the intervals that were constructed, the third and fourth columns provide the number of simulations that had a infinite median width or any interval with an infinite width, respectively, features that were not evident in the right side of Figure~\ref{fig:5}. Note that simulations where the null model was chosen by definition can not have intervals of infinite width.
 
 \clearpage
 
@@ -140,7 +140,7 @@ For the intervals that were constructed, the third and fourth columns provide th
 \begin{table}[hbtp]
   \centering
   \input{code/out/tableE1}
-  \caption{\label{Tab:epsilon_conundrum_coverage} Coverage rates by magnitude of $\beta$ for RL-P using both the lasso and the MCP penalty approximation applied to the Sparse 1 scenario described in Section~\ref{Sec:distribution}. The nominal coverage rate is 80\%. }
+  \caption{\label{tab:E1} Coverage rates by magnitude of $\beta$ for RL-P using both the lasso and the MCP penalty approximation applied to the Sparse 1 scenario described in Section~\ref{Sec:distribution}. The nominal coverage rate is 80\%. }
 \end{table}
 
 The results here provide an example of a version of the RL-P method but with an approximation to the MCP penalty to obtain intervals. The MCP penalty closely resembles that of the lasso near zero but eventually levels out to a constant penalty for larger values of $\beta$ unlike the lasso which applies a penalty proportional to the magnitude of $\beta$. Note that although $\beta$s with intermediate magnitudes are still under covered (albeit with coverage notably higher than RL-P lasso), that the largest $\beta$s have coverage at nearly 70\%, over doubling the coverage of the RL-P lasso.
@@ -152,7 +152,7 @@ The results here provide an example of a version of the RL-P method but with an 
 \begin{figure}[htb!]
   \begin{center}
     \includegraphics[width=0.7\linewidth]{figureF1}
-    \caption{\label{Fig:ridge_converge} Average coverages across p parameters (dashed lines) and estimated coverages as functions of $\beta$ (solid curves) for intervals constructed using a pairs bootstrap (Ridge Bootstrap) and a Bayesian posterior (Ridge Posterior). Full details of the simulation set up can be found in Section~\ref{Sec:boot-bias}.}
+    \caption{\label{fig:F1} Average coverages across p parameters (dashed lines) and estimated coverages as functions of $\beta$ (solid curves) for intervals constructed using a pairs bootstrap (Ridge Bootstrap) and a Bayesian posterior (Ridge Posterior). Full details of the simulation set up can be found in Section~\ref{Sec:boot-bias}.}
   \end{center}
 \end{figure}
 
@@ -329,7 +329,7 @@ Full determinant:
       = -\frac{8\lambda^{3}\,s_{22}^{3}s^{2}s_{11}\,s_{11}D}{D^{9}} \leq 0.
   $$
 
-The Hessian is negative‐semidefinite.  Therefore the map $g(s_{11},s_{22},s)$ is jointly concave, and multivariate Jensen's inequality implies
+The Hessian is negative-semidefinite.  Therefore the map $g(s_{11},s_{22},s)$ is jointly concave, and multivariate Jensen's inequality implies
 $$
 E_{\text{boot}}\bigl[\hat\beta_{1}^{*}\bigr]
   \;\le\; E\bigl[\hat\beta_{1}\mid X,\,z_{1}=z_{2}=+1\bigr],
@@ -340,12 +340,12 @@ How does this extend to high dimensions? To answer this question, we consider th
 
 In order to increase interpretability, we consider a simplified scenario here. Consider a set up with $n = p = 100$ where there is 1 true non-null variable, $A$ s.t. $\beta_A = 2$ that is correlated with a null variable $B$ with $\rho = 0.5$. All other variables are generated independent of $A$ and each other. For this set up, $A$ is always selected to be in the model, both with the original data and for all bootstrap replications at $\lam_{CV}$. This is important as decomposing the bias is more complicated for variables that are not selected to be in the model.
 
-Note, the bias for $\bh_j \neq 0$ is $\frac{1}{n}\x_j^T \epsilon + \frac{1}{n}\x_j^T \X_{-j}(\bb^*_{-j} - \bbh_{-j}) + \lam$. We can break this down further to apply to the scenario outlined above. $Bias_A = \frac{1}{n}\x_A^T \epsilon + \frac{1}{n}\x_A^T \x_{B}(\beta^*_{B} - \bh_{B}) + \frac{1}{n}\x_A^T \X_{N}(\bb^*_{N} - \bbh_{N}) + \lam$. That is, we can decompose the bias into four parts. The first is the irreducible bias which comes from the chance correlation between $\x_A$ and the errors. The last is the bias directly introduced by the lasso penalty. The other two components attribute bias from the single $B$ variable and all 98 $N$ variables respectively. By taking the simulation set up in the previous paragraph and repeating it 1000 times and each time saving the bias attributable to each of the components, we can get an idea of the distribution of the bias components. More specifically, for each generated dataset, we can decompose the bias for the estimates from the original data as well as from the 1000 bootstrap replications. For the bootstrap replications, we can then save the mean bias. Figure~\ref{Fig:bias_decomp_single_B} shows a summary from doing just that. The top panel gives the densities of the mean bootstrap biases across the 1000 repetitions, the middle gives the densities for the biases on the original dataset across the 1000 repetitions, and the bottom give the densities of their paired differences. In this depiction, the contribution of $\lam$ is excluded. Additionally note here that a positive bias is used to indicated bias \emph{towards} zero.
+Note, the bias for $\bh_j \neq 0$ is $\frac{1}{n}\x_j^T \epsilon + \frac{1}{n}\x_j^T \X_{-j}(\bb^*_{-j} - \bbh_{-j}) + \lam$. We can break this down further to apply to the scenario outlined above. $Bias_A = \frac{1}{n}\x_A^T \epsilon + \frac{1}{n}\x_A^T \x_{B}(\beta^*_{B} - \bh_{B}) + \frac{1}{n}\x_A^T \X_{N}(\bb^*_{N} - \bbh_{N}) + \lam$. That is, we can decompose the bias into four parts. The first is the irreducible bias which comes from the chance correlation between $\x_A$ and the errors. The last is the bias directly introduced by the lasso penalty. The other two components attribute bias from the single $B$ variable and all 98 $N$ variables respectively. By taking the simulation set up in the previous paragraph and repeating it 1000 times and each time saving the bias attributable to each of the components, we can get an idea of the distribution of the bias components. More specifically, for each generated dataset, we can decompose the bias for the estimates from the original data as well as from the 1000 bootstrap replications. For the bootstrap replications, we can then save the mean bias. Figure~\ref{fig:F2} shows a summary from doing just that. The top panel gives the densities of the mean bootstrap biases across the 1000 repetitions, the middle gives the densities for the biases on the original dataset across the 1000 repetitions, and the bottom give the densities of their paired differences. In this depiction, the contribution of $\lam$ is excluded. Additionally note here that a positive bias is used to indicated bias \emph{towards} zero.
 
 \begin{figure}[hbtp]
     \begin{center}
     \includegraphics[width=\linewidth]{figureF2}
-    \caption{\label{Fig:bias_decomp_single_B} n = p = 100, $\beta_A = 2$, $\beta_B = 0$, $\rho_{A,B} = 0.5$.  All other $\beta$s = 0 and  generated under independence}
+    \caption{\label{fig:F2} n = p = 100, $\beta_A = 2$, $\beta_B = 0$, $\rho_{A,B} = 0.5$.  All other $\beta$s = 0 and  generated under independence}
     \end{center}
 \end{figure}
 
@@ -392,12 +392,12 @@ Consider the following set up. $n = 50$, $p = 500$, 4 $\beta$s contain signal: $
 \end{algorithmic}
 \end{algorithm}
 
-After we computed $\bar{\mathbf A}\gets\dfrac1R\sum_{i=1}^{R}\mathbf A_{i,\cdot}$,  \; $\bar{\mathbf A}^{\!*}\gets\dfrac1R\sum_{i=1}^{R}\mathbf A^{\!*}_{i,\cdot}$ and then compare $\bar{\mathbf A}$ (prob.\ of being selected in the original fit) with $\bar{\mathbf A}^{\!*}$ (expected bootstrap stability) to evaluate how well the inclusion probabilities mirror single-$\lambda$ selection behavior. The results are presented in Table~\ref{Tab:stability_selection}.
+After we computed $\bar{\mathbf A}\gets\dfrac1R\sum_{i=1}^{R}\mathbf A_{i,\cdot}$,  \; $\bar{\mathbf A}^{\!*}\gets\dfrac1R\sum_{i=1}^{R}\mathbf A^{\!*}_{i,\cdot}$ and then compare $\bar{\mathbf A}$ (prob.\ of being selected in the original fit) with $\bar{\mathbf A}^{\!*}$ (expected bootstrap stability) to evaluate how well the inclusion probabilities mirror single-$\lambda$ selection behavior. The results are presented in Table~\ref{tab:G1}.
 
 \begin{table}[hbtp]
   \centering
   \input{code/out/tableG1}
-  \caption{\label{Tab:stability_selection} Results for simulation described in Section~\ref{sec:stability} showing that stability selection also suffers from bootstrap bias. Original selection(\%) provides the empirical selection probabilities for the 4 parameters while Bootstrap stability gives the bootstrap estimate for selection.}
+  \caption{\label{tab:G1} Results for simulation described in Section~\ref{sec:stability} showing that stability selection also suffers from bootstrap bias. Original selection(\%) provides the empirical selection probabilities for the 4 parameters while Bootstrap stability gives the bootstrap estimate for selection.}
 \end{table}
 
 Clearly, there is a fundamental bias for stability selection. That said, further exploration is necessary to understand if this contradicts the claims of \cite{Meinshausen2010} as they primarily focus on FDR control for finite sample problems like the one considered here.

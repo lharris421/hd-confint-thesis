@@ -30,5 +30,5 @@ if (interactive()) {
 } else {
   pdf("code/out/figure5-man2.pdf", height = 3.9, width = 5.9)
 }
-plot_ci_comparison(results, nvars = 30, ref = "Relaxed Lasso Posterior")
+plot_ci_comparison(results, nvars = 30, ref = "RL Posterior")
 dev.off()
