@@ -34,7 +34,7 @@ do.call(dplyr::bind_rows, res) %>%
   ggplot2::ggplot(aes(x = x, y = y)) +
   ggplot2::geom_area(alpha = 0.5) +
   ggplot2::facet_wrap(~zj, labeller = label_bquote(mu == .(zj))) +
-  theme_bw() +
+  theme_minimal() +
   theme(panel.spacing = unit(1, "lines")) +
   xlab(expression(beta)) +
   ylab("Density")

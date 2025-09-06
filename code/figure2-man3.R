@@ -5,7 +5,7 @@ if (interactive()) {
 }
 
 mn <- 1
-lambda <- 0.7
+lambda <- 0.5
 sd <- 1
 x_range <- seq(-5, 5, by = 0.01)
 alpha <- 0.05

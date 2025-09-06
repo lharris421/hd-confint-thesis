@@ -14,25 +14,24 @@ Figure~\ref{fig:A1} shows the coverage as a function of the value of $\beta$ (so
 
 \clearpage
 
-\subsection{Sampling from the Full Conditional Posterior}\label{Sup:A}
+\subsection{Computing Quantiles from the Conditional Posterior}\label{Sup:A}
 
 Here we assume $\X$ has been standardized s.t. $\x_j^T\x_j = n$. Define $\Q_{\hat{S}_j}$ as $\I - \X_{\hat{S}_j}(\X_{\hat{S}_j}^T \X_{\hat{S}_j})^{-1} \X_{\hat{S}_j}^T$, the projection matrix onto the features selected by the lasso. For $\beta_j$ conditional on the selected features
-
 \as{
   \begin{aligned}
-  L(\beta_j|\hat{S}_j) &\propto \exp(-\frac{\tilde{n}}{2\sigma^2}(\beta_{j}^2 - 2\tilde{\beta}_{j}\beta_{j})), \\
+  L(\beta_j|\hat{S}_j) &\propto \exp(-\tfrac{\tilde{n}}{2\sigma^2}(\beta_{j}^2 - 2\tilde{\beta}_{j}\beta_{j})), \\
   \end{aligned}
 }
 
-where $\tilde{\beta}_j = (\x_j^T \Q_{\hat{S}_j} \x_j)^{-1} \x_j^T \Q_{\hat{S}_j} \y$ and $\tilde{n} = \x_j^T \Q_{\hat{S}_j} \x_j$.
+\noindent where $\tilde{\beta}_j = (\x_j^T \Q_{\hat{S}_j} \x_j)^{-1} \x_j^T \Q_{\hat{S}_j} \y$ and $\tilde{n} = \x_j^T \Q_{\hat{S}_j} \x_j$.
 
-The lasso can be formulated as a Bayesian regression model with a laplace (double exponential) prior. In this case, the prior for $\beta_j$ is proportional to $\exp(-\frac{\tilde{n} \lambda} {\sigma^2} \abs{\beta_j})$. This prior ensures that the meaning of $\lam$ is maintained.
+The lasso can be formulated as a Bayesian regression model with a Laplace (double exponential) prior. In this case, the prior for $\beta_j$ is proportional to $\exp(-\frac{\tilde{n} \lambda} {\sigma^2} \abs{\beta_j})$. This prior ensures that the meaning of $\lam$ is maintained.
 
-With this the form of the full conditional posterior can be worked out as follows:
+With this the form of the conditional posterior can be worked out as follows:
 \as{
-p(\beta_j | \hat{S}_j) &\propto \exp(-\frac{\tilde{n}}{2\sigma^2} (\beta_j^2 - 2\tilde{\beta}_j\beta_j)) \exp(-\frac{\tilde{n} \lambda} {\sigma^2} \abs{\beta_j}) \\
-&= \exp(-\frac{\tilde{n}}{2\sigma^2} (\beta_j^2 - 2 \tilde{\beta}_{j}\beta_j +  2 \lambda \abs{\beta_j})) \\
-&= \exp(-\frac{\tilde{n}}{2\sigma^2} (\beta_j^2 - 2(\tilde{\beta}_{j}\beta_j - \lambda \abs{\beta_j}))) \\
+p(\beta_j | \hat{S}_j) &\propto \exp(-\tfrac{\tilde{n}}{2\sigma^2} (\beta_j^2 - 2\tilde{\beta}_j\beta_j)) \exp(-\tfrac{\tilde{n} \lambda} {\sigma^2} \abs{\beta_j}) \\
+&= \exp(-\tfrac{\tilde{n}}{2\sigma^2} (\beta_j^2 - 2 \tilde{\beta}_{j}\beta_j +  2 \lambda \abs{\beta_j})) \\
+&= \exp(-\tfrac{\tilde{n}}{2\sigma^2} (\beta_j^2 - 2(\tilde{\beta}_{j}\beta_j - \lambda \abs{\beta_j}))) \\
 &=
 \begin{cases}
 \exp(-\frac{\tilde{n}}{2\sigma^2} (\beta_j^2 - 2(\tilde{\beta}_{j} + \lambda)\beta_j)), \text{ if } \beta_j < 0, \\
@@ -46,23 +45,15 @@ C_{+} \exp\{-\frac{\tilde{n}}{2\sigma^2} (\beta_j - (\tilde{\beta}_j - \lambda))
 }
 where $C_{-} = \exp(\tilde{\beta}_j \lambda \tilde{n}/\sigma^2)$ and $C_{+} = \exp(-\tilde{\beta}_j \lambda \tilde{n}/\sigma^2)$.
 
-Note the piecewise defined posterior is made up of a kernel of two normal distributions. This can be leveraged and draws can be efficiently obtained through a mapping onto the respective normal distributions. To define this mapping, it helps to introduce a concept and some notation. First, the use of ``tails'' here refers to the entirety of a distribution between 0 and $\pm \infty$. That is, the lower tail is any part of the distribution below 0 and the upper tail is any part greater than 0, therefore $P(X \in lower \cup X \in upper) = 1$. Accordingly, we will let the tail probabilities in each of the two normals to transformed on to be denoted $Pr_{-}$ and $Pr_{+}$ respectively and the probability in each of the tails of the posterior, denoted $Post_{-}$ and $Post_{+}$ respectively. $Pr_{\pm}$ is trivial to compute with any statistical software. $Post_{\pm}$ is conceptually simple, although care must be taken to avoid numerical instability. With this notation in place, note that,
-\as{
-p(\beta_j | \hat{S}_j)  & \propto
-\begin{cases}
-C_{-} Pr_{-}, \text{ if } \beta_j < 0, \\
-C_{+} Pr_{+}, \text{ if } \beta_j \geq 0\\
-\end{cases}
-} which implies that $Post_- = \frac{C_{-} Pr_{-}}{C_{-} Pr_{-} + C_{+} Pr_{+}}$ and similarly for $Post_+$. To avoid numerical instability, or rather to handle it properly when it is unavoidable, we will work on the $\log$ scale. This works well for most of the problem, but computation of $Post_-$ and $Post_+$ need something a bit more since, for example, $\log(Post_-) = \log(C_{-}Pr_{-}) - \log(C_{-} Pr_{-} + C_{+} Pr_{+})$. That is, the denominator still must be computed then the $\log$ taken which does not allow operating on the $\log$ scale to fully address potential numerical instability. Instead, let $\ell_{-} := \log C_{-} + \log Pr_{-}, \ell_{+} := \log C_{+} + \log Pr_{+}$, and $\Delta := \ell_{-} - \ell_{+}$, then $\log(Post_-)$ can be computed with $\Delta - \log\bigl(1 + \exp(\Delta)\bigr)$. This still doesn't completely address the issue, however, if $\exp(\Delta)$ is infinite then $C_-Pr_- >> C_+Pr_+$ and $\log(Post_-) \approx 0$ which means $Post_- \approx 1$ (equivalently $Post_+ \approx 0$).
+The piecewise defined posterior is made up of a kernel of two normal distributions. This can be leveraged and draws can be analytically obtained through a mapping onto the respective normal distributions. Note, the use of ``tails'' here refers to the entirety of a distribution between 0 and $\pm \infty$. That is, the lower tail is any part of the distribution below 0 and the upper tail is any part greater than 0, therefore $P(q \in lower \cup q \in upper) = 1$, where q is the quantile of interest. Accordingly, we will let the tail probabilities in each of the two normals to transformed on to be denoted $Pr_{-}$ and $Pr_{+}$ respectively and the probability in each of the tails of the posterior, denoted $Post_{-}$ and $Post_{+}$ respectively. $Pr_{\pm}$ is trivial to compute with any statistical software. $Post_{\pm}$ is conceptually simple, although care must be taken to avoid numerical instability. With this notation in place $Post_- = (C_{-} Pr_{-})/(C_{-} Pr_{-} + C_{+} Pr_{+})$ and similarly for $Post_+$. To avoid numerical instability, or rather to handle it properly when it is unavoidable, we will work on the $\log$ scale. This works well for most of the problem, but computation of $Post_-$ and $Post_+$ need something a bit more since, for example, $\log(Post_-) = \log(C_{-}Pr_{-}) - \log(C_{-} Pr_{-} + C_{+} Pr_{+})$. That is, the denominator still must be computed then the $\log$ taken which does not allow operating on the $\log$ scale to fully address potential numerical instability. Instead, let $\ell_{-} := \log C_{-} + \log Pr_{-}, \ell_{+} := \log C_{+} + \log Pr_{+}$, and $\Delta := \ell_{-} - \ell_{+}$, then $\log(Post_-)$ can be computed with $\Delta - \log\bigl(1 + \exp(\Delta)\bigr)$. This still doesn't completely address the issue, however, if $\exp(\Delta)$ is infinite then $C_-Pr_- >> C_+Pr_+$ and $\log(Post_-) \approx 0$ which means $Post_- \approx 1$ (equivalently $Post_+ \approx 0$).
 
-With these values, we can compute the quantile by mapping the corresponding probability $p$ for the posterior onto the probability $p^*$ for the corresponding normals. Which normal the quantile of interest ultimately comes from is determined based on $Post_{\pm}$. If $p \leq Post_{-}$, then $p$ would be mapped onto the negative normal. If $p > Post_{-}$, then $p$ would be mapped onto the positive normal.  For example, if $Post_{+} = 0.98$ and $p = 0.1$ then $p$ would be mapped onto the positive normal. The transformation to map a given probability from the posterior depends on which tail the quantile resides in on the posterior (equivalently which normal it is being mapped to, the positive or negative). This map is simply:
-
+With these values, we can compute the quantile by mapping the corresponding probability $p$ for the posterior onto the probability $p^*$ for the corresponding Normal. Which Normal the quantile of interest ultimately comes from is determined based on $Post_{\pm}$. If $p \leq Post_{-}$, then $p$ would be mapped onto the negative Normal. If $p > Post_{-}$, then $p$ would be mapped onto the positive Normal.  For example, if $Post_{+} = 0.98$ and $p = 0.1$ then $p$ would be mapped onto the positive Normal. The transformation to map a given probability from the posterior depends on which tail the quantile resides in on the posterior (equivalently which Normal it is being mapped to, the positive or negative). This map is simply:
 \as{
 p^* &= p \times (Pr_{\pm} / Post_{\pm}) \\
 }
 
 
-Once the respective probability is mapped, one can simply use the inverses of the normal CDF that the probability was mapped to. That being said, there is a nuance worth pointing out. When transforming the probabilities, the step to determine which tail the respective quantile comes from occurs first. With this, the probability should be adjusted so that it refers to the probability between the quantile of interest and the respective tail. After this, then the transformation can be applied. These steps are summarized in Algorithm~\ref{alg:quantile}.
+Once the respective probability is mapped, one can simply use the inverses of the Normal CDF that the probability was mapped to. That being said, there is a nuance worth pointing out. When transforming the probabilities, the step to determine which tail the respective quantile comes from occurs first. With this, the probability should be adjusted so that it refers to the probability between the quantile of interest and the respective tail. After this, then the transformation can be applied. These steps are summarized in Algorithm~\ref{alg:quantile}.
 
 \begin{algorithm}
 \caption{Compute Quantile for RL-P Laplace-Normal Distribution}
@@ -128,7 +119,7 @@ For $n = 50$, coverage is overconservative with the characteristic high coverage
 \end{table}
 
 
-Because Selective Inference only provides intervals for the subset of parameters with nonzero coefficients, the results in Figure~\ref{fig:5} are just for this subset. This is in contrast to the results for de-sparsified lasso and RL-P which are over all parameters. The first two columns of Table~\ref{tab:D1} provide more details on the size of the lasso models selected by cross validation, and hence, on the number of intervals constructed. The first column indicates how many simulations (out of 1000) the intercept-only model was selected, in which case no intervals are produced. The second column gives the average number of selected parameters (inclusive of when none were selected). It is the subset of parameters represented by column 2 that are the results in Figures~\ref{fig:5} are from.
+Because Selective Inference only provides intervals for the subset of parameters with nonzero coefficients, the results in Figure~\ref{fig:5} are just for this subset. This is in contrast to the results for de-sparsified lasso and RL-P which are over all parameters. The first two columns of Table~\ref{tab:D1} provide more details on the size of the lasso models selected by cross validation, and hence, on the number of intervals constructed. The first column indicates how many simulations (out of 1000) the intercept-only model was selected, in which case no intervals are produced. The second column gives the average number of selected parameters (inclusive of when none were selected). It is the subset of parameters represented by column 2 that are the results in Figure~\ref{fig:5} are from.
 
 For the intervals that were constructed, the third and fourth columns provide the number of simulations that had a infinite median width or any interval with an infinite width, respectively, features that were not evident in the right side of Figure~\ref{fig:5}. Note that simulations where the null model was chosen by definition can not have intervals of infinite width.
 
@@ -158,10 +149,7 @@ The results here provide an example of a version of the RL-P method but with an 
 
 We continue with a simple proof of the additional bias introduced by bootstrapping in one and two dimensional settings starting first with Ridge regression and then the lasso. After these simple proofs, we provide a simulation that helps generalize this issue to high dimensional settings. Note that here the goal is to provide an intuitive understanding of the issue. Others have already proved this issue more generally \citep{karoui2016, clarté2024}, however, we feel that the lack of straight forward examples may be in part why the bootstrap is still a tool used for penalized regression in general.
 
-Let $\frac{1}{n}x_1^Tx_1 = s_{11}$, and $s_{11}^*$ be the bootstrapped version of $s_{11}$. Furthermore more that $E_{boot}[s_{11}^*] = s_{11}$.
-
-For Ridge, it can be shown that $E(\bh_1) = \frac{s_{11}}{s_{11} + \lam}\beta_1$, letting $g(s_{11}) = \frac{s_{11}}{s_{11} + \lam}$ note that:
-
+Let $\frac{1}{n}\x_1^T\x_1 = s_{11}$, and $s_{11}^*$ be the bootstrapped version of $s_{11}$. Furthermore note more that $E_{boot}[s_{11}^*] = s_{11}$. For Ridge, it can be shown that $E(\bh_1) = (\beta_1s_{11})/(s_{11} + \lam)$, letting $g(s_{11}) = (s_{11})/(s_{11} + \lam)$ note that:
 $$
 \begin{aligned}
 g'(s_{11}) &= \lambda (s_{11} + \lam)^{-2} \\
@@ -169,34 +157,27 @@ g''(s_{11}) &= -2\lambda (s_{11} + \lam)^{-3} < 0
 \end{aligned}
 $$
 
-Thus by Jensen's inequality we have,
-
+\noindent Thus by Jensen's inequality we have,
 $$
 E_{boot}[g(s_{11}^*)] \leq g(E_{booot}[s_{11}^*]) = g(s_11).
 $$
 
-Multiplying by $\beta_1$ then gives,
-
+\noindent Multiplying by $\beta_1$ then gives,
 $$
 E_{boot}[\bh_1^*] = E_{boot}[g(s_{11}^*)]\beta_1 \leq g(s_{11})\beta_1 = E[\bh_1].
 $$
 
-That is, even in a single parameter setting, just due to the bootstrap variability of $s_{11}$ alone, we would expect bias in the bootstrapped estimate of $\beta_1$.
+\noindent That is, even in a single parameter setting, just due to the bootstrap variability of $s_{11}$ alone, we would expect bias in the bootstrapped estimate of $\beta_1$.
 
-Now consider a two parameter setting where we assume $\beta_2 = 0$. Let $V = \frac{1}{n}\boldsymbol{X}^T\boldsymbol{X} = \begin{pmatrix} s_{11} & s \\ s & s_{22} \end{pmatrix}$.
-
-Similarly here, one can find that
-
+Now consider a two parameter setting where we assume $\beta_2 = 0$. Let $V = \frac{1}{n}\boldsymbol{X}^T\boldsymbol{X} = \begin{pmatrix} s_{11} & s \\ s & s_{22} \end{pmatrix}$. Similarly here, one can find that
 $$
 \begin{aligned}
 E[\hat{\beta}_1 | V, \lambda] &= \frac{s_{11}(s_{22} + \lambda) - s^2}{(s_{11} + \lambda)(s_{22} + \lambda) - s^2} \beta_1 \\
-&= g(s_{11}, s_{22}, s)\beta_1
+&= g(s_{11}, s_{22}, s)\beta_1.
 \end{aligned}
 $$
 
-
-Furthermore, with some patience, it is possible to work out the Hessian of $g$:
-
+\noindent Furthermore, with some patience, it is possible to work out the Hessian of $g$:
 $$
 H = \nabla^{2}g
 = \frac{\lambda}{D^{3}}
@@ -207,69 +188,50 @@ H = \nabla^{2}g
   \end{pmatrix}.
 $$
 
-Because $\lambda/D^{3}>0$, negative semidefiniteness of $H$ is equivalent to that of the scaled matrix $\tilde H = D^{3}H/\lambda$.
-
-$$
-\tilde H_{11} = -2(s_{22}+\lambda)^{3} < 0
-$$
-$\det\bigl(\tilde H_{[1:2,1:2]}\bigr)$:
+\noindent Because $\lambda/D^{3}>0$, negative semidefiniteness of $H$ is equivalent to that of the scaled matrix $\tilde H = D^{3}H/\lambda$.
 $$
 \begin{aligned}
-\det\bigl(\tilde H_{[1:2,1:2]}\bigr) &= \det \begin{pmatrix}
-  -2(s_{22}+\lambda)^{3} & -2(s_{22}+\lambda)s^{2}\\[4pt]
-  -2(s_{22}+\lambda)s^{2} & -2s^{2}(s_{11}+\lambda)
-\end{pmatrix}\\[8pt]
-&= 4(s_{22}+\lambda)^{2}s^{2}D \geq 0 \\
+\tilde H_{11} &= -2(s_{22}+\lambda)^{3} < 0, \\
+\det\bigl(\tilde H_{[1:2,1:2]}\bigr) &= 4(s_{22}+\lambda)^{2}s^{2}D \geq 0, \\
+\det(\tilde H) &= -\,8\,\lambda\,(s_{22}+\lambda)^{3}s^{2}\,(s_{11}+\lambda)\,D \leq 0.
 \end{aligned}
 $$
 
-and
-
-$$
-\det(\tilde H) = -\,8\,\lambda\,(s_{22}+\lambda)^{3}s^{2}\,(s_{11}+\lambda)\,D \leq 0.
-$$
-
-As such, $H$ is negative‐semidefinite and consequently $g(s_{11},s_{22},s)$ is globally concave in all three arguments. Now, let $V^*$ be the bootstrapped version of V and note that $E_{boot}[(s_{11}^*, s_{22}^*, s^*)] = (s_{11}, s_{22}, s)$. By Jensen's inequality:
-
+\noindent As such, $H$ is negative‐semidefinite and consequently $g(s_{11},s_{22},s)$ is globally concave in all three arguments. Now, let $V^*$ be the bootstrapped version of V and note that $E_{boot}[(s_{11}^*, s_{22}^*, s^*)] = (s_{11}, s_{22}, s)$. By Jensen's inequality:
 $$
 E_{boot}[g(S^*)] \leq g(E_{boot}[S^*]) = g(S).
 $$
 
-Multiplying by $\beta_1$ then gives:
-
+\noindent Multiplying by $\beta_1$ then gives:
 $$
 E_{boot}[\hat{\beta}_1^*] = E_{boot}[g(S^*)]\beta_1 < g(S)\beta_1 = E[\hat{\beta}_1].
 $$
 
 A similar argument can be made with the lasso, however, the mathematical details become more involved. Whereas with ridge we started off assuming the true values, with lasso it is easier to work with assumed conditions on the lasso estimates themselves as they directly affect the KKT conditions. Starting with a single parameter set up, assume that $\bh_1 > 0$. Then,
-
 $$
 \begin{aligned}
-\frac{1}{n}\x_1^T(\y - \x_1 \bh_1) &= \lambda \\
-\bh_1 &= \frac{1}{ns_{11}}\x_1^T\y - \frac{\lambda}{s_{11}} \\
-E[\bh_1] &= \beta_1 - \frac{\lambda}{s_{11}} \\
+&\tfrac{1}{n}\x_1^T(\y - \x_1 \bh_1) = \lambda \\
+&\Rightarrow \bh_1 = \tfrac{1}{ns_{11}}\x_1^T\y - \tfrac{\lambda}{s_{11}} \\
+&\Rightarrow E[\bh_1] = \beta_1 - \tfrac{\lambda}{s_{11}} \\
 \end{aligned}
 $$
 
-Let $h(s_{11}) = - \frac{\lambda}{s_{11}}$, then
-
+\noindent Let $h(s_{11}) = -\lambda / s_{11}$, then
 $$
 \begin{aligned}
-h'(s_{11}) &= \frac{\lambda}{s_{11}^2}, \\
-h''(s_{11}) &= \frac{-2\lambda}{s_{11}^3}  < 0\\
+h'(s_{11}) &= \tfrac{\lambda}{s_{11}^2}, \\
+h''(s_{11}) &= \tfrac{-2\lambda}{s_{11}^3}  < 0,\\
 \end{aligned}
 $$
 
-and $h(s_{11})$ is therefore concave. So by Jensen's inequality
-
+\noindent and $h(s_{11})$ is therefore concave. So by Jensen's inequality
 $$
 \begin{aligned}
-E_{boot}[h(s_{11}^*)] \leq h(E_{booot}[s_{11}^*]) = h(s_11).
+E_{boot}[h(s_{11}^*)] \leq h(E_{booot}[s_{11}^*]) = h(s_{11}).
 \end{aligned}
 $$
 
-Adding $\beta_1$ then gives,
-
+\noindent Adding $\beta_1$ then gives,
 $$
 \begin{aligned}
 E_{boot}[\bh_1^*] = \beta_1 + E_{boot}[h(s_{11}^*)] \leq \beta_1 + g(s_{11}) = E[\bh_1].
@@ -277,31 +239,28 @@ E_{boot}[\bh_1^*] = \beta_1 + E_{boot}[h(s_{11}^*)] \leq \beta_1 + g(s_{11}) = E
 $$
 
 Now consider a two parameter setting. If we assume $\hat{\beta}_1 > 0$ and $\hat{\beta}_2 = 0$, bias can only be guaranteed when $\beta_2 = 0$. This boils down to the same details as the single parameter case we just considered. If both $\hat{\beta}_1$ and $\hat{\beta}_2$ are assumed positive, we arrive at the following KKT conditions:
-
 $$
 \begin{aligned}
-\frac{1}{n}\boldsymbol{X}^T\boldsymbol{X} \hat{\boldsymbol{\beta}} &= \frac{1}{n}\boldsymbol{X}^Ty - \lambda 1_2 \\
+\tfrac{1}{n}\boldsymbol{X}^T\boldsymbol{X} \hat{\boldsymbol{\beta}} &= \tfrac{1}{n}\boldsymbol{X}^Ty - \lambda 1_2 \\
 \end{aligned}
 $$
 
-Again, let $\boldsymbol{V} = \frac{1}{n}\boldsymbol{X}^T\boldsymbol{X} = \begin{pmatrix} s_{11} & s \\ s & s_{22} \end{pmatrix}$, then
-
+\noindent Again, let $\boldsymbol{V} = \frac{1}{n}\boldsymbol{X}^T\boldsymbol{X} = \begin{pmatrix} s_{11} & s \\ s & s_{22} \end{pmatrix}$, then
 $$
 \begin{aligned}
 \hat{\beta_1} = \frac{s_{22}(x_1^Ty- n\lambda) - s(x_2^Ty- n\lambda)}{n(s_{11}s_{22} - s^2)}
 \end{aligned}
 $$
 
-and
-
+\noindent and
 $$
 \begin{aligned}
 E(\hat{\beta}|X) &= \beta_1 - \lambda\frac{s_{22} - s}{s_{11}s_{22} - s^2} \\
-&= \beta_1 + h(s_{11}, s_{22}, s)
+&= \beta_1 + h(s_{11}, s_{22}, s).
 \end{aligned}
 $$
 
-Differentiation gives
+\noindent Differentiation gives
 $$
 \nabla^{2}h \;=\; \frac{\lambda}{D^{3}}
 \begin{pmatrix}
@@ -311,25 +270,16 @@ $$
 \end{pmatrix}.
 $$
 
+\noindent With this we find that
+$$
+\begin{aligned}
+H_{11} = -\frac{2\lambda s_{22}^{2}(s_{22}-s)}{D^{3}} < 0, \\ 
+\det\bigl(H_{[1:2,1:2]}\bigr) = \frac{4\lambda^{2}s_{22}^{2}s^{2}D}{D^{6}} \geq 0, \\
+\det(H) = -\frac{8\lambda^{3}\,s_{22}^{3}s^{2}s_{11}\,s_{11}D}{D^{9}} \leq 0.
+\end{aligned}
+$$
 
-Leading (1×1) minor:
-  $$
-    H_{11} = -\frac{2\lambda s_{22}^{2}(s_{22}-s)}{D^{3}} < 0
-  $$
-
-Leading (2×2) minor:
-  $$
-    \det\bigl(H_{[1:2,1:2]}\bigr)
-      = \frac{4\lambda^{2}s_{22}^{2}s^{2}D}{D^{6}} \geq 0.
-  $$
-
-Full determinant:
-  $$
-    \det(H)
-      = -\frac{8\lambda^{3}\,s_{22}^{3}s^{2}s_{11}\,s_{11}D}{D^{9}} \leq 0.
-  $$
-
-The Hessian is negative-semidefinite.  Therefore the map $g(s_{11},s_{22},s)$ is jointly concave, and multivariate Jensen's inequality implies
+\noindent Thus, the Hessian is negative-semidefinite.  Therefore the map $g(s_{11},s_{22},s)$ is jointly concave, and multivariate Jensen's inequality implies
 $$
 E_{\text{boot}}\bigl[\hat\beta_{1}^{*}\bigr]
   \;\le\; E\bigl[\hat\beta_{1}\mid X,\,z_{1}=z_{2}=+1\bigr],
@@ -387,12 +337,12 @@ Consider the following set up. $n = 50$, $p = 500$, 4 $\beta$s contain signal: $
             \bigl[\hat\beta^{\!*}(\lambda_{\text{CV}})\neq 0\bigr]$
   \EndFor
   \State $\mathbf A^{\!*}_{i,\cdot}\gets
-         \dfrac1B\sum_{b=1}^{B}\mathbf B^{\!*}_{b,\cdot}$
+         \tfrac1B\sum_{b=1}^{B}\mathbf B^{\!*}_{b,\cdot}$
 \EndFor
 \end{algorithmic}
 \end{algorithm}
 
-After we computed $\bar{\mathbf A}\gets\dfrac1R\sum_{i=1}^{R}\mathbf A_{i,\cdot}$,  \; $\bar{\mathbf A}^{\!*}\gets\dfrac1R\sum_{i=1}^{R}\mathbf A^{\!*}_{i,\cdot}$ and then compare $\bar{\mathbf A}$ (prob.\ of being selected in the original fit) with $\bar{\mathbf A}^{\!*}$ (expected bootstrap stability) to evaluate how well the inclusion probabilities mirror single-$\lambda$ selection behavior. The results are presented in Table~\ref{tab:G1}.
+After we computed $\bar{\mathbf A}\gets\tfrac1R\sum_{i=1}^{R}\mathbf A_{i,\cdot}$,  \; $\bar{\mathbf A}^{\!*}\gets\tfrac1R\sum_{i=1}^{R}\mathbf A^{\!*}_{i,\cdot}$ and then compare $\bar{\mathbf A}$ (prob.\ of being selected in the original fit) with $\bar{\mathbf A}^{\!*}$ (expected bootstrap stability) to evaluate how well the inclusion probabilities mirror single-$\lambda$ selection behavior. The results are presented in Table~\ref{tab:G1}.
 
 \begin{table}[hbtp]
   \centering

@@ -12,7 +12,7 @@ opt <- parse_args(OptionParser(option_list=option_list))
 iterations <- opt$iterations
 
 results_lookup <- expand.grid(
-  method = c("rlp", "pipep", "lqap")
+  method = rev(c("rlp", "pipep", "lqap"))
 )
 
 results <- list()
@@ -22,13 +22,20 @@ for (i in 1:nrow(results_lookup)) {
 results <- bind_rows(results) %>%
   mutate(
     estimate = coef,
-    method = method_labels[method]
+    method = factor(method_labels[method], levels = c("RL Posterior", "PIPE Posterior", "LQA Posterior"))
   )
 
 plots <- list()
 methods <- unique(results_lookup$method)
 set.seed(1234)
-selected_example <- sample(1:iterations, 1)
+options <- results %>%
+  filter(method == "RL Posterior", (variable == "A1" & coef > 0.7) |  (variable == "B1" & coef > 0.1)) %>%
+  # filter(method == "lasso", (variable == "A1" & coef > 0.7) |  (variable == "B1" & coef == 0)) %>%
+  group_by(iteration) %>%
+  summarise(count = n()) %>%
+  filter(count == 2) %>%
+  pull(iteration)
+selected_example <- sample(options, 1)
 for (i in 1:length(unique(results$method))) {
 
   curr_method <- unique(results$method)[i]
@@ -69,7 +76,7 @@ for (i in 1:length(unique(results$method))) {
     theme_minimal() +
     xlab("") +
     theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
-    coord_cartesian(ylim = c(-2, 2)) +
+    coord_cartesian(ylim = c(-1, 2)) +
     theme(
       legend.position = "none"
     ) +
@@ -91,7 +98,7 @@ for (i in 1:length(unique(results$method))) {
     geom_errorbar(aes(xmin = lower, xmax = upper, y = variable)) +
     geom_point(aes(x = estimate, y = variable)) +
     theme_minimal() +
-    coord_cartesian(xlim = c(-2, 2)) +
+    coord_cartesian(xlim = c(-1, 2)) +
     ylab(NULL) +
     xlab("Estimate (80% CI)")
 

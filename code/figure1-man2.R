@@ -27,8 +27,8 @@ for (i in 1:nrow(results_lookup)) {
 }
 line_data <- bind_rows(results) %>%
   mutate(
-    method = method_labels[method],
-    n = factor(n, levels = c(50, 100, 400))
+    method = factor(method_labels[method], levels = c("RL Posterior", "PIPE Posterior", "LQA Posterior"))
+    # n = factor(n, levels = c(50, 100, 400))
   )
 
 cutoff <- max(line_data$x)
@@ -42,10 +42,11 @@ p1 <- ggplot(data = line_data) +
   geom_area(data = density_data, aes(x = x, y = density / max(density)), fill = "grey", alpha = 0.5) +
   theme_minimal() +
   xlab(expression(beta)) +
-  ylab("Estimated Coverage") +
+  ylab("Coverage") +
   coord_cartesian(ylim = c(0, 1)) +
   scale_color_manual(name = "Method", values = colors) +
-  facet_wrap(vars(n))
+  facet_wrap(~n, labeller = label_bquote(n == .(n))) +
+  scale_y_continuous(labels = scales::label_percent())
 
 if (interactive()) {
   pdf("out/figure1-man2.pdf", width = 5.2, height = 3)

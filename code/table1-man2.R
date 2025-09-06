@@ -49,7 +49,7 @@ table_results <- bind_rows(results) %>%
     ` ` = "",
     Distribution = stringr::str_to_title(Distribution),
     distribution_order = factor(Distribution, levels = stringr::str_to_title(names(ps))),
-    Method = method
+    Method = factor(method, levels = c("RL Posterior", "PIPE Posterior", "LQA Posterior"))
   ) %>%
   arrange(distribution_order, Method) %>%
   select(` `, Distribution, Method, `50`, `100`, `400`, `1000`) %>%

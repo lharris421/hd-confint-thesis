@@ -44,8 +44,8 @@ penalty_data <- data.frame(
 # Plot using ggplot
 gg <- ggplot(penalty_data, aes(x = beta, y = Penalty, color = Type)) +
   geom_line(linewidth = 1) +
-  labs(title = "", color = "Penalty",
-       x = "Beta", y = "Penalty") +
+  labs(title = "", color = "Penalty", y = "Penalty") +
+  xlab(expression(beta)) +
   theme_minimal()
 
 if (interactive()) {

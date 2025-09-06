@@ -42,7 +42,9 @@ gg <- cis %>%
   geom_errorbar(aes(xmin = lower, xmax = upper)) +
   facet_wrap(~ method) +
   theme_minimal() +
-  coord_cartesian(xlim = c(-0.5, 0.5))
+  coord_cartesian(xlim = c(-0.5, 0.5)) +
+  xlab("Estimate (80% CI)") +
+  ylab("Variable")
 
 if (interactive()) {
   pdf("out/figure5-man3.pdf", height = 7, width = 6.5)
