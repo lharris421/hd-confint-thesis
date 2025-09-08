@@ -26,7 +26,7 @@ wildcard_constraints:
 
 rule all:
     input:
-        "thesis.pdf",
+        "build/thesis.pdf",
         "code/out/figure1.pdf",
         "code/out/figure2.pdf",
         "code/out/figure3.png",
@@ -48,7 +48,6 @@ rule all:
         "code/out/figure3-man2.pdf",
         "code/out/figure4-man2.pdf",
         "code/out/figure5-man2.pdf",
-        "code/out/figure6-man2.pdf",
         "code/out/table1-man2.tex",
         "code/out/table2-man2.tex",
         "code/out/figure1-man3.pdf",
@@ -723,6 +722,10 @@ rule manuscript:
         "code/out/figureA3-man3.pdf",
         "code/out/tableA1-man3.tex"
     output:
-        "thesis.pdf"
+        "build/thesis.pdf"
     shell:
-        "cleantex -btq thesis.tex"
+        r"""
+        latexmk -pdf -outdir=build -silent thesis.tex
+        texfot lualatex -interaction=nonstopmode -output-directory=build thesis.tex
+        """
+        # "cleantex -btq thesis.tex"
