@@ -6,7 +6,7 @@ if (interactive()) {
 
 option_list <- list(
   make_option(c("-d", "--desparsified"), action="store_true", default=FALSE),
-  make_option(c("--loc"), type="character", default="")
+  make_option(c("--loc"), type="character", default=glue("{res_dir}/"))
 )
 opt <- parse_args(OptionParser(option_list=option_list))
 print(opt)

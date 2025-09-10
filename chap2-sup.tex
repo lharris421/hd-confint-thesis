@@ -66,7 +66,7 @@ Once the respective probability is mapped, one can simply use the inverses of th
   \State $Pr_{-} \gets \Phi\bigl(0;\,\tilde{\beta}_j + \lambda,\;\tfrac{\sigma^2}{\tilde{n}}\bigr)$
   \State $Pr_{+} \gets 1 - \Phi\bigl(0;\,\tilde{\beta}_j - \lambda,\;\tfrac{\sigma^2}{\tilde{n}}\bigr)$
   \Statex
-  \State // 2. Compute posterior weights $Post_{-},\,Post_{+}$ with log‐scale stabilization
+  \State // 2. Compute weights $Post_{-},\,Post_{+}$ on log scale
   \State $\ell_{-} \gets \log C_{-} + \log Pr_{-}$
   \State $\ell_{+} \gets \log C_{+} + \log Pr_{+}$
   \State $\Delta \gets \ell_{-} - \ell_{+}$
@@ -119,7 +119,7 @@ For $n = 50$, coverage is overconservative with the characteristic high coverage
 \end{table}
 
 
-Because Selective Inference only provides intervals for the subset of parameters with nonzero coefficients, the results in Figure~\ref{fig:5} are just for this subset. This is in contrast to the results for de-sparsified lasso and RL-P which are over all parameters. The first two columns of Table~\ref{tab:D1} provide more details on the size of the lasso models selected by cross validation, and hence, on the number of intervals constructed. The first column indicates how many simulations (out of 1000) the intercept-only model was selected, in which case no intervals are produced. The second column gives the average number of selected parameters (inclusive of when none were selected). It is the subset of parameters represented by column 2 that are the results in Figure~\ref{fig:5} are from.
+Because Selective Inference only provides intervals for the subset of parameters with nonzero coefficients, the results in Figure~\ref{fig:5} are just for this subset. This is in contrast to the results for de-sparsified lasso and RL-P which are over all parameters. The first two columns of Table~\ref{tab:D1} provide more details on the size of the active sets lasso selected by the lasso using cross validation, and hence, on the number of intervals constructed. The first column indicates how many simulations (out of 1000) the intercept-only model was selected, in which case no intervals are produced. The second column gives the average number of selected parameters (inclusive of when none were selected). It is the subset of parameters represented by column 2 that are the results in Figure~\ref{fig:5} are from.
 
 For the intervals that were constructed, the third and fourth columns provide the number of simulations that had a infinite median width or any interval with an infinite width, respectively, features that were not evident in the right side of Figure~\ref{fig:5}. Note that simulations where the null model was chosen by definition can not have intervals of infinite width.
 

@@ -5,9 +5,9 @@ if (interactive()) {
 }
 
 option_list <- list(
-  make_option(c("--iterations"), type="integer", default=100),
+  make_option(c("--iterations"), type="integer", default=1000),
   make_option(c("--seed"), type="double", default=1234),
-  make_option(c("--loc"), type="character", default="")
+  make_option(c("--loc"), type="character", default=glue("{res_dir}/"))
 )
 opt <- parse_args(OptionParser(option_list=option_list))
 iterations <- opt$iterations
