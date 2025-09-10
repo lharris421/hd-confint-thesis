@@ -72,13 +72,21 @@ def copy_r_scripts():
 
 def normalize_citations(text: str) -> str:
     """Replace specific citations with chapter/author references."""
-    # Replace literal \cite{AvgCov} with 'Chapter 2'
-    text = text.replace(r"\cite{AvgCov}", "Chapter 2")
-    # Replace literal \cite{PIPEP} with 'Chapter 3'
-    text = text.replace(r"\cite{PIPEP}", "Chapter 3")
-    # Replace literal \cite{PIPE} with 'Biyue Dai in her dissertation'
-    text = text.replace(r"\cite{PIPE}", "Biyue Dai in her dissertation")
-    return text
+
+    # Mapping from citation key to replacement
+    citation_map = {
+        "AvgCov": "Chapter 2",
+        "PIPEP": "Chapter 3",
+    }
+
+    # Pattern matches \cite{key}, \citet{key}, or \citep{key}
+    pattern = re.compile(r"\\cite[t|p]?{([^}]+)}")
+
+    def replacer(match):
+        key = match.group(1)
+        return citation_map.get(key, match.group(0))  # fallback to original if not mapped
+
+    return pattern.sub(replacer, text)
 
 
 def process_content(content: str) -> str:
