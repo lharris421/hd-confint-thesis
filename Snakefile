@@ -412,12 +412,12 @@ rule tableG1:
         
 rule figure1man2:
     input:
-        script = "code/figure1-man2.R"
-        rds = expand(
-        f"{LOC}rds/{ITER}/gam/laplace_autoregressive_0_{{n}}_101_gaussian_100_{{method}}.rds",
-        method=["rlp", "pipep", "lqap"],
-        n=[50, 100, 400]
-    )
+        script = "code/figure1-man2.R",
+            rds = expand(
+            f"{LOC}rds/{ITER}/gam/laplace_autoregressive_0_{{n}}_101_gaussian_100_{{method}}.rds",
+            method=["rlp", "pipep", "lqap"],
+            n=[50, 100, 400]
+        )
     output:
         "code/out/figure1-man2.pdf"
     shell:
