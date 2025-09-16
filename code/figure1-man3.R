@@ -26,7 +26,7 @@ lower_num <- x_range[which.min(abs(cdf - alpha/2))]
 upper_num <- x_range[which.min(abs(cdf - (1 - alpha/2)))]
 
 ## Computational Shortcut
-ci_comp <- ncvreg:::ci_full_cond(mn, lambda, sd, alpha = alpha)
+ci_comp <- ncvreg:::laplace_ci(mn, lambda, sd, alpha = alpha)
 lower_comp <- ci_comp$lower
 upper_comp <- ci_comp$upper
 

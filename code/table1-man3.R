@@ -126,3 +126,4 @@ if (interactive()) {
   path_pre <- "code/out/"
 }
 write(k, glue('{path_pre}/table1-man3.tex'))
+

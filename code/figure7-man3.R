@@ -3,7 +3,6 @@ if (interactive()) {
 } else {
   source("code/setup.R")
 }
-
 option_list <- list(
   make_option(c("--iterations"), type="integer", default=1000),
   make_option(c("--loc"), type="character", default=glue("{res_dir}/"))
@@ -65,6 +64,11 @@ gg2 <- res %>%
   xlab("") + ylab("Estimate (80% CI)") +
   coord_cartesian(ylim = c(-4, 4))
 
+res %>%
+  mutate(contains = lower <= coef & coef <= upper) %>%
+  pull(contains) %>%
+  mean()
+
 if (interactive()) {
   pdf("out/figure7-man3.pdf", height = 5, width = 6.5)
 } else {
@@ -72,4 +76,5 @@ if (interactive()) {
 }
 gg1 / gg2
 dev.off()
+
 

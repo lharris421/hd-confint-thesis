@@ -30,3 +30,16 @@
     \end{center}
 \end{figure}
 
+\clearpage
+
+\subsection{Multiple Extensions}
+\label{sup:multiple}
+
+Consider the case where we have a binary outcome and would like to fit a bias reducing penalty, but need to stabilize the non-convex penalty with the addition of a little bit of Ridge penalty. Figure~\ref{fig:7-man3} provides an example where the SNet penalty was used with $\alpha = 0.9$ and LQA-P intervals were constructed for a binary outcome. In this simulation, 1000 data sets were generated with $n = 250$ and $p = 50$, $\X \iid \Norm(0, 1)$ and $\bb_{1-6} = (-2, 2, -1, 1, -0.5, 0.5)$ with the rest being set to zero. Then $\y = Bern(\logit^{-1}(\X\bb)$).
+
+\begin{figure}[hbt!]
+    \begin{center}
+    \includegraphics[width=\linewidth]{figure7-man3}
+    \caption{\label{fig:7-man3} Results for the simulation described in \ref{sup:multiple} showing an application of LQA-P intervals to a logistic regression SNet with $\alpha = 0.9$. The top plots summarize the resulting HDIs for the variables 1-10 across the 1000 simulations. All 1000 HDIs are plotted, sorted by their midpoint, with those colored red that did not contain the true coefficient value (indicated by the horizontal dashed gold line). The bottom plots show a single example of intervals produced from one (randomly selected) of the 1000 datasets for the first 10 variables.}
+    \end{center}
+\end{figure}

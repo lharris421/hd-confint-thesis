@@ -20,8 +20,8 @@
 % Define margins
 \voffset 0.00in \addtolength{\voffset}{-.50in}
 \hoffset 0.00in
-\oddsidemargin 0.50in
-\evensidemargin 0.50in
+\oddsidemargin 0.54in
+\evensidemargin 0.54in
 \marginparwidth 40pt
 \marginparsep 10pt
 \topmargin 0.00in
@@ -34,8 +34,8 @@
 \textwidth 5.88in
 \brokenpenalty=10000
 
-\newcommand{\singlespace}{\baselineskip 1.0\li}
-\newcommand{\doublespace}{\baselineskip 1.5\li}
+\newcommand{\singlespace}{\baselineskip 1.1\li}
+\newcommand{\doublespace}{\baselineskip 2.0\li}
 \AtBeginEnvironment{table}{\singlespace}
 \AtBeginEnvironment{table}{\singlespace\renewcommand{\arraystretch}{1.0}}
 
@@ -85,9 +85,16 @@
 			\setcounter{figure}{0}
             \setcounter{table}{0}
                         \chapter{#1}
-			\thispagestyle{mainstyle}
-                        \addtocontents{toc}{\protect\vspace{0\li}}
-                        \addtocontents{toc}{\protect\vspace{1\li}}}
+			\thispagestyle{mainstyle}}
+
+% --- Add this near your TOC formatting block ---
+\makeatletter
+\let\l@chapter@orig\l@chapter
+\renewcommand{\l@chapter}[2]{%
+  \addvspace{\li}% space *before* each chapter entry
+  \l@chapter@orig{#1}{#2}%
+}
+\makeatletter
 
 \newcommand{\myvskip}{.50in}
 
@@ -431,14 +438,25 @@
 		\listoffigures
 		%──────────────────────────────────────────────────────────────────
         % If user wants a Preface, drop it here (roman‐numbered front matter)
-        \ifpreface
-          \newpage
-          \thispagestyle{frontstyle}
-		  \addtocontents{toc}{\protect\vspace{\li}}
-		  \addcontentsline{toc}{head}{PREFACE}
-          \prefacesection{Preface}
-          \prefacetext
-        \fi
+			% … inside \afterpreface, replace your existing \ifpreface … \fi with:
+			\ifpreface
+			\newpage
+			\thispagestyle{frontstyle}
+			\addtocontents{toc}{\protect\vspace{\li}}
+			\addcontentsline{toc}{head}{PREFACE}
+			{%
+				% ---- force double spacing for Preface only ----
+				\par
+				\begingroup
+				\baselineskip=2.0\li % <- same as your \doublespace
+				\prefacesection{Preface}
+				\prefacetext
+				\par
+				\endgroup
+				% -----------------------------------------------
+			}%
+			\fi
+
         %──────────────────────────────────────────────────────────────────
 	% The next three lines put the heading "CHAPTER" before the
 	% list of chapters in the toc.  If there is not a lof, they need

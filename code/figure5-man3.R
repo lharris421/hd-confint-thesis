@@ -29,13 +29,6 @@ for (i in 1:nrow(results_lookup)) {
 results <- bind_rows(results) %>%
   mutate(method = method_labels[method])
 
-results %>%
-  filter(method == "Elastic Net (PIPE-P)", variable %in% c("A1", "B1")) %>%
-  group_by(iteration) %>%
-  summarise(selected = all(estimate != 0)) %>%
-  pull(selected) %>%
-  mean()
-
 plots <- list()
 methods <- unique(results_lookup$method)
 set.seed(1234)
@@ -89,7 +82,7 @@ for (i in 1:length(unique(results$method))) {
     geom_text(
       data = coverage_labels,
       aes(x = -Inf, y = Inf, label = label),
-      hjust = -0.25, vjust = 1,
+      hjust = 0, vjust = 1,
       inherit.aes = FALSE,
       size = 4
     ) +

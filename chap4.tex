@@ -2,99 +2,115 @@
 
 \section{Introduction}
 
-The lasso (least absolute shrinkage and selection operator) is a penalized regression method that applies the $L_1$ penalty, $\lambda \sum_{j = 1}^p |\beta_j|$, to a loss function that depends on the outcome of interest where $\lambda$ is the regularization parameter that controls the amount of penalization and $\beta_j$ for $j \in \lbrace 1, \dots, p \rbrace$ are the regression coefficients. The $L_1$ penalty results both in regularization and selection of features. The ability of lasso to perform selection and estimation simultaneously as well as the predictive ability imparted by regularization has led to its widespread usage. However, the $L_1$ penalty makes inference for the lasso difficult as the lasso is singular at the origin and lacks a second order derivative. This is in addition to the fact that the estimates are intentionally biased which is an issue for obtaining traditional frequentist coverage. As such, most methods attempt to debias in one way or another and then construct intervals using this debiased estimator, essentially circumnavigating the issues introduced by the lasso penalty \citep{ZhangZhang2014, Javanmard2014, Lee2016}. However, in the process of debiasing, the alignment of the confidence intervals to the original lasso estimates is lost.
+The lasso (least absolute shrinkage and selection operator) is a penalized regression method that applies the $L_1$ penalty, $\lambda \sum_{j = 1}^p |\beta_j|$, to a loss function that depends on the outcome of interest where $\lambda$ is the regularization parameter that controls the amount of penalization and $\beta_j$ for $j \in \lbrace 1, \dots, p \rbrace$ are the regression coefficients. The $L_1$ penalty results both in regularization and selection of features. The ability of lasso to perform selection and estimation simultaneously as well as the predictive ability imparted by regularization has led to its widespread usage. However, the $L_1$ penalty makes inference for the lasso difficult as the lasso is singular at the origin and lacks a second order derivative. This is in addition to the fact that the estimates are intentionally biased which is an issue for obtaining intervals with traditional frequentist coverage. As such, methods targeting traditional frequentist coverage must attempt to debias in one way or another during intervals construction, essentially circumnavigating the issues introduced by the lasso penalty \citep{ZhangZhang2014, Javanmard2014, Lee2016}. However, in the process of debiasing, the alignment of the confidence intervals to the original lasso estimates is lost.
 
-Alternatively, Chapter 2 suggested an approach to interval construction that puts a priority on constructing intervals consistent with the lasso point estimates. Intervals constructed in this manner have properties that are a mix of confidence and credible intervals, and we refer to the resulting intervals as high-dimensional intervals (HDIs). This alternative approach, and the corresponding method Relaxed Lasso Posterior (RL-P), focuses on average rather than individual coverage. This of course means that the intervals constructed are biased just like the point estimates, but also means that the inference is in alignment with the original assumptions used in fitting the lasso.
+Alternatively, Chapter 2 suggested a framework to interval construction that puts a priority on constructing intervals more consistent with the lasso point estimates. This general approach, and the corresponding method Relaxed Lasso Posterior (RL-P), focuses on average rather than individual coverage. Doing so produces intervals that are biased just like the point estimates, but also leads to inference that is in better alignment with the original assumptions used in fitting the lasso. Intervals constructed in this manner have properties that are a mix of confidence and credible intervals, and we refer to the resulting intervals as high-dimensional intervals (HDIs).
 
-In Chapter 3, we continued forward with the added constraint that HDIs are centered on the corresponding lasso point estimates. Along these lines, we introduced two alternative methods PIPE Posterior (PIPE-P) and Local Quadratic Approximation Posterior (LQA-P) which have this guarantee as they are constructed from distributions where the lasso point estimates are the modes.
+RL-P constructs intervals from Laplace-Normal distributions by leveraging the Bayesian formulation of the lasso penalty as a Laplace prior. However, in severe cases, RL-P intervals do not contain the corresponding lasso point estimates. So, in Chapter 3, we built on this framework with the added constraint that HDIs are centered on the corresponding lasso point estimates. Along these lines, we introduced two alternative methods PIPE Posterior (PIPE-P) and Local Quadratic Approximation Posterior (LQA-P) which use the same construction as RL-P, but introduce alternative likelihood constructions that result in distributions where the lasso point estimates are the modes.
 
-While the methods proposed so far have been focused on lasso penalized linear regression, the general concepts carry over to other sparse penalties and other outcome types; this is the topic of the current manuscript. Of specific interest is the extension to penalties such as SCAD \citep{Fan2001} and MCP \citep{Zhang2010} which introduce less bias in comparison to the lasso. As a result, the corresponding biased SCAD and MCP intervals may provide a middle ground between biased lasso intervals and debiased lasso intervals by producing intervals and point estimates that align with each other while minimizing the bias introduced. In addition, we extend the methods introduced to Elastic Net type penalties as well as to Poisson and logistic penalized regression.
+While the methods proposed so far have been focused on lasso penalized linear regression, the general concepts carry over to other sparse penalties and other outcome types; this is the topic of the current manuscript. Of specific interest is the extension to penalties such as SCAD \citep{Fan2001} and MCP \citep{Zhang2010} which introduce less bias in comparison to the lasso. As a result, the corresponding biased SCAD and MCP intervals may provide a middle ground between biased lasso intervals and debiased lasso intervals by producing intervals and point estimates that align with each other while minimizing the bias introduced. In addition, we extend the methods to -Net type penalties as well as to Poisson and logistic penalized regression.
 
-All extensions in this manuscript are applicable to the previously proposed methods. All three methods proposed thus far rely on the connection between the lasso penalty and a Laplace prior in the Bayesian formulation of the lasso. We will revisit the details below, but it is this connection that is leveraged to construct HDIs and which is the heart of the extensions. As such, the extensions will be described as generally as possible, noting details related to specific methods where necessary. Throughout, results will be shown for PIPE-P for the sake of clarity while results for LQA-P are provided in \ref{sup:lqa}.
+All extensions in this manuscript are applicable to the previously proposed methods, as they all rely on the formulation of the penalty as a prior to construct distributions viewed as Bayesian posteriors which are defined piecewise using scaled parametric distributions, which we refer to as piecewise-scaled parametric distributions. We will revisit the details, but it is these distributions that are leveraged to compute HDIs. Throughout, results will be shown for the PIPE-P method for the sake of clarity while results for LQA-P are provided in \ref{sup:lqa}.
 
-In Section~\ref{sec:laplace-normal} we review the Laplace-Normal distribution and provide details on how to compute intervals from this distribution analytically. In Section~\ref{sec:review} we briefly review the details specific to the three methods introduced in Chapter 2 and Chapter 3. In Section~\ref{sec:bias_reducing}, we suggest an approach for approximating the intervals for the bias reducing penalties, SCAD and MCP and in Section~\ref{sec:enet} we detail how the methods can be extended to Elastic Net with a data augmentation method. Then, in Section~\ref{sec:alt-fam}, we extend the Laplace-Normal quantile computation to logistic and Poisson penalized regression. Finally, in Section~\ref{sec:multiple} we outline how these various extensions can be used in conjunction.
-
-\section{Laplace-Normal}
+In Section~\ref{sec:laplace-normal} we provide general details on how to analytically compute quantiles from piecewise-scaled parametric distributions in order to construct HDIs, using the Laplace-Normal as an example. In Section~\ref{sec:review} we review the details specific to the three methods introduced in Chapter 2 and Chapter 3 in greater generality. In Section~\ref{sec:bias_reducing}, we give the piecewise defined posteriors for SCAD and MCP and in Section~\ref{sec:enet} we show how the -Net penalties work into this framework. Then, in Section~\ref{sec:alt-fam}, we extend the methods to logistic and Poisson penalized regression. All the extensions can be combined with minimal effort, but specific details will be noted where necessary and an example application is provided in \ref{sup:multiple}.
+\section{Piecewise-Scaled Parametric Posteriors}
 \label{sec:laplace-normal}
 
-The connection between the Laplace-Normal distribution and HDIs for the lasso is at the heart of the methods proposed as well as the extensions that follow. The lasso can be formulated as a Bayesian regression model with a Laplace (double exponential) prior and a Normal likelihood as covered extensively in \cite{Park2008}. In Chapter 2, we used this fact to construct intervals for lasso from the quantiles of Laplace-Normal distributions for each $\beta_j$. In Chapter 3, slight modifications in the form of alternative Normal likelihoods were introduced which lead to intervals from distributions where the lasso estimates are the modes. Regardless, all three interval construction methods suggested rely on computing intervals from a Laplace-Normal distribution and all the extensions covered in this manuscript build off this process. In Section~\ref{sec:laplace-normal-comp} we review the details in general of how quantiles can be computed from these distributions in closed form. Then, in Section~\ref{sec:look_like} we provide examples of Laplace-Normal densities. Throughout, $\X$ is standardized so that $\x_j \Tr \x_j = n$.
+The ability to construct distributions viewed as Bayesian posteriors is at the heart of the methods proposed as well as the extensions that follow. To review the setup for linear regression lasso, note that the lasso can be formulated as a Bayesian regression model with a Laplace (double exponential) prior and a Normal likelihood \citep{Park2008}. In Chapter 2, we used this fact to construct intervals for the lasso from the quantiles of Laplace-Normal distributions for each $\beta_j$. In Chapter 3, slight modifications in the form of alternative Normal likelihoods were introduced which lead to intervals from distributions where the lasso estimates are the modes. Regardless, all three interval construction indicate how to define the Normal Likelihood. The extensions that follow either define an alternative prior (alternate penalties) or how to adjust the Normal likelihood (alternative outcomes). In Section~\ref{sec:laplace-normal-comp} we detail in general how quantiles can be computed from these piecewise-scaled parametric distributions and use the Laplace-Normal as an example. Then, in Section~\ref{sec:look_like} we provide examples of Laplace-Normal densities. 
 
-
-\subsection{An Overview of Laplace-Normal Quantile Computation}
+\subsection{Quantile Computation}
 \label{sec:laplace-normal-comp}
 
-While, the Laplace-Normal does not have a standard parametric form, the quantiles can still be computed analytically. In this section we review the details --- originally outlined for a specific setup in a supplement of Chapter 2 --- needed to compute quantiles in closed form from any Laplace and any Normal distribution.
+While, the piecewise defined posteriors that are leveraged in PIPE-P and LQA-P as well as the extensions in this manuscript do not have a standard parametric form, the quantiles can still be computed analytically. 
+
+The general outline is:
+\begin{enumerate}
+  \item Define the posterior piecewise, simplifying each component to a standard parametric form and a multiplicative constant
+  \item Compute the mass in each of the underlying parametric distributions in their respective intervals
+  \item Use the constants in step 1 and the masses in step 2 to compute the total probability in each interval of the posterior
+  \item Take the ratio of the respective components in step 2 to step 3, yielding weights
+  \item Use the probabilities in step 3 and the weights in step 4 to map the probability of interest to a corresponding probability on an underlying parametric distribution
+  \item Invert the CDF to compute the quantile of interest
+\end{enumerate}
+
+Now we use the Laplace-Normal distribution as a example that can be applied to all the extensions in this manuscript. The example will be described on the standard scale, but in practice all computations should occur on the log scale.
 
 First consider a Normal likelihood parameterized as usual:
 $$L(\theta | \mu, s^2) \propto \exp\left(-\frac{1}{2s^2}(\theta - \mu)^2\right).$$
 
-\noindent Then consider a Laplace prior on $\theta$ with rate parameter $\gam$:
-$$p(\theta) = \tfrac{\gam}{2}\exp(-\gam \abs{\theta}).$$
+\noindent Then consider a Laplace prior on $\theta$:
+$$p(\theta) \propto \exp(-\frac{\lam}{s^2} \abs{\theta}).$$
 
-\noindent The key is to reparameterize the prior with $\gam = \lam / s^2$. With this reparameterization, we obtain the following Laplace-Normal distribution:
+\noindent With this, we obtain the following Laplace-Normal distribution:
 \as{
-p(\theta | \mu, s^2) &\propto \exp(-\tfrac{1}{2s^2}(\theta - \mu)^2) \tfrac{\lam}{2s^2}\exp(- \tfrac{\lam}{s^2} \abs{\theta}) \\
-&\propto \exp(-\tfrac{1}{2s^2}(\theta^2 - 2 \mu \theta)) \exp(-\tfrac{\lambda} {s^2} \abs{\theta}) \\
-&= \exp(-\tfrac{1}{2s^2} (\theta^2 - 2(\mu \theta - \lambda \abs{\theta}))) \\
-&=
-\begin{cases}
-\exp(-\frac{1}{2s^2} (\theta_j^2 - 2(\mu + \lambda)\theta_j)), \text{ if } \theta < 0, \\
-\exp(-\frac{1}{2s^2} (\theta_j^2 - 2(\mu - \lambda)\theta_j )), \text{ if } \theta \geq 0 \\
-\end{cases} \\
+p(\theta | \mu, s^2) 
 &\propto
 \begin{cases}
-C_{-} \exp(-\frac{1}{2s^2} (\theta_j - (\mu + \lambda))^2), \text{ if } \theta < 0, \\
-C_{+} \exp(-\frac{1}{2s^2} (\theta_j - (\mu - \lambda))^2), \text{ if } \theta \geq 0 \\
+C_{1} \exp(-\frac{1}{2s^2} (\theta_j - (\mu + \lambda))^2), \text{ if } \theta < 0, \\
+C_{2} \exp(-\frac{1}{2s^2} (\theta_j - (\mu - \lambda))^2), \text{ if } \theta \geq 0 \\
 \end{cases}
 }
 
-\noindent where $C_{-} = \exp(\mu \lam / s^2)$ and $C_{+} = \exp(- \mu \lam / s^2)$.
+\noindent where $C_{1} = \exp(\mu \lam / s^2)$ and $C_{2} = \exp(- \mu \lam / s^2)$.
 
-The piecewise defined distribution is made up of a kernel of two Normal distributions. This can be leveraged and draws can be analytically obtained through a mapping onto the respective Normal distributions. Note, the use of ``tails'' here refers to the entirety of a distribution between 0 and $\pm \infty$. That is, the lower tail is any part of the distribution below 0 and the upper tail is any part greater than 0, therefore $P(q \in lower \cup q \in upper) = 1$, where $q$ is the quantile of interest. Accordingly, we will let the tail probabilities in each of the two Normals to transformed on to be denoted $Pr_{-}$ and $Pr_{+}$ respectively and the probability in each of the tails of the Laplace-Normal be denoted $Post_{-}$ and $Post_{+}$ respectively. $Pr_{\pm}$ is trivial to compute with any statistical software. $Post_{\pm}$ is conceptually simple, although care must be taken to avoid numerical instability. With this notation in place, $Post_- = (C_{-} Pr_{-})/(C_{-} Pr_{-} + C_{+} Pr_{+})$ and similarly for $Post_+$. To avoid numerical instability, or rather to handle it properly when it is unavoidable, we work on the $\log$ scale. This works well for most of the problem, but computation of $Post_-$ and $Post_+$ need something a bit more since, for example, $\log(Post_-) = \log(C_{-}Pr_{-}) - \log(C_{-} Pr_{-} + C_{+} Pr_{+})$. That is, the denominator still must be computed then the $\log$ taken which does not allow operating on the $\log$ scale to fully address potential numerical instability. Instead, let $\ell_{-} := \log C_{-} + \log Pr_{-}$, $\ell_{+} := \log C_{+} + \log Pr_{+}$, and $\Delta := \ell_{-} - \ell_{+}$, then $\log(Post_-)$ can be computed with $\Delta - \log\bigl(1 + \exp(\Delta)\bigr)$. This still doesn't completely address the issue, however, if $\exp(\Delta)$ is infinite then $C_-Pr_- >> C_+Pr_+$ and $\log(Post_-) \approx 0$ which means $Post_- \approx 1$ (equivalently $Post_+ \approx 0$).
+The piecewise defined distribution is made up of two scaled truncated Normal distributions. The quantiles can be obtained by mapping the probabilities of interest onto on of the respective underlying unscaled Normal distributions, $\Norm(\mu \pm \lam, s^2)$. Let $K$ be the number of pieces (here $K = 2$), and let $I_i=[\ell_i,u_i]$ be the support for piece $i$. The pieces are numbered from left to right based on their support. On their respective support, we will let the mass in the unscaled Normals be denoted $Pr_{1}$ and $Pr_{2}$ and the probability in each of the corresponding components of the Laplace-Normal be denoted $Post_{1}$ and $Post_{2}$. These can be computed stably as follows. Let $\r = \lbrace \log(C_1Pr_1), \log(C_2Pr_2) \rbrace$ and $m = \max_i r_i$, then $c = m + \log(\sum\exp(r_i - m))$ and $Post_i = \exp(r_i - c)$. Note $\sum Post_i = 1$.
 
-With these values, we can compute the quantile by mapping the respective probability $p$ for the Laplace-Normal onto the probability $p^*$ for the corresponding Normal. Which Normal the quantile of interest ultimately comes from is determined based on $Post_{\pm}$. If $p \leq Post_{-}$, then $p$ would be mapped onto the negative Normal. If $p > Post_{-}$, then $p$ would be mapped onto the positive Normal.  For example, if $Post_{+} = 0.98$ and $p = 0.1$ then $p$ would be mapped onto the positive Normal. The transformation to map a given probability from the Laplace-Normal depends on which tail the quantile resides in (equivalently which Normal it is being mapped to, the positive or negative). This map is simply
+With $Pr_i$ and $Post_i$ defined, we can compute a quantile by mapping the respective probability $p$ for the Laplace-Normal onto the probability $p^*$ on one of the underlying Normal distributions. The cumulative sum of $Post_i$ can be used to determine which section of the posterior the quantile comes from. For example, if $Post_1 = 0.3$ then $p = 0.1$ would have a corresponding quantile in $I_1$ but $p = 0.4$ would fall into $I_2$. Let $i^*$ denote the selected support.
+
+Then, let $f_{i^*}(x)$ be the density for the underlying distribution in support $i^*$. The transformation to map a given probability from the Laplace-Normal depends on which support the quantile resides in: 
 $$
-p^* = \frac{Pr_{\pm}}{Post_{\pm}} p.
+p^* = \frac{Pr_{i^*}}{Post_{i^*}} (p - \sum_{j = 1}^{{i^*} - 1} Post_j) + \int_{-\infty}^{\ell_{i^*}} f_{i^*}(x) dx,
 $$
 
-\noindent Once the respective probability is mapped, one can simply use the inverse of the Normal CDF that the probability was mapped to. That being said, there is a nuance worth pointing out. When transforming the probabilities, the step to determine which tail the respective quantile comes from occurs first. With this, the probability must be adjusted so that it refers to the probability between the quantile of interest and the respective tail (i.e. $1-p$ for the upper tail). After this, then the transformation can be applied and the quantile computed. Computing a quantile from the Laplace-Normal distribution is summarized in Algorithm~\ref{alg:quantile-3}.
+\noindent where if $i^* = 1$ both the sum and the integral are taken to be $0$. 
+
+The sum tells how much probability has already been accounted for in earlier regions of the posterior and the weight $Pr_{i^*} / Post_{i^*}$ indicates how much probability in the distribution transformed onto counts relative to the probability in the posterior over support $i^*$. Together, these tell how much probability is needed in distribution $i^*$ to get to the quantile. However, we need to accumulate this probability from $\ell_{i^*}$, so the integral tells us how far we need to shift over to be at $\ell_{i^*}$. Once the respective probability is mapped, we can simply use the inverse of the Normal CDF that the probability was mapped to.
+
+Computing a quantile from any piecewise-scaled parametric distribution is outlined in Algorithm~\ref{alg:quantile-general}.
 
 \begin{algorithm}
-\caption{Compute Quantile for Laplace-Normal Distribution}
-\label{alg:quantile-3}
+\caption{Quantile of a Piecewise-Scaled Parametric Distribution}
+\label{alg:quantile-general}
 \begin{algorithmic}[1]
-  \Require
-    $\mu,\;s^2,\;\lambda,\;p$ \Comment{mean, variance, penalty, probability of interest}
-  \Statex
-  \State // 1. Compute prior mass for negative and positive regions (on log-scale)
-  \State $\log Pr_{-} \gets \log \left(\Phi\bigl(0;\,\mu + \lambda,\;s^2\bigr)\right)$
-  \State $\log Pr_{+} \gets \log \left(1 - \Phi\bigl(0;\,\mu - \lambda,\;s^2\bigr)\right)$
-  \Statex
-  \State // 2. Compute weights $Post_{-},\,Post_{+}$ with log-scale stabilization
-  \State $\ell_{-} \gets \log C_{-} + \log Pr_{-}$
-  \State $\ell_{+} \gets \log C_{+} + \log Pr_{+}$
-  \State $\Delta \gets \ell_{-} - \ell_{+}$
-  \If{$\exp(\Delta) = \infty$}
-    \State $\log Post_{-} \gets 0$  \Comment{since $C_-Pr_- \gg C_+Pr_+$}
-  \Else
-    \State $\log Post_{-} \gets \Delta - \log\bigl(1 + \exp(\Delta)\bigr)$
-  \EndIf
-  \State $Post_{-} \gets \exp(\log Post_{-})$
-  \State $Post_{+} \gets 1 - Post_{-}$
-  \Statex
-  \State // 3. Invert CDF on the appropriate component
-  \If{$p \le Post_{-}$}
-    \State $w \gets \dfrac{Pr_{-}}{Post_{-}}$
-    \State $q \gets \Phi^{-1}\bigl(p \,w;\;\mu + \lambda,\;s^2\bigr)$
-  \Else
-    \State $w \gets \dfrac{Pr_{+}}{Post_{+}}$
-    \State $q \gets \Phi^{-1}\!\Bigl(1 - (1-p)\,w;\;\mu - \lambda,\;s^2\Bigr)$
-  \EndIf
-  \State \Return $q$
+\Require
+${(C_i,F_i,F_i^{-1},I_i=[\ell_i,u_i])}_{i=1}^K, p\in(0,1)$
+\Statex
+\State // 1. Base (unscaled) interval masses
+\For{$i=1$ {\bf to} $K$}
+\State $\alpha_i \gets F_i(\ell_i)$ \Comment{$\alpha_i=0$ if $\ell_i=-\infty$}
+\State $\beta_i \gets F_i(u_i)$ \Comment{$\beta_i=1$ if $u_i=\infty$}
+\State $Pr_i \gets \beta_i - \alpha_i$
+\EndFor
+\Statex
+\State // 2. Normalize piece probabilities via log-sum-exp
+\For{$i=1$ {\bf to} $K$}
+\State $r_i \gets \log C_i + \log Pr_i$
+\EndFor
+\State $m \gets \max_i r_i$
+\State $c \gets m + \log\left(\sum_{i=1}^K \exp(r_i - m)\right)$
+\For{$i=1$ {\bf to} $K$}
+\State $Post_i \gets \exp(r_i - c)$
+\EndFor
+\Statex
+\State // 3. Locate active piece for probability $p$
+\State $S \gets 0$
+\For{$i=1$ {\bf to} $K$}
+\State $S \gets S + Post_i$
+\If{$p \le S$}
+\State $i^\star \gets i$; \ \ $S_{prev} \gets S - Post_i$
+\State \textbf{break}
+\EndIf
+\EndFor
+\Statex
+\State // 4. Map $p$ into the base CDF of piece $i^\star$ and invert
+\State $w \gets Pr_{i^\star} / Post_{i^\star}$ 
+\State $p^\star \gets F_{i^\star}(\ell_{i^\star}) + w \cdot (p - S_{prev})$
+\State $q \gets F_{i^\star}^{-1}(p^\star)$
+\State \Return $q$
 \end{algorithmic}
 \end{algorithm}
 
-Figure~\ref{fig:2-man3} is a graphical representation of what is happening in the procedure above for a simple example with $\mu = 1$, $s^2 = 1$, and $\lam = 0.5$. The red and blue Normal distributions are the original Normal likelihood shifted by $\pm \lambda$. The solid portions of the Normal densities indicate the actual part of the Normals that are ``used''. For the left (red) it is the right tail and for the right (blue) it is the left tail. This is flipped if $\mu$ is negative. The black curve is the resulting distribution which is made up of the properly normalized tails of the shifted Normals, however, this is not needed for the procedure here. Focusing on the lower bound, which in this case corresponds to $p = 0.025$, the goal is to compute the left black dashed vertical line. The blue shaded area is the corresponding probability $p^*$ and the dashed line is the lower bound computed as the quantile from the blue Normal for the probability $p^*$ which is exactly equal to the quantile corresponding to $p$ on the Laplace-Normal (the left gray shaded region).
+Figure~\ref{fig:2-man3} is a graphical representation of what is happening in the procedure above for a simple example with $\mu = 1$, $s^2 = 1$, and $\lam = 0.5$. The red and blue Normal distributions are the original Normal likelihood shifted by $\pm \lambda$. The solid portions of the Normal densities indicate the pieces of the underlying Normals that are in their respective support. The black curve is the resulting distribution which is made up of the properly normalized truncated Normals, however, this is for visualization purposes and not needed for the procedure here. Focusing on the lower bound, which in this case corresponds to $p = 0.025$, the goal is to compute the left black dashed vertical line. The blue shaded area is the corresponding probability $p^*$ and the dashed line is the lower bound computed as the quantile from the blue Normal for the probability $p^*$ which is exactly equal to the quantile corresponding to $p$ on the Laplace-Normal (the left gray shaded region).
 
 \begin{figure}[hbt!]
     \begin{center}
@@ -106,7 +122,7 @@ Figure~\ref{fig:2-man3} is a graphical representation of what is happening in th
 \subsection{Laplace-Normal Densities}
 \label{sec:look_like}
 
-The shape of a Laplace-Normal distribution varies considerably based on the relative size of $\mu$ and $\lam$ which has direct implications on the resulting intervals. Intervals arising from Laplace-Normal distributions are often skewed away from zero unless $\mu$ is small or large relative to $\lam$, in which case the intervals are more symmetric. Below is a simple setting where $s^2 = 1$, $\lam = 0.4$, and $\mu$ is set to be $0.1, 0.5$, and $1$ in the left, middle, and right panels respectively.
+The shape of a Laplace-Normal distribution varies considerably based on the relative size of $\mu$ and $\lam$ which has direct implications on the resulting intervals. Intervals arising from Laplace-Normal distributions are often skewed away from zero unless $\mu$ is small or large relative to $\lam$, in which cases the intervals are more symmetric. Below is a simple setting where $s^2 = 1$, $\lam = 0.4$, and $\mu$ is set to be $0.1, 0.5$, and $1$ in the left, middle, and right panels respectively.
 
 \begin{figure}[hbt!]
     \begin{center}
@@ -117,16 +133,12 @@ The shape of a Laplace-Normal distribution varies considerably based on the rela
 
 In all three panels, the density is continuous but non-differentiable at zero. When $\mu < \lam$, the distribution has a sharp spike at zero for the mode. The larger $\mu$ is relative to $\lam$, the more the distribution resembles that of a Normal distribution. In fact, if $\mu$ is large enough relative to $\lam$, the distribution is \emph{essentially} a Normal distribution. 
 
-Ultimately, the various methods and the extensions that follow amount to determining the appropriate values for $\mu$, $s^2$, and $\lam$.
-
 \section{Method Review}
 \label{sec:review}
 
-Before outlining the extensions, we review the three previously introduced methods, specifically how they respectively set $\mu$ and $s^2$ in their corresponding Normal likelihoods. While the lasso objective does imply a likelihood, the high-dimensional likelihood is cumbersome to work with directly --- when constructing an interval for $\beta_j$, all other coefficients act as nuisance parameters. So, the methods vary in how they approximate the high-dimensional likelihood for each feature. Once the Laplace-Normals are computed, each approach constructs $1-\alpha$ central intervals from these distributions.
+Before outlining the extensions, we review in general the three previously introduced methods, specifically how they respectively set $\mu$ and $s^2$ in the Normal likelihoods. While the penalized regression objective does imply a likelihood, the high-dimensional likelihood is cumbersome to work with directly --- when constructing an interval for $\beta_j$, all other coefficients act as nuisance parameters. So, the methods vary in how they approximate the high-dimensional likelihood for each feature. Although the methods were introduced with lasso, they define the likelihood either independent of the penalty or in a way it can be extended to other penalties and so we present the generalized form here.
 
-The objective function for lasso-penalized linear regression \citep{Tibshirani1996} is
-$$Q(\bb|\X,\y,\lambda) = \tfrac{1}{2n}\norm{\y - \X\bb}_2^2 + \lambda\norm{\bb}_1,$$
-where $\y$ is a length $n$ vector of independent outcomes. Let $\bbh$ be the lasso estimates for $\boldsymbol{\beta}$ at the value of $\lam$ which minimizes cross validation error. Let $\hat{S} = \lbrace k: \hat{\beta}_k \neq  0 \rbrace$ denote the set of selected features. Then, let $\hat{S}_j$ denote the set of selected features that excludes feature $j$, so that $\hat{S}_j = \hat{S} \text{ if } j \notin \hat{S}$ and $\hat{S}_j = \hat{S} - \lbrace j \rbrace \text{ if } j \in \hat{S}$. Additionally, let $\r_j = \y - \X_{-j}\bbh_{-j}$ be the partial residuals obtained by excluding feature $j$. The distinguishing features between the three methods are summarized in Table~\ref{tab:review}.
+Let $\X$ be an $n \times p$ matrix of features and $\y$ be a length $n$ vector of independent outcomes. Throughout, $\X$ is standardized so that $\x_j \Tr \x_j = n$. Additionally, let $\bbh$ be the estimates for $\boldsymbol{\beta}$ using penalized regression at the value of $\lam$ which minimizes cross validation error. Let $\hat{S} = \lbrace k: \hat{\beta}_k \neq  0 \rbrace$ denote the set of selected features. Then, let $\hat{S}_j$ denote the set of selected features that excludes feature $j$, so that $\hat{S}_j = \hat{S} \text{ if } j \notin \hat{S}$ and $\hat{S}_j = \hat{S} - \lbrace j \rbrace \text{ if } j \in \hat{S}$. Additionally, let $\r_j = \y - \X_{-j}\bbh_{-j}$ be the partial residuals obtained by excluding feature $j$. The distinguishing features between the three methods are summarized in Table~\ref{tab:review}.
 
 \begin{table}[ht]
 \centering
@@ -136,22 +148,22 @@ where $\y$ is a length $n$ vector of independent outcomes. Let $\bbh$ be the las
 \midrule
 RL-P   & $\Q_{\hat{S}_j} = \I - \X_{\hat{S}_j}(\X_{\hat{S}_j} \Tr \X_{\hat{S}_j})^{-1} \X_{\hat{S}_j} \Tr$ & $\tilde{\beta}_j = (\x_j \Tr \Q_{\hat{S}_j} \x_j)^{-1} \x_j \Tr \Q_{\hat{S}_j} \y$  \\
 PIPE-P & $\Q_{\hat{S}_j} = \I - \X_{\hat{S}_j}(\X_{\hat{S}_j} \Tr \X_{\hat{S}_j})^{-1} \X_{\hat{S}_j} \Tr$ & $z_j = \tfrac{1}{n}\x_j \Tr\r_{-j}$ \\
-LQA-P  & $\tilde{\Q}_{\hat{S}_j} = \I_n - \X_{\hat{S}_j}(\tfrac{1}{n}\X_{\hat{S}_j} \Tr\X_{\hat{S}_j} + \lam\W^{*-1})^{-1}\tfrac{1}{n}\X_{\hat{S}_j} \Tr$ & $z_j = \tfrac{1}{n}\x_j \Tr\r_{-j}$ \\
+LQA-P  & $\tilde{\Q}_{\hat{S}_j} = \I_n - \X_{\hat{S}_j}(\tfrac{1}{n}\X_{\hat{S}_j} \Tr\X_{\hat{S}_j} + \P \W^{*-1})^{-1}\tfrac{1}{n}\X_{\hat{S}_j} \Tr$ & $z_j = \tfrac{1}{n}\x_j \Tr\r_{-j}$ \\
 \bottomrule
 \end{tabular}
-\caption{Respective projection matrices and means for the three HDI methods, RL-P, PIPE-P, and LQA-P. For LQA-P: $\W^* = \diag(|\bh_j|)_{j \in \hat{S}_j}$.}
+\caption{Respective projection matrices and means for the three HDI methods, RL-P, PIPE-P, and LQA-P. For LQA-P: $\P = \diag(|p'_\lam(\beta_j)|)_{j \in \hat{S}_j}$ and $\W^* = \diag(|\bh_j|)_{j \in \hat{S}_j}$.}
 \label{tab:review}
 \end{table}
 
 The likelihood variance estimate for for RL-P and PIPE-P is $\hat{\sigma}^2 / \x_j \Tr \Q_{\hat{S}_j} \x \Tr$ and for LQA-P is $\hat{\sigma}^2 / \x_j \Tr \tilde{\Q}_{\hat{S}_j} \x \Tr$ where in both cases $\hat{\sigma}^2$, the error variance, is estimated using the suggestion of \cite{Reid2016} with $\hat{\sigma}^2 = ||\y - \X\bbh||_2^2 / (n - |\hat{S}_{\CV}|)$, where $|\hat{S}_{\CV}|$ = $\sum \left( \bbh \neq 0 \right)$.  
 
-In summary, LQA-P and PIPE-P share the same likelihood mean while PIPE-P and RL-P share the same likelihood variance. The likelihood mean for PIPE-P and LQA-P is based on a partial projection onto the active features (i.e., uses the shrunken lasso estimates) whereas the mean for RL-P is based on a full projection onto the active features. Meanwhile, the likelihood variance for PIPE-P and RL-P is calculated based on a full projection onto the active features whereas for LQA-P it is based on a partial projection.
+In summary, LQA-P and PIPE-P share the same likelihood mean while PIPE-P and RL-P share the same likelihood variance. The likelihood mean for PIPE-P and LQA-P is based on a partial projection onto the active features (i.e., uses the shrunken estimates) whereas the mean for RL-P is based on a full projection onto the active features. Meanwhile, the likelihood variance for PIPE-P and RL-P is calculated based on a full projection onto the active features whereas for LQA-P it is based on a partial projection.
 
 \section{Bias Reducing Penalties (MCP and SCAD)}
 \label{sec:bias_reducing}
 
 
-A common argument against accepting intervals that have correct average coverage but vary in terms of individual coverage is that the variables that are potentially of the greatest interest (those with the largest effect) are the ones that have the lowest coverage. With that being said, this should not be counted against the proposed interval methods. This is in inherently a behavior tied to the penalty used in estimation.
+A common argument against accepting intervals that have correct average coverage but vary in terms of individual coverage is that the variables that are potentially of the greatest interest (those with the largest effect) are the ones that have the lowest coverage. With that being said, this should not be counted against the proposed interval methods. This is inherently a behavior tied to the penalty used in estimation.
 
 If this is of concern, then an alternative penalty ought to be considered. Two penalties that we discuss here are the Smoothly Clipped Absolute Deviation (SCAD) penalty and the Minimax Concave Penalty (MCP). The SCAD penalty, introduced by \cite{Fan2001}, is a concave function that heavily shrinks small coefficients while leaving sufficiently large ones essentially unpenalized, yielding an estimator with the oracle property. The MCP penalty, proposed by \cite{Zhang2010}, uses a minimax-concave piecewise quadratic-linear form, which produces nearly unbiased coefficient estimates and consistent variable selection under mild conditions. Both penalties have a tuning parameter, $\gamma$, which controls the amount of curvature. The SCAD and MCP penalties are defined as follows:
 $$
@@ -197,53 +209,119 @@ These penalties are often referred to as non-convex penalties with $\gam$ determ
 
 \subsection{Overview}
 
-The idea behind constructing intervals for SCAD and MCP relies on an approximation motivated by how they relate to the lasso. The overarching concept is to construct the intervals just as we would the lasso, ignoring the relaxation and then do a post-hoc adjustment. To fully explain the concept, we start off with reviewing the coordinate descent algorithm for lasso. Coordinate descent is the main algorithm used for computing lasso estimates. The general idea is to optimize the objective function for each $\beta_j$ conditional on $\bbh_{-j}$ one at a time, iteratively cycling though all the parameters until convergence is reached. Coordinate descent is particularly useful for estimators like lasso which have a simple closed form solution in a single dimension. Specifically for the lasso, the update step for $\beta_j$ is the soft thresholding operator $\beta_j \gets S(z_j|\lambda)$ where,
-$$
-S(z_j\,|\,\lambda)=
+Computation of the intervals for SCAD and MCP proceed exactly as described in Algorithm~\ref{alg:quantile-general}. What remains to be worked out is the piecewise defined distributions. Here, as in Section~\ref{sec:laplace-normal-comp}, the details are provided in general for any Normal likelihood.
+
+Priors corresponding to penalties are proportional to $\exp(-p_\lam(\theta) / s^2)$, where $p_\lam(\theta)$ is the respective penalty. This leads to a piecewise defined posterior for SCAD of
+
+\[
+p(\theta \mid \mu, s^2)
+\;\propto\;
 \begin{cases}
-z_j-\lambda & \text{if } z_j>\lambda,\\[4pt]
-0          & \text{if } |z_j|\le \lambda,\\[4pt]
-z_j+\lambda & \text{if } z_j<-\lambda.
+  C_{1}\;
+  \exp\!\Big(-\dfrac{(\theta-\mu)^2}{2\,s^2}\Big),
+  & \theta < -\,\gamma\lambda,\\[2ex]
+
+  C_{2}\;
+  \exp\!\Bigg(
+    -\dfrac{\Big(\theta - \dfrac{(\gamma-1)\mu + \gamma\lambda}{\gamma-2}\Big)^{\!2}}
+            {2\,s^2 \dfrac{\gamma-1}{\gamma-2}}
+  \Bigg),
+  & -\gamma\lambda \le \theta < -\lambda,\\[3ex]
+
+  C_{3}\;
+  \exp\!\Big(-\dfrac{(\theta-(\mu+\lambda))^2}{2\,s^2}\Big),
+  & -\lambda \le \theta < 0,\\[2ex]
+
+  C_{4}\;
+  \exp\!\Big(-\dfrac{(\theta-(\mu-\lambda))^2}{2\,s^2}\Big),
+  & 0 \le \theta \le \lambda,\\[2ex]
+
+  C_{5}\;
+  \exp\!\Bigg(
+    -\dfrac{\Big(\theta - \dfrac{(\gamma-1)\mu - \gamma\lambda}{\gamma-2}\Big)^{\!2}}
+            {2\,s^2 \dfrac{\gamma-1}{\gamma-2}}
+  \Bigg),
+  & \lambda < \theta \le \gamma\lambda,\\[3ex]
+
+  C_{6}\;
+  \exp\!\Big(-\dfrac{(\theta-\mu)^2}{2\,s^2}\Big),
+  & \theta > \gamma\lambda,
 \end{cases}
-$$
+\]
 
-\noindent Likewise, SCAD and MCP are also solved using coordinate descent with their respective thresholding operators written as follows with the soft thresholding operator of the lasso used where possible:
-$$
-\renewcommand{\arraystretch}{1.25}
+\[
+\text{with constants}\qquad
 \begin{aligned}
-\textbf{MCP threshold}:\qquad
-T_{\text{MCP}}\!\bigl(z_j\,|\,\lambda,\gamma\bigr)
-  &=\begin{cases}
-      \dfrac{\gamma}{\gamma-1}\,S\!\bigl(z_j\,|\,\lambda\bigr)
-        & \text{if } |z_j|\le\gamma\lambda,\\[6pt]
-      z_j &\text{if } |z_j|>\gamma\lambda;
-    \end{cases}\\[12pt]
-\textbf{SCAD threshold}:\qquad
-T_{\text{SCAD}}\!\bigl(z_j\,|\,\lambda,\gamma\bigr)
-  &=\begin{cases}
-      S\!\bigl(z_j\,|\,\lambda\bigr) & \text{if } |z_j|\le 2\lambda,\\[6pt]
-      \displaystyle
-      \frac{\gamma-1}{\gamma-2}S\!\bigl(z_j\,|\frac{\gam \lam}{\gam - 1})
-        &\text{if } 2\lambda<|z_j|\le\gamma\lambda,\\[8pt]
-      z_j &\text{if } |z_j|>\gamma\lambda.
-    \end{cases}
+C_{1} = C_{6}
+&= \exp\!\Big(-\frac{(\gamma+1)\lambda^2}{2\,s^2}\Big),\\[1ex]
+C_{2}
+&= \exp\!\Bigg(
+    \frac{\displaystyle \Big(\dfrac{(\gamma-1)\mu + \gamma\lambda}{\gamma-2}\Big)^{\!2}}
+         {2\,s^2 \dfrac{\gamma-1}{\gamma-2}}
+    - \frac{\mu^2}{2\,s^2}
+    + \frac{\lambda^2}{2(\gamma-1)\,s^2}
+  \Bigg),\\[2ex]
+C_{3}
+&= \exp\!\Big(\frac{(\mu+\lambda)^2 - \mu^2}{2\,s^2}\Big),\qquad
+C_{4}
+= \exp\!\Big(\frac{(\mu-\lambda)^2 - \mu^2}{2\,s^2}\Big),\\[1ex]
+C_{5}
+&= \exp\!\Bigg(
+    \frac{\displaystyle \Big(\dfrac{(\gamma-1)\mu - \gamma\lambda}{\gamma-2}\Big)^{\!2}}
+         {2\,s^2 \dfrac{\gamma-1}{\gamma-2}}
+    - \frac{\mu^2}{2\,s^2}
+    + \frac{\lambda^2}{2(\gamma-1)\,s^2}
+  \Bigg).
 \end{aligned}
-$$
+\]
 
-\noindent Note that above $\z_j$ is written generally to use $\bbh$ estimated with the respective penalty.
+\noindent For MCP the piecewise defined distribution is
 
-Reviewing $T_{\text{MCP}}$ and $T_{\text{SCAD}}$, we can see how they relate to the soft thresholding operator of the lasso. They both essentially provide a scaled back version of the soft thresholding operator. To describe how we use this relation in interval construction, consider MCP as an example. Let $q_{2.5\%}(\lam)$ represent the 2.5\%ile from a Laplace-Normal distribution using the $\lam$ value selected for the original MCP estimates as well as using the MCP estimates in the computation of $z_j$. The general idea for approximating $q_{2.5\%}(\lam, \gam)$ (the true MCP quantile) is to treat $q_{2.5\%}(\lam)$ as if it came from $S(z_{j,2.5\%}|\lambda)$, invert the soft thresholding operator, and then apply the MCP thresholding operator. That is approximate $q_{2.5\%}(\lam, \gam)$ with
-$$
-\tilde{q}_{2.5\%}(\lam, \gam) = T_{\text{MCP}}\!\bigl(S^{-1}(z_{j,2.5\%}|\lambda)|\lambda,\gamma\bigr).
-$$
+\[
+p(\theta \mid \mu, s^2)
+\;\propto\;
+\begin{cases}
+  C_{1}\;
+  \exp\!\Big(-\dfrac{(\theta-\mu)^2}{2\,s^2}\Big),
+  & \theta < -\,\gamma\lambda,\\[2.0ex]
 
-It should be stressed that this is an approximation, not an exact solution. While it is trivial to see that this is an exact solution for the modes (estimates) this is not the case for the quantiles of the distributions. Nonetheless, we have found the results to be reasonable in practice and since the transformation is monotonic, the intervals produced still contain the corresponding point estimates. While it is simple enough to write out the piece-wise priors for SCAD and MCP, calculating their intervals in closed form remains a challenge to be solved and numerical integration proves either to be unreliable or computationally burdensome, which was the primary motivation for appealing to an approximation. How good is this approximation? From comparing the approximation to simple scenarios where the true intervals can be computed, we can say it is slightly over conservative in that it produces intervals that contain the true intervals. The lower bound is always smaller than the true lower bound and the upper bound is always larger than the true upper bound. The approximation error diminishes when either the true bound is near zero (where the penalties are very similar) or when the likelihood mean is large relative to $\lam$.
+  C_{2}\;
+  \exp\!\Bigg(
+    -\,\dfrac{\Big(\theta - \dfrac{\gamma}{\gamma-1}(\mu+\lambda)\Big)^{\!2}}
+             {2\,s^2 \dfrac{\gamma}{\gamma-1}}
+  \Bigg),
+  & -\gamma\lambda \le \theta < 0,\\[3.0ex]
+
+  C_{3}\;
+  \exp\!\Bigg(
+    -\,\dfrac{\Big(\theta - \dfrac{\gamma}{\gamma-1}(\mu-\lambda)\Big)^{\!2}}
+             {2\,s^2 \dfrac{\gamma}{\gamma-1}}
+  \Bigg),
+  & 0 \le \theta \le \gamma\lambda,\\[3.0ex]
+
+  C_{4}\;
+  \exp\!\Big(-\dfrac{(\theta-\mu)^2}{2\,s^2}\Big),
+  & \theta > \gamma\lambda,
+\end{cases}
+\]
+
+\[
+\text{with constants}\qquad
+\begin{aligned}
+C_{1} = C_4
+&= \exp\!\Big(-\frac{\gamma\,\lambda^2}{2\,s^2}\Big),\\[1.0ex]
+C_{2}
+&= \exp\!\Big(\frac{\gamma\,(\mu+\lambda)^2}{2(\gamma-1)\,s^2}\;-\;\frac{\mu^2}{2\,s^2}\Big),\\[1.0ex]
+C_{3}
+&= \exp\!\Big(\frac{\gamma\,(\mu-\lambda)^2}{2(\gamma-1)\,s^2}\;-\;\frac{\mu^2}{2\,s^2}\Big).
+\end{aligned}
+\]
 
 \subsection{Results}
 
 SCAD and MCP both introduce less bias than the lasso, to see how this translates into practice, we apply each of the penalties to a dataset on acute respiratory illness collected by the World Health Organization (WHO/ARI) \citep{Harrell1998}. The WHO/ARI Multicentre Study collected data on several acute respiratory illnesses in multiple countries. Here, we analyze a subset of this study, concerning 816 infants who presented with symptoms of pneumonia in Ethiopia, a major cause of morbidity and mortality for infants under 3 months of age. Our goal here is to identify risk factors for increased severity among infants presenting with serious infections. The outcome is ordinal (taking on a number from 1 - 5); however, for simplicity we treat the outcome as following a Gaussian distribution. The variables collected contain information on vital signs, family history, and clinical observations and represent a range of data types from binary to ordinal to continuous. With $n \approx 10p$, this dataset is not high dimensional. However, sparsity is beneficial both for interpretation and for the practical implementation of using the resulting fit in clinical practice. The 80\% HDIs for PIPE-P using lasso, MCP, and SCAD along with correspond point estimates are provided in Figure~\ref{fig:5-man3}.
 
-We see the hallmark of the non-convex penalties, the non-zero estimates --- and corresponding intervals as a result --- are larger for MCP and SCAD. Intervals for the selected features have similar widths as the corresponding lasso intervals. Alternatively, we see that the intervals for coefficients with estimates equal to zero are wider, which is partially attributable to the approximation being done. 
+We see the hallmark of the non-convex penalties, the larger non-zero estimates --- and corresponding intervals as a result --- are less pulled toward $0$ for MCP and SCAD. Otherwise, the intervals are generally comparable.
 
 \begin{figure}[hbt!]
     \begin{center}
@@ -273,45 +351,50 @@ The introduction of bias reducing penalties brings in an interesting addition to
   \caption{\label{tab:1-man3} Average coverage and median widths of intervals for selected features for PIPE-P using lasso, MCP, and SCAD penalties as well as three debiased methods across 4 set ups described in Section~\ref{sec:bias_v_debias}.}
 \end{table}
 
-First, it is important to emphasize that SCAD and MCP pick far fewer variables on average, which of course means that the coverages are for different variables in each iteration of the simulation compared to lasso based methods. This complicates the comparison, however, the main point of this simulation is to appeal to the benefit of biased intervals for relevant average coverage where it may seem that biased intervals are at a disadvantage compared to debiased intervals.
+First, it is important to emphasize that SCAD and MCP pick far fewer variables on average, which of course means that the coverages are for different variables in each iteration of the simulation compared to lasso based methods. This complicates the comparison, however, the main point of this simulation is to appeal to the benefit of biased intervals for relevant average coverage where it may seem that biased intervals should be at a disadvantage compared to debiased intervals.
 
-Coverage for the selected variables is markedly improved when using SCAD and MCP PIPE-P intervals over any of the lasso based methods (biased or debiased) while still producing intervals of similar widths. In Scenarios 1 and 3, Selective Inference only provides a marginal coverage benefit which is outweighed by its wide intervals. Additionally, the SCAD based PIPE-P intervals produce uniformly better coverage than the lasso based PIPE-P intervals. In Scenarios 1-3, the SCAD based PIPE-P intervals have slight amounts of under coverage, but noticeable over coverage in Scenario 4 like the lasso based alternative. The MCP based PIPE-P intervals behave similar to the SCAD PIPE-P intervals, albeit with slightly lower coverage in Scenarios 3 and 4. Lastly these bias reduced alternatives only produce notably wider intervals in Scenario 4, which is attributable to the approximation error seeing that in this scenario, the signals are smaller and as such many of the bounds fall in an intermediate range where approximation error is largest. In the other scenarios, this is not an issue as the estimates are generally larger in magnitude due to the additional sparsity and the reduction of bias from the non-convex penalties.
+Coverage for the selected variables is markedly improved when using SCAD and MCP PIPE-P intervals over any of the lasso based methods (biased or debiased) while still producing intervals of similar widths. In Scenarios 1 and 3, Selective Inference only provides a marginal coverage benefit which is outweighed by its wide intervals. Additionally, the SCAD based PIPE-P intervals produce as good or better coverage than the lasso based PIPE-P intervals. In Scenarios 1-3, the SCAD based PIPE-P intervals have slight amounts of under coverage, but slight over coverage in Scenario 4 like the lasso based alternative. The MCP based PIPE-P intervals behave similar to the SCAD PIPE-P intervals, albeit with notably lower coverage in Scenarios 3 and 4. Lastly these bias reduced alternatives only produce notably wider intervals in Scenario 4, but this is because the median width of lasso based approaches is deflated by more coefficients near zero which generally have narrower intervals.
 
-\section{Elastic Net}
+\section{-Net Penalties}
 \label{sec:enet}
 
-Proposed by \cite{zou2005regularization}, the Elastic Net blends lasso's sparsity with Ridge's shrinkage to retain groups of highly correlated predictors while controlling estimation variability. The Elastic Net penalty is a mixture of $L_1$ (lasso) and $L_2$ (ridge) penalties:
+Proposed by \cite{zou2005regularization}, the Elastic Net blends lasso's sparsity with Ridge's shrinkage to retain groups of highly correlated predictors while controlling estimation variability. The Elastic Net penalty is a mixture of $L_2$ (ridge) and $L_1$ (lasso) penalties:
 $$
-p(\bb | \lam, \alpha) = \alpha \lam ||\bb||_1 + \frac{(1 - \alpha) \lam }{2} ||\bb||^2_2,
+p_\lam(\bb | \lam, \alpha) = \frac{(1 - \alpha) \lam }{2} ||\bb||^2_2 + \alpha \lam ||\bb||_1,
 $$
 
 \noindent where $\alpha \in [0, 1]$ controls the tradeoff between the two components. When $\alpha = 1$, the penalty becomes the lasso penalty and when $\alpha = 0$, the penalty becomes the ridge penalty. The main reason one may choose to use Elastic Net over the lasso is that the addition of the ridge penalty can add stability. So while the previous methods in Section~\ref{sec:bias_reducing} focused on reducing bias, here the addition of the $L_2$ component reduces the variability compared to the lasso estimates. Furthermore, while the lasso solutions are not always unique, Elastic Net solutions are, a quality inherited from the ridge penalty. However, as mentioned, Elastic Net still results in sparsity, a quality inherited from the lasso.
+
+The Ridge penalty can also be applied to the nonconvex penalties. Actually, there may be an even stronger motivation as the objective functions for MCP and SCAD may fail to be convex (resulting in multiple local minima). Introducing a Ridge penalty (which is strictly convex) can help improve numerical stability.
+
+So, the general form for -Net type penalties is
+
+$$
+p_\lam(\bb | \lam, \alpha) = \frac{(1 - \alpha) \lam }{2} ||\bb||^2_2 + p_{\lam}(\bb | \lam^* = \alpha\lam, \ldots),
+$$
+
+\noindent where $p_{\lam}(\bb | \lam^* = \alpha\lam, \ldots)$ is the penalty for one of the previously described sparse penalties (lasso, SCAD, MCP) but with $\lam$ adjusted based on the relative contribution of that sparse penalty. 
+
 \subsection{Overview}
 
-The Elastic Net penalty can be written as a lasso penalty with augmented data (shown below) which allows for the straightforward extension of the methods to the Elastic Net penalty. 
+The prior corresponding to -Net penalty for a single $\beta_j$ is
 
 $$
-\begin{aligned}
-Q(\bb|\X,\y,\lambda, \alpha) &= \frac{1}{2n}\norm{\y - \X\bb}_2^2 + \alpha \lam ||\bb||_1 + \frac{(1 - \alpha) \lam }{2} ||\bb||^2_2 \\
-&= \frac{1}{2n} [ \norm{\y - \X\bb}_2^2 + \norm{\sqrt{n (1 - \alpha) \lam}\bb}^2_2 ] + \alpha \lam \norm{\bb}_1 \\
-&= \frac{1}{2n} \norm{\y^* - \X^*\bb}_2^2 + \lam^* \norm{\bb}_1,
-\end{aligned}
+\propto \exp(-\frac{(1-\alpha) \lam}{2s^2}\beta_j^2)\exp(-\frac{1}{s^2} p_{\lam}(\bb | \lam^* = \alpha\lam, \ldots)),
 $$
 
-\noindent where
-$$
-\begin{aligned}
-\y^* = \begin{bmatrix} \y \\ \boldsymbol{0}_p \end{bmatrix}, \quad\quad
-\X^* = \begin{bmatrix} \X \\ I_p \sqrt{n(1-\alpha)\lam} \end{bmatrix}, \quad\quad \text{and} \quad\quad
-\lam^* = \lam \alpha.
-\end{aligned}
-$$
+\noindent With this prior, the posterior can be generally defined as
 
-To get intervals using Elastic Net then, one simply needs to fit the Elastic Net on the original dataset and select $\lam$ and $\alpha$ as well as estimate $\bb$. Then, with these pieces set, use $\y^*$, $\X^*$, and $\lam^*$ in the interval construction method instead of $\y$, $\X$, and $\lam$. The ridge portion of the penalty is absorbed into the Normal likelihood while the lasso portion is still handled by the Laplace.
+\as{
+p(\beta | \mu, s^2) &\propto \exp\left(-\frac{1}{2s^2}(\beta_j - \mu)^2\right)\exp\left(-\frac{(1-\alpha) \lam}{2s^2}\beta_j^2\right)\exp\left(-\frac{1}{s^2} p_{\lam}(\bb | \lam^* = \alpha\lam, \ldots)\right) \\
+&\propto \exp\left(-\frac{1 + (1-\alpha)\lam}{2s^2}(\beta_j - \frac{\mu}{1 + (1 - \alpha)\lam})^2\right)\exp\left(-\frac{1}{s^2} p_{\lam}(\bb | \lam^* = \alpha\lam, \ldots)\right).
+}
+
+\noindent That is, the Ridge portion of the prior can be absorbed into the Normal likelihood resulting in an updated mean and variance. From here, the process proceeds along the lines of the respective sparse penalty in Section~\ref{sec:bias_reducing}.
 
 \subsection{Results}
 
-We would expect the Elastic Net intervals to have narrower and more similar widths for correlated features in comparison to the lasso based intervals. That is exactly what occurs. Figure~\ref{fig:6-man3} provides a comparison between intervals produced by Ridge Posterior, those produced by lasso (PIPE-P), and those produced by Elastic Net (PIPE-P with $\alpha$ = 0.8). The data for the simulation was generated with $n = p = 100$, $\beta_{A} = 1$ and $\beta_{B}, \beta_{N1}, \ldots, \beta_{N98} = 0$, $\cor(\x_{A}, \x_{B}) = .99$, while all of the N (noise) variables are uncorrelated with $A$, $B$, and each other, $\X \iid \Norm(0,1)$, and $\y = \X\bb + \epsilon$, $\epsilon \iid \Norm(0,1)$. The simulation setup is illuminating in understand how different methods handle uncertainty, here in the form of high correlation between two predictors. 
+We would expect the Elastic Net intervals to have behavior that falls into a middle ground between Ridge Posterior intervals and PIPE Posterior intervals. Figure~\ref{fig:6-man3} provides a comparison between intervals produced by Ridge Posterior, those produced by lasso (PIPE-P), and those produced by Elastic Net (PIPE-P with $\alpha = 0.5$). The data for the simulation was generated with $n = p = 100$, $\beta_{A} = 1$ and $\beta_{B}, \beta_{N1}, \ldots, \beta_{N98} = 0$, $\cor(\x_{A}, \x_{B}) = .99$, while all of the N (noise) variables are uncorrelated with $A$, $B$, and each other, $\X \iid \Norm(0,1)$, and $\y = \X\bb + \epsilon$, $\epsilon \iid \Norm(0,1)$. This simulation setup is illuminating in understand how different methods handle uncertainty, here in the form of high correlation between two predictors. 
 
 \begin{figure}[hbt!]
     \begin{center}
@@ -320,12 +403,14 @@ We would expect the Elastic Net intervals to have narrower and more similar widt
     \end{center}
 \end{figure}
 
-The stability introduced by the ridge penalty substantially reduces the selection-driven polarization in interval widths compared to using the lasso alone, yielding greater consistency. This occurs both because with Elastic Net highly correlated features $A$ and $B$ are almost always selected together and because the ridge component adds stability during interval construction.
+The stability introduced by the ridge penalty reduces the selection-driven polarization in interval widths compared to using the lasso alone, yielding greater consistency both across simulations and features A and B. This occurs because with Elastic Net the highly correlated features $A$ and $B$ are almost always selected together.
 
-\section{Alternative Outcomes}
+It should be noted that Ridge Posterior serves as a general reference here. Even if $\alpha$ is near 0, the resulting intervals for Elastic Net with PIPE-P will be be different. In fact, they are expected to be considerably different because PIPE-P is still using an approximation to the high-dimensional Normal likelihood with a full projection based variance. As $\alpha$ is decreased towards $0$ the impact of the penalty will resemble the Ridge penalty, but the variance will be heavily inflated due to the lack of sparsity. On the other hand, LQA-P intervals (\ref{sup:lqa}) have more similar behavior to Ridge Posterior.
+
+\section{Generalized Linear Models}
 \label{sec:alt-fam}
 
-While continuous outcomes are often the starting point for methodological development, they are far from the only outcome type encountered in biomedical research. In fact, binary outcomes analyzed with logistic regression and count outcomes modeled with Poisson regression are arguably even more pervasive. In this section, we extend Laplace–Normal quantile computation to logistic and Poisson lasso penalized regression. For observations $\y\in\mathbb R^{n}$, predictors $\X\in\mathbb R^{n\times p+1}$, coefficients $\bb\in\mathbb R^{p+1}$, and penalty parameter $\lambda>0$, the $L_{1}$-regularized negative log-likelihood objectives are
+While continuous outcomes are often the starting point for methodological development, they are far from the only outcome type encountered in biomedical research. In fact, binary outcomes analyzed with logistic regression and count outcomes modeled with Poisson regression are arguably even more pervasive. In this section, we extend the methods to logistic and Poisson lasso penalized regression by detailing the resulting adjustments to both the Normal likelihood and the prior. For $\y$ a length $n$ vector of independent outcomes, $\X$ an $n \times p + 1$ matrix of predictors, $\bb$ a length $p + 1$ vector of coefficients, and a general penalty with $\lambda>0$, the penalized objectives are
 $$
 \begin{aligned}
 \text{Logistic:}\quad
@@ -335,7 +420,7 @@ Q_{\text{bern}}(\bb\mid\X,\y,\lambda)
        \log\!\bigl(1+e^{\X_i^{\!\top}\bb}\bigr)
        - y_i\,\X_i^{\!\top}\bb
      \Bigr]
-     + \lambda \sum_{j=1}^{p}\lvert\beta_j\rvert, \\[6pt]
+     + p_\lam(\bb|\lam, \ldots), \\[6pt]
 \text{Poisson:}\quad
 Q_{\text{pois}}(\bb\mid\X,\y,\lambda)
   &= \tfrac{1}{n}\sum_{i=1}^{n}
@@ -343,7 +428,7 @@ Q_{\text{pois}}(\bb\mid\X,\y,\lambda)
        e^{\X_i^{\!\top}\bb}
        - y_i\,\X_i^{\!\top}\bb
      \Bigr]
-     + \lambda \sum_{j=1}^{p}\lvert\beta_j\rvert.
+     + p_\lam(\bb|\lam, \ldots).
 \end{aligned}
 $$
 
@@ -351,7 +436,7 @@ $$
 
 \subsection{Overview}
 
-Many of the details for fitting the lasso to generalized outcomes are what are needed to determine the appropriate values for $\mu$, $s^2$, and $\lam$ in the Laplace-Normal computation. Coordinate descent algorithms for getting lasso estimates for Poisson and logistic penalized regression use Taylor series expansions to obtain quadratic approximations to the loss function and then proceed with the same algorithm used for linear regression lasso. Regardless of the family, the general form for the Taylor series approximated likelihood is as follows.
+Many of the details for fitting penalized regression to generalized outcomes are what are needed to extend the methods. Coordinate descent algorithms for getting estimates for Poisson and logistic penalized regression use Taylor series expansions to obtain quadratic approximations to the loss function and then proceed with the same algorithm used for linear penalized regression. Regardless of the family, the general form for the Taylor series approximated loss is as follows.
 
 Let $\boldsymbol{\eta} = \X \bb$, then
 $$
@@ -382,37 +467,37 @@ e^{\hat{\eta}_i}
 $$
 
 
-\noindent The objective function resembles that of linear regression lasso, but with observational weights, $\W$. The coordinate descent algorithm then proceeds as in the linear regression lasso case but with updates that are adjusted by weights. Letting $\nu_j = \frac{1}{n} \x \Tr_j \boldsymbol{W} \x_j$, the updates are
-$$
-\beta_j \leftarrow \frac{S(\tilde{z}_j|\lam)}{\nu_j},
-$$
+\noindent This process can be applied to other GLMs by deriving their respective values for $\hat{\pi}_i$ and $\W$. The objective function resembles that of linear penalized regression, but with observational weights, $\W$. 
 
-\noindent where $\tilde{z}_j = \frac{1}{n}\x_j \Tr\boldsymbol{W} (\tilde{\y} -  \X_{-j} \bbh_{-j})$ is the weighted regression of the partial pseudo residuals $(\tilde{\y} -  \X_{-j} \bbh_{-j})$ onto $\x_j$ and $S(\cdot|\lam)$ is the soft thresholding operator (see Section~\ref{sec:bias_reducing}).
+Accordingly, $\tilde{z}_j = \frac{1}{n}\x_j \Tr\boldsymbol{W} (\tilde{\y} -  \X_{-j} \bbh_{-j})$ is the weighted regression of the partial pseudo residuals $(\tilde{\y} -  \X_{-j} \bbh_{-j})$ onto $\x_j$. Conditional on $\bb_{-j} = \bbh_{-j}$, the mean for $\beta_j$ = $\tilde{z}_j / \nu_j$ where $\nu_j = \frac{1}{n} \x \Tr_j \boldsymbol{W} \x_j$.
 
-That said, it may not be readily apparent how this directly relates to the Laplace-Normal distributions, however note that this is equivalent to
-$$\beta_j \leftarrow S(\frac{\tilde{z}_j}{\nu_j}|\frac{\lam}{\nu_j}).$$
-
-\noindent For a gaussian outcome, recall the update step is $\beta_j \leftarrow S(z_j|\lam)$. So, now instead of using $z_j$ as the mean of the Normal likelihood, we use $\tilde{z}_j / \nu_j$ which is computed
+Similarly, the projection matrices are also weighted. Let $\tilde{\X}_{\hat{S}_j} = \W^{1/2} \X_{\hat{S}_j}$. Then the full projection matrix onto the active set (for PIPE-P) is
 $$
-\frac{\x_j \Tr\boldsymbol{W} (\tilde{\y} -  \X_{-j} \bbh_{-j}) }{\x_j \Tr\boldsymbol{W} \x_j}.
+\Q_{\hat{S}_j} = \I - \tilde{\X}_{\hat{S}_j}(\tilde{\X}_{\hat{S}_j} \Tr \tilde{\X}_{\hat{S}_j})^{-1} \tilde{\X}_{\hat{S}_j} \Tr.
 $$
 
-\noindent This applies to PIPE-P and LQA-P, an analogous term would be used for RL-P. Additionally, we now have a different $\lambda$ to use for each coefficient,
+Of course, unlike the gaussian case, we do not have an error variance as the variance is not independent of the mean. So, for feature $j$, the variance used in the Normal likelihood is $(\x_j \Tr \W^{1/2} \Q_{\hat{S}_j} \W^{1/2}\x_j)^{-1}$. For LQA-P, $\tilde{\Q}_{\hat{S}_j}$ is used instead of $\Q_{\hat{S}_j}$ where
+$$\tilde{\Q}_{\hat{S}_j} = \I_n - \tilde{\X}_{\hat{S}_j}(\tfrac{1}{n}\tilde{\X}_{\hat{S}_j} \Tr\tilde{\X}_{\hat{S}_j} + \P\W^{*-1})^{-1}\tfrac{1}{n}\tilde{\X}_{\hat{S}_j} \Tr.$$
+
+\noindent To keep the meaning of $\lam$ consistent (and to get distributions with modes equal to corresponding point estimates), $\lam$ (regardless of the penalty) must also be scaled for each parameter:
 $$
 \lambda_j = \frac{\lambda}{\nu_j}.
 $$
 
-\noindent Lastly, the projection matrices have a similar form, but instead of $\X_{\hat{S}_j}$ they use $\tilde{\X}_{\hat{S}_j} = \W^{1/2} \X_{\hat{S}_j}$. That is for RL-P and PIPE-P we have,
+\noindent For -Net type penalties, scaling is not applied to the ridge portion. That is, letting $\lam_1 = \alpha \lam$ and $\lam_2$ = $(1-\alpha)\lam$, then 
+
 $$
-\Q_{\hat{S}_j} = \I - \tilde{\X}_{\hat{S}_j}(\tilde{\X}_{\hat{S}_j} \Tr \tilde{\X}_{\hat{S}_j})^{-1} \tilde{\X}_{\hat{S}_j} \Tr,
+\lambda_{1,j} = \frac{\lambda_1}{\nu_j},
 $$
 
-\noindent and the variance used in the Normal likelihood is $(\x_j \Tr \W^{1/2} \Q_{\hat{S}_j} \W^{1/2}\x_j)^{-1}$. For LQA-P, $\tilde{\Q}_{\hat{S}_j}$ is used instead of $\Q_{\hat{S}_j}$ where
-$$\tilde{\Q}_{\hat{S}_j} = \I_n - \tilde{\X}_{\hat{S}_j}(\tfrac{1}{n}\tilde{\X}_{\hat{S}_j} \Tr\tilde{\X}_{\hat{S}_j} + \lam\W^{*-1})^{-1}\tfrac{1}{n}\tilde{\X}_{\hat{S}_j} \Tr.$$
+\noindent and $\lam_2$ is left alone.
+
+With these pieces in place, the process to compute intervals proceeds as usual.
+
 
 \subsection{Results}
 
-The coverage patterns for binary and count outcomes are similar to the pattern for gaussian outcomes: higher coverage near zero, lower coverage away from zero, and average coverage converging to the nominal rate. Examples for logistic and Poisson penalized regression are provided in Figure~\ref{fig:3-man3}. Each data set was simulated as follows. The elements of $\X_{n \times p}$ were generated independently from a $\Norm(0, 1)$ with $p = 101$ and four different values of $n$: 50, 100, 400, and 1000. Additionally, $\bb$ was set to equally spaced quantiles of a Laplace distribution. The coefficients were then scaled so that the latent signal-to-noise ratio (SNR) equals 1. Finally, $\y$ was generated as $\y = \Pois(\exp(\X\bb))$ for the Poisson outcome and $\y = \Bern(\logit^{-1}(\X\bb))$ for a binary outcome. For both Poisson and Logistic penalized regression, we generated 1000 independent data sets for each value of n; for each data set, PIPE-P intervals were constructed and coverage determined. The dashed lines represent the average coverage for each method across all coefficients, while the solid lines are smoothed estimates of coverage as a function of $\beta$.
+The coverage patterns for binary and count outcomes are similar to the pattern for gaussian outcomes: higher coverage near zero, lower coverage away from zero, and average coverage converging to the nominal rate. Examples for logistic and Poisson penalized regression are provided in Figure~\ref{fig:3-man3}. Each data set was simulated as follows. The elements of $\X_{n \times p}$ were generated independently from a $\Norm(0, 1)$ with $p = 101$ and four different values of $n$: 50, 100, 400, and 1000. Additionally, $\bb$ was set to equally spaced quantiles of a Laplace distribution. The coefficients were then scaled so that the latent signal-to-noise ratio (SNR) equals 1. Finally, $\y$ was generated as $\y = \Pois(\exp(\X\bb))$ for the Poisson outcome and $\y = \Bern(\logit^{-1}(\X\bb))$ for a binary outcome. For both Poisson and logistic penalized regression, we generated 1000 independent data sets for each value of n; for each data set, PIPE-P intervals with a lasso penalty were constructed and coverage determined. The dashed lines represent the average coverage for each method across all coefficients, while the solid lines are smoothed estimates of coverage as a function of $\beta$.
 
 \begin{figure}[hbt!]
     \begin{center}
@@ -421,86 +506,13 @@ The coverage patterns for binary and count outcomes are similar to the pattern f
     \end{center}
 \end{figure}
 
-While the overall coverage patterns for binary and count outcomes are similar to the coverage pattern for gaussian outcomes, they differ by outcome type due to different likelihood variance calculations and the relative amounts of information per observation in the different outcome types. For logistic and Poisson regression, the variance is not modeled independent of the mean, and, as such, the computation of the likelihood variance differs by outcome type. For a gaussian outcome, the method recommended by \cite{Reid2016} is used to estimate error variance which is then used in the estimate for the likelihood variance. For Poisson and logistic penalized regression, the estimate of likelihood variance is instead $(\x_j \Tr \W^{1/2} \Q_{\hat{S}_j} \W^{1/2}\x_j)^{-1}$. Additionally, while the form is the same for logistic and Poisson penalized regression, they of course differ due to their respective $\W$ matrices. Lastly, it is well known that the amount of information per n is lower for binary outcomes which likely accounts for the lower coverage for larger coefficient values and the wider window of over coverage around zero compared to the Poisson outcome at the same values of n.
-
-\section{Multiple Extensions}
-\label{sec:multiple}
-
-Of course, it is expected that interest may lie in the cross section of these extensions, perhaps S-NET (SCAD with Elastic Net). In this section we outline how the various extensions fit together during implementation, starting with Elastic Net for Poisson and logistic penalized regression in Section~\ref{sec:gen-net}. Then in Section~\ref{sec:add-approx} we cover the details needed to layer on the SCAD and MCP approximations. Finally, in Section~\ref{sec:lqap-ext} we fill in any remaining gaps for applying these extensions to the LQA-P.
-
-\subsection{Elastic Net Augmentation for Poisson and Logistic Penalized Regression}
-\label{sec:gen-net}
-
-The reason the data augmentation works for gaussian outcomes is due to the form of the loss function. However, in Section~\ref{sec:alt-fam}, where we described how quantile computation can be extended to Poisson and logistic penalized regression, we noted that the details follow from the fitting approach which revolves around using a Taylor series approximation so that the likelihood has a similar form to the gaussian outcome setting. Building off this in our objective function leads to the same steps as in Section~\ref{sec:enet} with some minor adjustments:
-$$
-\begin{aligned}
-Q(\bb|\X,\y,\lam, \alpha) &\approx \frac{1}{2n} (\tilde{\y} - \boldsymbol{\X\bb}) \Tr \W (\tilde{\y} - \boldsymbol{\X\bb}) + \alpha \lam ||\bb||_1 + \frac{(1 - \alpha) \lam }{2} ||\bb||^2_2 \\
-&= \frac{1}{2n} [\norm{\W^{\tfrac12}\tilde{\y} - \W^{\tfrac12}\boldsymbol{\X\bb}}_2^2 + ||\sqrt{n (1 - \alpha) \lam}\bb||^2_2] + \alpha \lam ||\bb||_1 \\
-&= \frac{1}{2n} \norm{\y^* - \X^*\bb}_2^2 + \lam^* \norm{\bb}_1,
-\end{aligned}
-$$
-
-\noindent where
-$$
-\begin{aligned}
-\y^* = \begin{bmatrix} \W^{\tfrac12}\tilde{\y} \\ \boldsymbol{0}_p \end{bmatrix}, \quad\quad
-\X^* = \begin{bmatrix}\W^{\tfrac12}\,\mathbf{1}_n & \W^{\tfrac12}\,X \\[1em]\boldsymbol{0}_{p} & \sqrt{n\,(1-\alpha)\,\lambda}\;I_{p}\end{bmatrix}, \quad\quad \text{ and } \quad\quad
-\lam^* = \lam \alpha.
-\end{aligned}
-$$
-
-\noindent So, the form stays the same but just with weighted values for $\X$ and $\y$. Additionally, as noted in Section~\ref{sec:alt-fam} here we must include an intercept which does not get penalized, whereas in the gaussian outcome case $\y$ is assumed centered removing the need for an intercept in the fitting process.
-
-\subsection{SCAD and MCP Approximations}
-\label{sec:add-approx}
-
-As described in Section~\ref{sec:bias_reducing}, the approximation proposed for MCP and SCAD is an adjustment to the intervals constructed. The same approximation can be applied for alternative outcomes types, with just a slight adjustment. Recall, the soft-thresholding step for GLMs is
-$$
-\beta_j \leftarrow \frac{S(z_j|\lam)}{\nu_j}.
-$$
-
-\noindent To keep the effect of $\gamma$ consistent, \texttt{ncvreg} uses adaptive rescaling for SCAD and MCP which means that their thresholding functions are simply
-$$
-\begin{aligned}
-\text{SCAD:}\quad &\beta_j \;\leftarrow\;
-      \frac{T_{\text{SCAD}}\!\bigl(z_j \,\bigl|\, \lambda,\gamma\bigr)}{\nu_j},\quad\quad
-\text{MCP:}\quad  &\beta_j \;\leftarrow\;
-      \frac{T_{\text{MCP}}\!\bigl(z_j \,\bigl|\, \lambda,\gamma\bigr)}{\nu_j}.
-\end{aligned}
-$$
-
-\noindent With this, the approximation proceeds as before by treating the interval bound as $z_j$, undoing the soft thresholding and then redoing the appropriate thresholding, keeping in mind that here this also involves the weight $\nu_j$.
-
-Finally, if a value of $\alpha$ other than 1 (pure lasso penalty) is used, after the data augmentation we are treating the problem the same as if a pure lasso penalty is used (with augmented data and $\lam^* = \alpha \lam$), so there is no alterations necessary to the process for MCP-Net (MNet) or SCAD-Net (SNet) as again the ridge portion of the penalty has been folded into the likelihood.
-
-\subsection{LQA-P}
-\label{sec:lqap-ext}
-
-The results in this manuscript have focused on applying these extensions to the PIPE-P method, however, it is certainly possible to apply these extensions to the LQA-P method. Recall, the distinguishing feature of LQA-P is the projection matrix it uses for computing the likelihood variance. For the most part, all the details necessary to apply these extensions to LQA-P have already been provided, however, an additional detail is needed for the SCAD and MCP extensions.
-
-The key is that $\lam$ in $\tilde{\Q}_{\hat{S}_j} = \I_n - \X_{\hat{S}_j}(\frac{1}{n}\X_{\hat{S}_j} \Tr\X_{\hat{S}_j} + \lam\W^{*-1})^{-1}\frac{1}{n}\X_{\hat{S}_j} \Tr$ is more generally written as $\diag(|p'(\beta_j)|)_{j \in \hat{S}_j}$. So, for MCP and SCAD, $\lam$ is replaced with the absolute value of the derivative evaluated at each feature in $\hat{S}_j$. 
-
-For the other two extensions, no additional adjustments to the projection matrix are needed. For -Net type penalties, the ridge portion of the objective function is absorbed into the likelihood, so the quadratic approximation to the penalty is only on the remaining portion of the lasso (or MCP / SCAD) penalty. The data augmentation step already addresses this. For Poisson and binary outcomes, there is no change needed beyond using $\tilde{\X}_{\hat{S}_j}$ instead of $\X_{\hat{S}_j}$, which was already noted in Section~\ref{sec:alt-fam}. This is the only alteration needed for Poisson and binary outcomes, because the Taylor series expansion only affects the likelihood and leaves the penalty untouched.
-
-\subsection{Example}
-
-Consider the case where we have a binary outcome and would like to fit a bias reducing penalty, but need to stabilize the non-convex penalty with the addition of a little bit of Ridge penalty. Figure~\ref{fig:7-man3} provides an example where the SNet penalty was used with $\alpha = 0.9$ and LQA-P intervals were constructed for a binary outcome. In this simulation, 1000 data sets were generated with $n = 250$ and $p = 50$, $\X \iid \Norm(0, 1)$ and $\bb_{1-6} = (-2, 2, -1, 1, -0.5, 0.5)$ with the rest being set to zero. Then $\y = Bern(\logit^{-1}(\X\bb)$).
-
-\begin{figure}[hbt!]
-    \begin{center}
-    \includegraphics[width=\linewidth]{figure7-man3}
-    \caption{\label{fig:7-man3} Results for the simulation described in Section~\ref{sec:multiple} showing an application of LQA-P intervals to a logistic regression SNet with $\alpha = 0.9$. The top plots summarize the resulting HDIs for the variables 1-10 across the 1000 simulations. All 1000 HDIs are plotted, sorted by their midpoint, with those colored red that did not contain the true coefficient value (indicated by the horizontal dashed gold line). The bottom plots show a single example of intervals produced from one (randomly selected) of the 1000 datasets for the first 10 variables.}
-    \end{center}
-\end{figure}
-
+While the overall coverage patterns for binary and count outcomes are similar to the coverage pattern for gaussian outcomes, they differ by outcome type due to different likelihood variance calculations and the relative amounts of information per observation in the different outcome types. For logistic and Poisson regression, the variance is not modeled independent of the mean, and, as such, the computation of the likelihood variance differs by outcome type. For a gaussian outcome, the method recommended by \cite{Reid2016} is used to estimate error variance which is then used in the estimate for the likelihood variance. For Poisson and logistic penalized regression, the estimate of likelihood variance is instead $(\x_j \Tr \W^{1/2} \Q_{\hat{S}_j} \W^{1/2}\x_j)^{-1}$. And, while the form is the same for logistic and Poisson penalized regression, they of course differ due to their respective $\W$ matrices. Lastly, it is well known that the amount of information per n is lower for binary outcomes which likely accounts for the lower coverage for larger coefficient values and the wider window of over coverage around zero compared to the Poisson outcome at the same values of n.
 
 \section{Discussion}
 
-The extensions in this manuscript share the same objective as the original methods: to produce a single, coherent set of coefficient estimates, predictions, and intervals that are all consistent with each other. The extensions are implemented in the function \texttt{intervals} as part of the \texttt{ncvreg} package and provides full coverage for the range of outcome / penalty combinations available to fit with the function \texttt{ncvreg}. In total, there are over 50 combinations, so deeper exploration of the coverage behaviors is an ongoing endeavor.
+The extensions in this manuscript share the same objective as the original methods: to produce a single, coherent set of coefficient estimates, predictions, and intervals. The extensions are implemented in the function \texttt{intervals} as part of the \texttt{ncvreg} package and provide full coverage for the range of outcome / penalty combinations available to fit with the function \texttt{ncvreg}. In total, there are over 50 combinations, so deeper exploration of the coverage behaviors is an ongoing endeavor.
 
-The most obvious need is to find a tighter or non-approximation based extension to MCP and SCAD penalties. One avenue we have considered is importance reweighing, as we certainly know the ratio of the Laplace to the prior of the non-convex penalties being approximated. However, this has proven to be challenging due to the tail behaviors of the Laplace relative to corresponding MCP and SCAD priors.
-
-Additionally, \texttt{ncvreg} supports the use of penalty factors which is not handled in the current implementation of \texttt{intervals}, although this extension in theory is trivial.
+% Additionally, \texttt{ncvreg} supports the use of penalty factors which is not handled in the current implementation of \texttt{intervals}, although this extension in theory is trivial.
 
 % Average coverage in part arises from higher coverage for small parameters, many of which have estimates equal to zero (i.e. not selected). Some feel that such features should be considered ``confident nulls'' and that intervals have little utility for these features. However, we would argue that constructing intervals can be extremely informative. Considering Figure~\ref{fig:6-man3}, one can see why treating all predictors not selected as the same is short sighted. In this example, the N variables all have rather narrow intervals indicating confidence in the lack of selection whereas variable B on the other hand has an extremely wide interval. Likewise, intervals may often be skewed away from zero which again can be informative even if the original estimate was equal to zero.
 
