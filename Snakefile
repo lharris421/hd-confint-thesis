@@ -411,13 +411,13 @@ rule tableG1:
         "--loc {LOC}"
         
 rule figure1man2:
-    input: 
-      script = "code/figure1-man2.R",
+    input:
+        script = "code/figure1-man2.R"
         rds = expand(
-            f"{LOC}rds/{ITER}/gam/laplace_autoregressive_0_{{n}}_101_gaussian_100_{{method}}.rds",
-            method = ["rlp", "pipep", "lqap"],
-            n = [50, 100, 400]
-        )
+        f"{LOC}rds/{ITER}/gam/laplace_autoregressive_0_{{n}}_101_gaussian_100_{{method}}.rds",
+        method=["rlp", "pipep", "lqap"],
+        n=[50, 100, 400]
+    )
     output:
         "code/out/figure1-man2.pdf"
     shell:
@@ -542,49 +542,50 @@ rule figure2man3:
         "code/out/figure2-man3.pdf"
     shell:
         "Rscript {input.script}"
-        
+
 rule figure3man3:
-    input:
-        script = "code/figure3-man3.R",
-        rds = expand(
-            f"{LOC}rds/{ITER}/gam/laplace_autoregressive_0_{{n}}_101_{{family_snr_method}}.rds",
-            n      = [50, 100, 400, 1000],
-            family_snr_method = ["binomial_100_pipepbinom", "poisson_100_pipeppois"]
-        )
+    input: 
+      script = "code/figure3-man3.R"
     output:
         "code/out/figure3-man3.pdf"
     shell:
-        "Rscript {input.script} "
-        "--iterations {ITER} "
-        "--loc {LOC}"
+        "Rscript {input.script}"
 
 rule figure4man3:
-    input: 
-      script = "code/figure4-man3.R"
-    output:
-        "code/out/figure4-man3.pdf"
-    shell:
-        "Rscript {input.script}"
-        
-rule figure5man3:
     input:
-      script = "code/figure5-man3.R",
+      script = "code/figure4-man3.R",
       rds = expand(
           f"{LOC}rds/whoari_{{method}}.rds",
           method = ["pipep", "pipepmcp", "pipepscad"]
       )
     output:
-        "code/out/figure5-man3.pdf"
+        "code/out/figure4-man3.pdf"
     shell:
         "Rscript {input.script} "
         "--loc {LOC}"
         
+        
+rule figure5man3:
+    input:
+        script = "code/figure5-man3.R",
+        rds = expand(
+            f"{LOC}rds/{ITER}/original/highcorr_{{method}}.rds",
+            method = ["ridge", "pipep", "pipepenet"]
+        )
+    output:
+        "code/out/figure5-man3.pdf"
+    shell:
+        "Rscript {input.script} "
+        "--iterations {ITER} "
+        "--loc {LOC}"
+
 rule figure6man3:
     input:
         script = "code/figure6-man3.R",
         rds = expand(
-            f"{LOC}rds/{ITER}/original/highcorr_{{method}}.rds",
-            method = ["ridge", "pipep", "pipepenet"]
+            f"{LOC}rds/{ITER}/gam/laplace_autoregressive_0_{{n}}_101_{{family_snr_method}}.rds",
+            n      = [50, 100, 400, 1000],
+            family_snr_method = ["binomial_100_pipepbinom", "poisson_100_pipeppois"]
         )
     output:
         "code/out/figure6-man3.pdf"
