@@ -32,14 +32,14 @@
 
 \clearpage
 
-\subsection{Multiple Extensions}
+\subsection{Penalized Logistic Regression - Combining Extensions}
 \label{sup:multiple}
 
-Consider the case where we have a binary outcome and would like to fit a bias reducing penalty, but need to stabilize the non-convex penalty with the addition of a little bit of Ridge penalty. Figure~\ref{fig:7-man3} provides an example where the SNet penalty was used with $\alpha = 0.9$ and LQA-P intervals were constructed for a binary outcome. In this simulation, 1000 data sets were generated with $n = 250$ and $p = 50$, $\X \iid \Norm(0, 1)$ and $\bb_{1-6} = (-2, 2, -1, 1, -0.5, 0.5)$ with the rest being set to zero. Then $\y = Bern(\logit^{-1}(\X\bb)$).
+Here we provide examples of constructing LQA-P intervals for the Golub ALL/AML microarray dataset \citep{Golub1999} with three different penalties: lasso, MCP, and SNET with $\alpha = 0.9$. The data comprise 72 diagnostic samples (47 ALL, 25 AML) profiled on Affymetrix HGU6800 arrays, yielding 7,129 gene-expression features per patient. We treat this as a binary classification problem (ALL vs AML). With $p \gg n$ (7,129 vs 72), this is a prototypical high-dimensional setting in which sparsity is desirable for both interpretability and generalization. For each, cross validation was performed to select respective values of $\lam$. For MCP and SCAD, the default values of $\gamma$ were used. The 80\% HDIs for for genes where at least one penalty estimated a non-zero coefficient are provided in Figure~\ref{fig:B1-man3}.
 
 \begin{figure}[hbt!]
     \begin{center}
-    \includegraphics[width=\linewidth]{figure7-man3}
-    \caption{\label{fig:7-man3} Results for the simulation described in \ref{sup:multiple} showing an application of LQA-P intervals to a logistic regression SNet with $\alpha = 0.9$. The top plots summarize the resulting HDIs for the variables 1-10 across the 1000 simulations. All 1000 HDIs are plotted, sorted by their midpoint, with those colored red that did not contain the true coefficient value (indicated by the horizontal dashed gold line). The bottom plots show a single example of intervals produced from one (randomly selected) of the 1000 datasets for the first 10 variables.}
+    \includegraphics[width=\linewidth]{figureB1-man3}
+    \caption{\label{fig:B1-man3} High-dimensional intervals produced by the LQA-P method with lasso, MCP, and SNET ($\alpha = 0.9$) penalties for genes in the Golub dataset (described in Section~\ref{sup:multiple}) where at least one penalty estimated a non-zero coefficient.}
     \end{center}
 \end{figure}

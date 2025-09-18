@@ -25,7 +25,7 @@ Here we assume $\X$ has been standardized s.t. $\x_j^T\x_j = n$. Define $\Q_{\ha
 
 \noindent where $\tilde{\beta}_j = (\x_j^T \Q_{\hat{S}_j} \x_j)^{-1} \x_j^T \Q_{\hat{S}_j} \y$ and $\tilde{n} = \x_j^T \Q_{\hat{S}_j} \x_j$.
 
-The lasso can be formulated as a Bayesian regression model with a Laplace (double exponential) prior. In this case, the prior for $\beta_j$ is proportional to $\exp(-\frac{\tilde{n} \lambda} {\sigma^2} \abs{\beta_j})$. This prior ensures that the meaning of $\lam$ is maintained.
+The lasso can be formulated as a Bayesian regression model with a Laplace (double exponential) prior. In this case, the prior for $\beta_j$ is proportional to $\exp(-\frac{\tilde{n} \lambda} {\sigma^2} \abs{\beta_j})$. This prior is consistent with the value of $\lam$ using during estimation.
 
 With this the form of the conditional posterior can be worked out as follows:
 \as{
@@ -45,14 +45,14 @@ C_{+} \exp\{-\frac{\tilde{n}}{2\sigma^2} (\beta_j - (\tilde{\beta}_j - \lambda))
 }
 where $C_{-} = \exp(\tilde{\beta}_j \lambda \tilde{n}/\sigma^2)$ and $C_{+} = \exp(-\tilde{\beta}_j \lambda \tilde{n}/\sigma^2)$.
 
-The piecewise defined posterior is made up of a kernel of two Normal distributions. This can be leveraged and draws can be analytically obtained through a mapping onto the respective Normal distributions. Note, the use of ``tails'' here refers to the entirety of a distribution between 0 and $\pm \infty$. That is, the lower tail is any part of the distribution below 0 and the upper tail is any part greater than 0, therefore $P(q \in lower \cup q \in upper) = 1$, where q is the quantile of interest. Accordingly, we will let the tail probabilities in each of the two normals to transformed on to be denoted $Pr_{-}$ and $Pr_{+}$ respectively and the probability in each of the tails of the posterior, denoted $Post_{-}$ and $Post_{+}$ respectively. $Pr_{\pm}$ is trivial to compute with any statistical software. $Post_{\pm}$ is conceptually simple, although care must be taken to avoid numerical instability. With this notation in place $Post_- = (C_{-} Pr_{-})/(C_{-} Pr_{-} + C_{+} Pr_{+})$ and similarly for $Post_+$. To avoid numerical instability, or rather to handle it properly when it is unavoidable, we will work on the $\log$ scale. This works well for most of the problem, but computation of $Post_-$ and $Post_+$ need something a bit more since, for example, $\log(Post_-) = \log(C_{-}Pr_{-}) - \log(C_{-} Pr_{-} + C_{+} Pr_{+})$. That is, the denominator still must be computed then the $\log$ taken which does not allow operating on the $\log$ scale to fully address potential numerical instability. Instead, let $\ell_{-} := \log C_{-} + \log Pr_{-}, \ell_{+} := \log C_{+} + \log Pr_{+}$, and $\Delta := \ell_{-} - \ell_{+}$, then $\log(Post_-)$ can be computed with $\Delta - \log\bigl(1 + \exp(\Delta)\bigr)$. This still doesn't completely address the issue, however, if $\exp(\Delta)$ is infinite then $C_-Pr_- >> C_+Pr_+$ and $\log(Post_-) \approx 0$ which means $Post_- \approx 1$ (equivalently $Post_+ \approx 0$).
+The piecewise defined distribution is made up of scaled left and right truncated Normal distributions. This can be leveraged and draws can be analytically obtained through a mapping onto the respective underlying unscaled Normal distributions, $\Norm(\mu \pm \lam, s^2)$. Note, the use of ``tails'' in what follows refers to the entirety of a distribution between 0 and $\pm \infty$. That is, the negative tail is any part of the distribution below 0 and the positive tail is any part greater than 0. With this defined, then more specifically the piecewise defined Laplace-Normal is made up of the negative tail of a right scaled Normal and the positive tail of a left scaled Normal. Accordingly, we will let the mass in the unscaled Normal tails be denoted $Pr_{-}$ and $Pr_{+}$ respectively and the mass in each of the tails of the Laplace-Normal be denoted $Post_{-}$ and $Post_{+}$ respectively. $Pr_{\pm}$ is trivial to compute with any statistical software. $Post_- = (C_{-} Pr_{-})/(C_{-} Pr_{-} + C_{+} Pr_{+})$ and similarly for $Post_+$. So, $Post_{\pm}$ is conceptually simple, although care must be taken to avoid numerical instability (see \ref{alg:quantile} for details).
 
-With these values, we can compute the quantile by mapping the corresponding probability $p$ for the posterior onto the probability $p^*$ for the corresponding Normal. Which Normal the quantile of interest ultimately comes from is determined based on $Post_{\pm}$. If $p \leq Post_{-}$, then $p$ would be mapped onto the negative Normal. If $p > Post_{-}$, then $p$ would be mapped onto the positive Normal.  For example, if $Post_{+} = 0.98$ and $p = 0.1$ then $p$ would be mapped onto the positive Normal. The transformation to map a given probability from the posterior depends on which tail the quantile resides in on the posterior (equivalently which Normal it is being mapped to, the positive or negative). This map is simply:
-\as{
-p^* &= p \times (Pr_{\pm} / Post_{\pm}) \\
-}
+With $Pr_\pm$ and $Post_\pm$ defined, we can compute a quantile by mapping the respective probability $p$ for the Laplace-Normal onto the probability $p^*$ for the corresponding Normal. Which Normal the quantile of interest ultimately comes from is determined based on $Post_{\pm}$. If $p \leq Post_{-}$, then $p$ would be mapped onto the negative tail of the right Normal. If $p > Post_{-}$, then $p$ would be mapped onto the positive tail of the left Normal.  For example, if $Post_{+} = 0.98$ and $p = 0.1$ then $p$ would be mapped onto the left Normal. The transformation to map a given probability from the Laplace-Normal depends on which tail the quantile resides in. This map is simply
+$$
+p^* = \frac{Pr_{\pm}}{Post_{\pm}} p.
+$$
 
-Once the respective probability is mapped, one can simply use the inverses of the Normal CDF that the probability was mapped to. That being said, there is a nuance worth pointing out. When transforming the probabilities, the step to determine which tail the respective quantile comes from occurs first. With this, the probability should be adjusted so that it refers to the probability between the quantile of interest and the respective tail. After this, then the transformation can be applied. These steps are summarized in Algorithm~\ref{alg:quantile}.
+\noindent Once the respective probability is mapped, one can simply use the inverse of the Normal CDF that the probability was mapped to. That being said, there is a nuance worth pointing out. When mapping the probabilities, the step to determine which tail the respective quantile comes from occurs first. With this, the probability must be adjusted so that it refers to the probability between the quantile of interest and the respective tail (i.e., $1-p$ for the positive tail). After this, then the map can be applied and the quantile computed. Note, in practice the mapping and quantile computation are also performed on the log scale, but are described here on the non-log scale for conceptual clarity. Computing a quantile from a Laplace-Normal distribution is summarized in \ref{alg:quantile}.
 
 \begin{algorithm}
 \caption{Compute Quantile for RL-P Laplace-Normal Distribution}
@@ -61,23 +61,19 @@ Once the respective probability is mapped, one can simply use the inverses of th
   \Require
     $\tilde{\beta}_j,\;\sigma^2,\;\tilde{n};\lambda,\;p$ \Comment{mean, variance, effective sample size, penalty, probability of interest}
   \Statex
-  \State // 1. Compute mass in tails of negative and positive Normals on log scale
+  \State // 1. Compute log negative/positive tail mass of right/left Normals
   \State $\log Pr_{-} \gets \log \left(\Phi\bigl(0;\,\tilde{\beta}_j + \lambda,\;\tfrac{\sigma^2}{\tilde{n}}\bigr)\right)$
   \State $\log Pr_{+} \gets \log \left(1 - \Phi\bigl(0;\,\tilde{\beta}_j - \lambda,\;\tfrac{\sigma^2}{\tilde{n}}\bigr)\right)$
   \Statex
-  \State // 2. Compute $Post_{-},\,Post_{+}$ on log scale
+  \State // 2. Compute $Post_{-}, Post_{+}$
   \State $\ell_{-} \gets \log C_{-} + \log Pr_{-}$
   \State $\ell_{+} \gets \log C_{+} + \log Pr_{+}$
-  \State $\Delta \gets \ell_{-} - \ell_{+}$
-  \If{$\exp(\Delta) = \infty$}
-    \State $\log Post_{-} \gets 0$  \Comment{since $C_-Pr_- \gg C_+Pr_+$}
-  \Else
-    \State $\log Post_{-} \gets \Delta - \log\bigl(1 + \exp(\Delta)\bigr)$
-  \EndIf
-  \State $Post_{-} \gets \exp(\log Post_{-})$
+  \State $m \gets \max \lbrace \ell_{-}, \ell_{+} \rbrace$
+  \State $c \gets m + \log\left(\exp(\ell_{-} - m) + \exp(\ell_{+} - m)\right)$
+  \State $Post_{-} \gets \exp(\ell_{-} - c)$
   \State $Post_{+} \gets 1 - Post_{-}$
   \Statex
-  \State // 3. Invert CDF on the appropriate component
+  \State // 3. Invert CDF on the appropriate unscaled Normal (on log scale)
   \If{$p \le Post_{-}$}
     \State $w \gets \dfrac{Pr_{-}}{Post_{-}}$
     \State $q \gets \Phi^{-1}\bigl(p \,w;\;\tilde{\beta}_j + \lambda,\;\tfrac{\sigma^2}{n}\bigr)$

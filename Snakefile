@@ -56,11 +56,11 @@ rule all:
         "code/out/figure4-man3.pdf",
         "code/out/figure5-man3.pdf",
         "code/out/figure6-man3.pdf",
-        "code/out/figure7-man3.pdf",
         "code/out/table1-man3.tex",
         "code/out/figureA1-man3.pdf",
         "code/out/figureA2-man3.pdf",
         "code/out/figureA3-man3.pdf",
+        "code/out/figureB1-man3.pdf",
         "code/out/tableA1-man3.tex"
 
 rule distribution_results:
@@ -483,19 +483,6 @@ rule figure5man2:
     shell:
         "Rscript {input.script} "
         "--loc {LOC}"
-        
-rule figure6man2:
-    input:
-      script = "code/figure6-man2.R",
-      rds = expand(
-          f"{LOC}rds/Scheetz2006_{{method}}.rds",
-          method = ["rlp", "pipep", "lqap"]
-      )
-    output:
-        "code/out/figure6-man2.pdf"
-    shell:
-        "Rscript {input.script} "
-        "--loc {LOC}"
 
 rule table1man2:
     input:
@@ -594,17 +581,6 @@ rule figure6man3:
         "--iterations {ITER} "
         "--loc {LOC}"
         
-rule figure7man3:
-    input:
-        script = "code/figure7-man3.R",
-        rds = f"{LOC}rds/{ITER}/original/multiple.rds"
-    output:
-        "code/out/figure7-man3.pdf"
-    shell:
-        "Rscript {input.script} "
-        "--iterations {ITER} "
-        "--loc {LOC}"
-        
 rule figureA1man3:
     input:
         script = "code/figureA1-man3.R",
@@ -645,6 +621,19 @@ rule figureA3man3:
     shell:
         "Rscript {input.script} "
         "--iterations {ITER} "
+        "--loc {LOC}"
+        
+rule figureB1man3:
+    input:
+        script = "code/figureB1-man3.R",
+        rds = expand(
+          f"{LOC}rds/Golub1999_{{method}}.rds",
+          method = ["lqapbinom", "lqapbinomsnet", "lqapbinommcp"]
+        )
+    output:
+        "code/out/figureB1-man3.pdf"
+    shell:
+        "Rscript {input.script} "
         "--loc {LOC}"
         
 rule table1man3:
@@ -707,7 +696,6 @@ rule manuscript:
         "code/out/figure3-man2.pdf",
         "code/out/figure4-man2.pdf",
         "code/out/figure5-man2.pdf",
-        "code/out/figure6-man2.pdf",
         "code/out/table1-man2.tex",
         "code/out/table2-man2.tex",
         "code/out/figure1-man3.pdf",
@@ -716,11 +704,11 @@ rule manuscript:
         "code/out/figure4-man3.pdf",
         "code/out/figure5-man3.pdf",
         "code/out/figure6-man3.pdf",
-        "code/out/figure7-man3.pdf",
         "code/out/table1-man3.tex",
         "code/out/figureA1-man3.pdf",
         "code/out/figureA2-man3.pdf",
         "code/out/figureA3-man3.pdf",
+        "code/out/figureB1-man3.pdf",
         "code/out/tableA1-man3.tex"
     output:
         "build/thesis.pdf"

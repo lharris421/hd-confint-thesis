@@ -13,6 +13,7 @@ While the methods proposed so far have been focused on lasso penalized linear re
 All extensions in this manuscript are applicable to the previously proposed methods, as they all rely on the formulation of the penalty as a prior to construct distributions viewed as Bayesian posteriors which are defined piecewise using scaled parametric distributions, which we refer to as piecewise-scaled parametric distributions. We will revisit the details, but it is these distributions that are leveraged to compute HDIs. Throughout, results will be shown for the PIPE-P method for the sake of clarity while results for LQA-P are provided in \ref{sup:lqa}.
 
 In Section~\ref{sec:laplace-normal} we provide general details on how to analytically compute quantiles from piecewise-scaled parametric distributions in order to construct HDIs, using the Laplace-Normal as an example. In Section~\ref{sec:review} we review the details specific to the three methods introduced in Chapter 2 and Chapter 3 in greater generality. In Section~\ref{sec:bias_reducing}, we give the piecewise defined posteriors for SCAD and MCP and in Section~\ref{sec:enet} we show how the -Net penalties work into this framework. Then, in Section~\ref{sec:alt-fam}, we extend the methods to logistic and Poisson penalized regression. All the extensions can be combined with minimal effort, but specific details will be noted where necessary and an example application is provided in \ref{sup:multiple}.
+
 \section{Piecewise-Scaled Parametric Posteriors}
 \label{sec:laplace-normal}
 
@@ -133,7 +134,7 @@ The shape of a Laplace-Normal distribution varies considerably based on the rela
 
 In all three panels, the density is continuous but non-differentiable at zero. When $\mu < \lam$, the distribution has a sharp spike at zero for the mode. The larger $\mu$ is relative to $\lam$, the more the distribution resembles that of a Normal distribution. In fact, if $\mu$ is large enough relative to $\lam$, the distribution is \emph{essentially} a Normal distribution. 
 
-\section{Method Review}
+\section{Conditional Normal Likelihood Estimation}
 \label{sec:review}
 
 Before outlining the extensions, we review in general the three previously introduced methods, specifically how they respectively set $\mu$ and $s^2$ in the Normal likelihoods. While the penalized regression objective does imply a likelihood, the high-dimensional likelihood is cumbersome to work with directly --- when constructing an interval for $\beta_j$, all other coefficients act as nuisance parameters. So, the methods vary in how they approximate the high-dimensional likelihood for each feature. Although the methods were introduced with lasso, they define the likelihood either independent of the penalty or in a way it can be extended to other penalties and so we present the generalized form here.
@@ -479,12 +480,12 @@ $$
 Of course, unlike the gaussian case, we do not have an error variance as the variance is not independent of the mean. So, for feature $j$, the variance used in the Normal likelihood is $(\x_j \Tr \W^{1/2} \Q_{\hat{S}_j} \W^{1/2}\x_j)^{-1}$. For LQA-P, $\tilde{\Q}_{\hat{S}_j}$ is used instead of $\Q_{\hat{S}_j}$ where
 $$\tilde{\Q}_{\hat{S}_j} = \I_n - \tilde{\X}_{\hat{S}_j}(\tfrac{1}{n}\tilde{\X}_{\hat{S}_j} \Tr\tilde{\X}_{\hat{S}_j} + \P\W^{*-1})^{-1}\tfrac{1}{n}\tilde{\X}_{\hat{S}_j} \Tr.$$
 
-\noindent To keep the meaning of $\lam$ consistent (and to get distributions with modes equal to corresponding point estimates), $\lam$ (regardless of the penalty) must also be scaled for each parameter:
+\noindent To ensure the modes match the corresponding point estimates, $\lam$ must also be scaled for each parameter:
 $$
 \lambda_j = \frac{\lambda}{\nu_j}.
 $$
 
-\noindent For -Net type penalties, scaling is not applied to the ridge portion. That is, letting $\lam_1 = \alpha \lam$ and $\lam_2$ = $(1-\alpha)\lam$, then 
+\noindent However, for -Net type penalties, scaling is not applied to the ridge portion. That is, letting $\lam_1 = \alpha \lam$ and $\lam_2$ = $(1-\alpha)\lam$, then 
 
 $$
 \lambda_{1,j} = \frac{\lambda_1}{\nu_j},

@@ -83,7 +83,7 @@ kbl(
   tab_sel_inf,
   format     = "latex",
   booktabs   = TRUE,
-  align     = c("c", rep("p{3cm}", 4)),
+  align     = c("c", rep("p{3.4cm}", 4)),
   # digits     = c(0, 0, 1, 0, 0),
   digits = 3,
   col.names  = col_names,
