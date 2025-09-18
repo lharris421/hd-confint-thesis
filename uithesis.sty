@@ -439,23 +439,23 @@
 		%──────────────────────────────────────────────────────────────────
         % If user wants a Preface, drop it here (roman‐numbered front matter)
 			% … inside \afterpreface, replace your existing \ifpreface … \fi with:
-			\ifpreface
-			\newpage
-			\thispagestyle{frontstyle}
-			\addtocontents{toc}{\protect\vspace{\li}}
-			\addcontentsline{toc}{head}{PREFACE}
-			{%
-				% ---- force double spacing for Preface only ----
-				\par
-				\begingroup
-				\baselineskip=2.0\li % <- same as your \doublespace
-				\prefacesection{Preface}
-				\prefacetext
-				\par
-				\endgroup
-				% -----------------------------------------------
-			}%
-			\fi
+			% \ifpreface
+			% \newpage
+			% \thispagestyle{frontstyle}
+			% \addtocontents{toc}{\protect\vspace{\li}}
+			% \addcontentsline{toc}{head}{PREFACE}
+			% {%
+			% 	% ---- force double spacing for Preface only ----
+			% 	\par
+			% 	\begingroup
+			% 	\baselineskip=2.0\li % <- same as your \doublespace
+			% 	\prefacesection{Preface}
+			% 	\prefacetext
+			% 	\par
+			% 	\endgroup
+			% 	% -----------------------------------------------
+			% }%
+			% \fi
 
         %──────────────────────────────────────────────────────────────────
 	% The next three lines put the heading "CHAPTER" before the
