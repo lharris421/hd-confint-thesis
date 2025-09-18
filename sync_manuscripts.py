@@ -25,17 +25,17 @@ PAPERS = [
     {
         "name": "chap2",
         "dir": "../man-avg-cov",
-        "title": "A New Perspective on High Dimensional Confidence Intervals"
+        "title": "A New Perspective on High Dimensional Intervals"
     },
     {
         "name": "chap3",
         "dir": "../man-alt-post",
-        "title": "Average Coverage CIs: Alternative Likelihood Constructions"
+        "title": "Alternative Likelihood Approximations for High-Dimensional Intervals for Lasso"
     },
     {
         "name": "chap4",
         "dir": "../man-post-ext",
-        "title": "Extending Laplace-Normal Quantile Computation"
+        "title": "Generalized High-Dimensional Intervals for Penalized Regression Models"
     },
 ]
 # Only copy setup.R once (from the first paper)
