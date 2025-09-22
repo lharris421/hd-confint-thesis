@@ -96,17 +96,17 @@ for (i in 1:length(unique(results$method))) {
     geom_point(aes(x = estimate, y = variable)) +
     theme_minimal() +
     coord_cartesian(xlim = c(-2, 2)) +
+    ggtitle(curr_method) +
     ylab(NULL) +
     xlab("Estimate (80% CI)")
 
 }
 
 if (interactive()) {
-  pdf("out/figure5-man3.pdf", height = 5.5, width = 6.5)
+  pdf("out/figure5-man3.pdf", height = 3, width = 6.5)
 } else {
-  pdf("code/out/figure5-man3.pdf", height = 5.5, width = 6.5)
+  pdf("code/out/figure5-man3.pdf", height = 3, width = 6.5)
 }
-(plots[[3]] + plots[[1]] + plots[[5]] + patchwork::plot_layout(axes = "collect")) /
   (plots[[4]] + plots[[2]] + plots[[6]] + patchwork::plot_layout(axes = "collect"))
 dev.off()
 

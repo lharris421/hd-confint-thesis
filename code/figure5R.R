@@ -57,7 +57,7 @@ color_scale <- scale_color_manual(
   labels = c("50", "100", "400")
 )
 
-wrap <- function(x) str_wrap(x, width = 12)
+wrap <- function(x) str_wrap(x, width = 11)
 
 ## Coverage
 p1 <- results %>%

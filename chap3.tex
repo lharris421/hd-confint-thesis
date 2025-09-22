@@ -13,9 +13,31 @@ In Section~\ref{sec:proj-int}, we propose two alternative interval construction 
 \section{Projection Based High-Dimensional Intervals}
 \label{sec:proj-int}
 
-Viewed from a Bayesian perspective, the lasso penalty corresponds to a Laplace (double-exponential) prior on the regression coefficients. Combined with the normal likelihood from linear regression, this formulation provides a probabilistic framework that can be used to construct intervals. Because the prior is determined by the penalty once $\lam$ has been selected, improving upon RL-P intervals requires modifying the likelihood. Although the lasso objective also implies a likelihood, it is difficult to work with directly --- when constructing an interval for $\beta_j$, the remaining $p-1$ elements of $\bb$ act as nuisance parameters. The central question then is which aspects of the selected model should be conditioned on when approximating this likelihood for an individual $\beta_j$. If we further require that the lasso estimate represents the posterior mode, the likelihood's center is also fixed. What remains is to determine an appropriate variance in this likelihood, and in this section, we consider two approaches.
+Viewed from a Bayesian perspective, the lasso penalty corresponds to a Laplace (double-exponential) prior on the regression coefficients. Combined with the normal likelihood from linear regression, this formulation provides a probabilistic framework that can be used to construct intervals. Because the prior is determined by the penalty once $\lam$ has been selected, improving upon RL-P intervals requires modifying the likelihood. Although the lasso objective also implies a likelihood, it is difficult to work with directly --- when constructing an interval for $\beta_j$, the remaining $p-1$ elements of $\bb$ act as nuisance parameters. \logan{One way to view this problem is as a continuum of possible likelihood constructions. At one end is the plug-in likelihood, where the nuisance parameters are replaced by their estimates; at the other is the profile likelihood, which eliminates nuisance parameters by maximizing over them. While the profile likelihood is not feasible in high dimensions, the plug-in approach is often too naive. Our aim here is to develop intermediate likelihoods that balance tractability with fidelity to the underlying model structure.}
 
-In Section~\ref{sec:pipep}, we propose a likelihood based on work in \cite{dai2019}. In both this method (PIPE-P) and RL-P, the variance is based on a full projection onto the active features. However, in penalized regression, the active features can also be seen as existing on a continuum between inactive and fully active, so in Section~\ref{Sec:LQAP} we propose a method that estimates the likelihood variance based on partial projections onto the active set.
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}[x=0.8cm,y=0.8cm]
+
+% continuum baseline
+\draw[thick] (0,0) -- (14,0);
+
+% end ticks + labels
+\draw[thick] (0,0) -- ++(0,0.15)
+  node[above=4pt,align=center] {\small Plug-in likelihood\\[-1pt]\footnotesize(replace nuisance with estimates)};
+\draw[thick] (14,0) -- ++(0,0.15)
+  node[above=4pt,align=center] {\small Profile likelihood\\[-1pt]\footnotesize(infeasible in high $p$)};
+
+\node at (3.5,0) {\Large (};                  % left parenthesis
+\node at (10.5,0) {\Large )};                 % right parenthesis
+
+\node[align=center] at (7,-1.0) {\small Intermediate likelihoods\\[-1pt]\footnotesize(ours live here)};
+
+\end{tikzpicture}
+\caption{Conceptual continuum between plug-in and profile likelihood; the parenthesized region marks a range of feasible intermediate likelihoods balancing tractability and fidelity.}
+\end{figure}
+
+\noindent The central question then is which aspects of the selected model should be conditioned on when \logan{constructing} the likelihood for an individual $\beta_j$. If we further require that the lasso estimate represents the posterior mode, the likelihood's center is also fixed. What remains is to determine an appropriate variance in this likelihood, and in this section, we consider two approaches. In Section~\ref{sec:pipep}, we propose a likelihood based on work in \cite{dai2019}. In both this method (PIPE-P) and RL-P, the variance is based on a full projection onto the active features. However, in penalized regression, the active features can also be seen as existing on a continuum between inactive and fully active, so in Section~\ref{Sec:LQAP} we propose a method that estimates the likelihood variance based on partial projections onto the active set.
 
 Without loss of generality, we assume $\X$ is standardized so that $\x_j \Tr \x_j = n$ and $\y$ is centered, so no intercept is required.
 
@@ -188,7 +210,7 @@ Figure~\ref{fig:3-man2} is based on the same simulation results as Figure~\ref{f
 \begin{figure}[hbt!]
     \begin{center}
     \includegraphics[width=0.8\linewidth]{figure3-man2}
-    \caption{\label{fig:3-man2} Presents results for the simulation described in Section~\ref{Sec:correlation2}. The plots give the median and Q1 and Q3 widths of the intervals across 1000 simulated datasets for the three methods, varying both the level of autoregressive correlation among the covariates, $\rho = 0 \text{ (no correlation)}, 0.5, 0.8$ and the sample size, n = p/2, p, 4p, 10p. For this simulation, p = 101 and $\bb$ was set to be equally spaced quantiles from a Laplace distribution.}
+    \caption{\label{fig:3-man2} Presents results for the simulation described in Section~\ref{Sec:correlation2}. The plots give the median and Q1 and Q3 widths of the intervals across 1000 simulated datasets for the three methods, varying both the level of autoregressive correlation among the covariates, $\rho = 0$ (no correlation), $0.5$, $0.8$ and the sample size, n = p/2, p, 4p, 10p. For this simulation, p = 101 and $\bb$ was set to be equally spaced quantiles from a Laplace distribution.}
     \end{center}
 \end{figure}
 

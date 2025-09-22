@@ -61,7 +61,11 @@ rule all:
         "code/out/figureA2-man3.pdf",
         "code/out/figureA3-man3.pdf",
         "code/out/figureB1-man3.pdf",
-        "code/out/tableA1-man3.tex"
+        "code/out/figureB2-man3.pdf",
+        "code/out/figureB3-man3.pdf",
+        "code/out/figureC1-man3.pdf",
+        "code/out/tableA1-man3.tex",
+        "code/out/tableB1-man3.tex"
 
 rule distribution_results:
     input:
@@ -627,11 +631,53 @@ rule figureB1man3:
     input:
         script = "code/figureB1-man3.R",
         rds = expand(
+            f"{LOC}rds/{ITER}/gam/laplace_autoregressive_0_{{n}}_101_{{family_snr_method}}.rds",
+            n      = [50, 100, 400, 1000],
+            family_snr_method = ["binomial_100_rlpbinom", "poisson_100_rlppois"]
+        )
+    output:
+        "code/out/figureB1-man3.pdf"
+    shell:
+        "Rscript {input.script} "
+        "--iterations {ITER} "
+        "--loc {LOC}"
+        
+rule figureB2man3:
+    input:
+      script = "code/figureB2-man3.R",
+      rds = expand(
+          f"{LOC}rds/whoari_{{method}}.rds",
+          method = ["rlp", "rsp", "rmp"]
+      )
+    output:
+        "code/out/figureB2-man3.pdf"
+    shell:
+        "Rscript {input.script} "
+        "--loc {LOC}"
+        
+rule figureB3man3:
+    input:
+        script = "code/figureB3-man3.R",
+        rds = expand(
+            f"{LOC}rds/{ITER}/original/highcorr_{{method}}.rds",
+            method = ["ridge", "rlp", "rlpenet"]
+        )
+    output:
+        "code/out/figureB3-man3.pdf"
+    shell:
+        "Rscript {input.script} "
+        "--iterations {ITER} "
+        "--loc {LOC}"
+
+rule figureC1man3:
+    input:
+        script = "code/figureC1-man3.R",
+        rds = expand(
           f"{LOC}rds/Golub1999_{{method}}.rds",
           method = ["lqapbinom", "lqapbinomsnet", "lqapbinommcp"]
         )
     output:
-        "code/out/figureB1-man3.pdf"
+        "code/out/figureC1-man3.pdf"
     shell:
         "Rscript {input.script} "
         "--loc {LOC}"
@@ -659,6 +705,20 @@ rule tableA1man3:
         )
     output:
         "code/out/tableA1-man3.tex"
+    shell:
+        "Rscript {input.script} "
+        "--iterations {ITER} "
+        "--loc {LOC}"
+        
+rule tableB1man3:
+    input:
+        script = "code/tableB1-man3.R",
+        rds = expand(
+            f"{LOC}rds/{ITER}/original/bias_v_debias_{{method}}.rds",
+            method = ["rlp", "rsp", "rmp"]
+        )
+    output:
+        "code/out/tableB1-man3.tex"
     shell:
         "Rscript {input.script} "
         "--iterations {ITER} "
@@ -709,7 +769,11 @@ rule manuscript:
         "code/out/figureA2-man3.pdf",
         "code/out/figureA3-man3.pdf",
         "code/out/figureB1-man3.pdf",
-        "code/out/tableA1-man3.tex"
+        "code/out/figureB2-man3.pdf",
+        "code/out/figureB3-man3.pdf",
+        "code/out/figureC1-man3.pdf",
+        "code/out/tableA1-man3.tex",
+        "code/out/tableB1-man3.tex"
     output:
         "build/thesis.pdf"
     shell:

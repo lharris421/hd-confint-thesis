@@ -31,7 +31,7 @@ $$
 Q(\bb) = \tfrac{1}{2n}\norm{\y - \X\bb}^2 + \lam \norm{\bb}_1.
 $$
 
-Once a penalty is selected, estimates for $\bb$ can be obtained by minimizing $Q$. Due to the fact that the penalties of interest for this thesis (those that induce sparsity) are not differentiable at 0, minimizing the objective function is not as straight forward as differentiating the objective function and setting it equal to zero. Instead, the minimization proceeds via coordinate descent. Understanding coordinate descent will help in understanding some of the ideas in Chapters~\ref{sec:chap3}~and~\ref{sec:chap4}. While I am sure the reader is familiar with the idea of coordinate descent, the idea is to iteratively optimize a target function for a single parameter at a time until convergence is reached. Coordinate descent is attractive for minimizing objective functions like that for the lasso which has no closed form solution in high dimensions but does in a single dimension.
+Once a penalty is selected, estimates for $\bb$ can be obtained by minimizing $Q$. Due to the fact that the penalties of interest for this thesis (those that induce sparsity) are not differentiable at 0, minimizing the objective function is not as straight forward as differentiating the objective function and setting it equal to zero. Instead, the minimization proceeds via coordinate descent. While I am sure the reader is familiar with coordinate descent, the idea is to iteratively optimize a target function for a single parameter at a time until convergence is reached. Coordinate descent is attractive for minimizing objective functions like that for the lasso which has no closed form solution in high dimensions but does in a single dimension.
 
 For lasso, the target function is defined by minimizing $Q$ with respect to a single $\beta_j$ while treating the other coefficients, $\bb_{-j}$, as fixed at their current values $\tilde{\bb}_{-j}$. That is
 $$
@@ -41,7 +41,7 @@ $$
 \end{aligned}
 $$
 
-\noindent where, $\tilde{\r}_j = \y - \X_{-j}\tilde{\bb}_{-j}$. Letting, $\tilde{\z}_j = \tfrac{1}{n}\x_j \r_j$, the one dimensional solution is $\tilde{\beta_j} = S(\tilde{z_j}|\lam)$. $S(z_j|\lam)$ is the soft thresholding operator defined as 
+\noindent where, $\tilde{\r}_j = \y - \X_{-j}\tilde{\bb}_{-j}$. Letting, $\tilde{\z}_j = \tfrac{1}{n}\x_j \r_j$, the one dimensional solution is $\tilde{\beta_j} = S(\tilde{z_j}|\lam)$, where $S(z_j|\lam)$ is the soft thresholding operator defined as 
 $$
 S(z_j|\lam) =
 \begin{cases}
@@ -51,7 +51,7 @@ z_j+\lambda & \text{if } z_j<-\lambda.
 \end{cases}
 $$
 
-Sparsity inducing penalties like the lasso are especially attractive when dealing with a high dimensional dataset when the underlying model is assumed to be driven by a small subset of the features. Such penalties carry out both estimation and variable selection (by setting estimates exactly to 0) simultaneously. In Section~\ref{sec:sparse-pen} a few other sparsity induced penalties will be discussed which will come up in Chapter 4.
+Sparsity inducing penalties like the lasso are especially attractive when dealing with a high dimensional dataset when the underlying model is assumed to be driven by a small subset of the features. Such penalties carry out both estimation and variable selection (by setting estimates exactly to 0) simultaneously. In Section~\ref{sec:sparse-pen} a few other sparsity inducing penalties will be discussed which will come up in Chapter 4.
 
 \section{Other Sparse Penalties}
 \label{sec:sparse-pen}
@@ -91,7 +91,7 @@ p_\lambda\!\bigl(|\beta|;\,\lambda,\gamma\bigr)=
 \end{cases} 
 $$
 
-\noindent Another popular penalty is the minimax concave penalty (MCP) with the form:
+\noindent The minimax concave penalty (MCP) has the form:
 $$
 \displaystyle
 p_\lambda\!\bigl(|\beta|;\,\lambda,\gamma\bigr)=
@@ -103,7 +103,7 @@ p_\lambda\!\bigl(|\beta|;\,\lambda,\gamma\bigr)=
 \end{cases}
 $$
 
-Both SCAD and MCP have penalties that reduce and eventually become constant when $|\beta|$ is large enough. For both penalties, when $|\beta| \geq \gamma \lam$, the penalty does not involve $\beta$. So, taking the derivative of the penalties shows that under these conditions the derivative is $0$, that is, no additional penalty is being applied for increasingly large estimates of $\beta$. This is what gives the penalties a diminishing bias. Alternatively, when $\beta = 0$, the derivative for either penalty is $\lam$, so, near zero, SCAD and MCP apply the same rate of penalization as the lasso. Between $0$ and $\gamma \lam$, the penalty is gradually lessened. How fast the rate of penalization goes to zero is controlled by $\gamma$ and as $\gamma \rightarrow \infty$, both SCAD and MCP resemble the lasso. For SCAD the minimum $\gamma$ is 2, and for MCP the minimum $\gamma$ is 1. The smaller $\gamma$ is, the more quickly estimates become unbiased, but the more they also tend to become unstable due to the greater concavity. Of note here is that the elastic net idea can be combined with SCAD and MCP, which helps with the overall convexity of the objective function, providing greater stability. Often, only a little ridge penalty is needed to introduce a relatively large gain in stability. 
+Both SCAD and MCP have penalties that reduce and eventually become constant when $|\beta|$ is large enough. For both penalties, when $|\beta| \geq \gamma \lam$, the penalty does not involve $\beta$. So, taking the derivative of the penalties shows that under these conditions the derivative is $0$, that is, no additional penalty is being applied for increasingly large estimates of $\beta$. This is what gives the penalties a diminishing bias. Alternatively, when $\beta = 0$, the derivative for either penalty is $\lam$, so, near zero, SCAD and MCP apply the same rate of penalization as the lasso. Between $0$ and $\gamma \lam$, the penalty is gradually lessened. How fast the rate of penalization goes to zero is controlled by $\gamma$ and as $\gamma \rightarrow \infty$, both SCAD and MCP resemble the lasso. For SCAD the minimum $\gamma$ is 2, and for MCP the minimum $\gamma$ is 1. The smaller $\gamma$ is, the more quickly estimates become unbiased, but the more they also tend to become unstable due to the greater concavity. Of note here is that the Elastic Net idea can be combined with SCAD and MCP, which helps with the overall convexity of the objective function, providing greater stability. Often, only a little ridge penalty is needed to introduce a relatively large gain in stability. 
 
 It should be noted that compared to the lasso, non-convex penalties tend to be more sparse. This can be of great benefit when a small number of predictors have large signals, in which case the predictive ability of these non-convex penalties is similar to that of the lasso. Because SCAD and MCP penalties taper off, estimates for larger signal variables can be large without permitting many noise variables. This cannot be said for the lasso which, in the presence of large signal variables, often chooses a small $\lambda$ using cross validation which ultimately results in noise variables being selected.
 
@@ -141,7 +141,7 @@ In general, sparsity is an attractive property that has lead to widespread adopt
 \subsection{Selective Inference}
 \label{sec:selective-inference}
 
-Selective Inference, introduced by \cite{Tibshirani2016}, allows for the use of the same data for both selection and inference, hence the name Selective Inference. The general idea being to account for the selection uncertainty during inference by conditioning on the selected features and their signs. 
+Selective Inference, introduced by \cite{Tibshirani2016}, allows for the use of the same data for both selection and inference, hence the name Selective Inference. The general idea being to account for the selection uncertainty during inference by conditioning on the selected model. 
 
 Specifically, for the lasso the variable selection event can be expressed as $\lbrace\A \y \leq \b \rbrace$. If we assume that $\y \sim \Norm(\boldsymbol{\mu}, \sigma^2 \I)$ as we do in linear regression, the goal is to make inference on a linear combination of $\boldsymbol{\mu}$ conditional on the selection event. Letting $\hat{S}$ denote the active features in a lasso fit, for confidence interval construction we would be interested in the linear combination $(\X_{\hat{S}}\Tr \X_{\hat{S}})^{-1} \X_{\hat{S}}\Tr \boldsymbol{\mu}$.
 
@@ -161,7 +161,7 @@ $$
 
 \noindent where $\Q_{-j} = \I - \X_{-j}(\X_{-j}\Tr\X_{-j})^{-1}\X_{-j}\Tr$. Now let $\tilde{\x}_j = \Q_{-j}\x_j$, that is the residuals from regressing $\x_j$ on $\X_j$. The estimate can then be written as
 $$
-\bh_j^{OLS} = \frac{\x_j\Tr \Q_{-j} \y}{\x_j\Tr \Q_{-j} \x_j} = \frac{\tilde{\x}_j\Tr \y}{\tilde{\x}_j\Tr \x_j} = \beta_j + \sum_{k \neq j} \frac{\tilde{\x}_j\Tr \x_k \beta_k}{\tilde{\x}_j\Tr \x_j} + \frac{\tilde{\x}_j\Tr \epsilon}{\tilde{\x}_j\Tr \x_j}
+\bh_j^{OLS} = \frac{\x_j\Tr \Q_{-j} \y}{\x_j\Tr \Q_{-j} \x_j} = \frac{\tilde{\x}_j\Tr \y}{\tilde{\x}_j\Tr \x_j} = \beta_j + \sum_{k \neq j} \frac{\tilde{\x}_j\Tr \x_k}{\tilde{\x}_j\Tr \x_j}\beta_k + \frac{\tilde{\x}_j\Tr \epsilon}{\tilde{\x}_j\Tr \x_j}
 $$
 
 \noindent Since $\x_j$ is projected onto the $Col(\X_{-j})$, $\tilde{\x}_j \perp \x_k$ and so the middle term is 0. This implies 
@@ -171,7 +171,7 @@ $$
 
 \noindent That is, the OLS solution equals the true value of $\beta_j$ up to an irreducible component that depends on the noise.
 
-Extending this idea to the lasso, let $\bbh$ be the coefficient estimates from lasso. Now let $\tilde{\x}_j$ be the residuals for $\x_j$ regressed on $\X_j$ through $p$ additional lasso fits. Then $\y$ can be projected onto these residuals:
+Extending this idea to the lasso, let $\bbh$ be the coefficient estimates from lasso. Now let $\tilde{\x}_j$ be the residuals for $\x_j$ regressed on $\X_{-j}$ through $p$ additional lasso fits. Then $\y$ can be projected onto these residuals:
 $$
 \begin{aligned}
 \hat{\beta}'_j &= \frac{\tilde{\x}_j \Tr \y}{\tilde{\x}_j \Tr \x_j} \\
@@ -194,9 +194,9 @@ $$
 
 \noindent which shows that it is equal to the lasso plus a one step bias correction.
 
-The authors proved that the de-sparsified lasso is asymptotically normal and unbiased under certain conditions. With asymptotic normality in mind, confidence intervals are constructed.
+The authors proved that the de-sparsified lasso is asymptotically Normal and unbiased under certain conditions. With asymptotic normality in mind, confidence intervals are constructed.
 
-It should be noted that the $p+1$ lasso regressions needed for this method can make this procedure computationally expensive especially when $p$ is large.
+It should be noted that the $p+1$ lasso regressions needed for this method make this procedure computationally expensive, especially when $p$ is large.
 
 As was previously noted that, while bootstrapping the lasso directly has its challenges, one successful implementation of the bootstrap for lasso has been bootstrapping this desparsified lasso estimator \citep{Dezeure2017}.
 
@@ -204,7 +204,7 @@ As was previously noted that, while bootstrapping the lasso directly has its cha
 
 While not a method formally proposed for interval for construction, it is a common approach in practice is to use the Relaxed Lasso. The Relaxed Lasso is a straightforward two-step procedure which uses the lasso for variable selection then refits using only the selected variables with a reduced penalty (commonly no penalty) \citep{Meinshausen2007}. Part of the popularity is likely due to the work by \cite{hastie2017} that compared best-subset selection, forward stepwise selection, lasso, and the relaxed lasso. This paper did an extensive simulation study with varying levels of dimensionality, sparsity, signal-to-noise ratios, correlation, and coefficient patterns across a range of metrics. Overall they suggested that the Relaxed Lasso provided the best performance. 
 
-As such, it has not been surprising that a question raised during the presentation of this work is why not just use the Relaxed Lasso and construct confidence intervals? 
+As such, it has not been surprising that a question raised during the presentation of the work in this thesis is why not just use the Relaxed Lasso and construct confidence intervals? 
 
 There are a few reasons, but nevertheless this will be considered as an alternative for its straightforwardness. Of particular note is that the previous work by \cite{hastie2017} is concerned with estimation error, so it is unclear how this translates to confidence interval behavior. That said, another clear downside is that the data are used for both selection and inference, with no adjustments being made acknowledging this fact. There are also a few other minor complaints I have with the typical implementation and while I have explored related improvements, they are outside the scope of this thesis. In this thesis, where used, the Relaxed Lasso will be considered in its traditional and most used form. 
 
