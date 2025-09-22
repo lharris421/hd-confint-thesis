@@ -86,7 +86,7 @@ Putting this all together we can arrive at the following implementation to const
 \Ensure \(\{\mathrm{CI}_j\}_{j=1}^p\)
   \State \(\lambda_{\mathrm{CV}}\gets\arg\min_{\lambda}\mathrm{CV\mbox{-}Error}(\lambda)\) 
     \Comment{10-fold CV on \((\X,\y)\)}
-  \State \(\hat\beta\gets\mathrm{Lasso}(\X,\y;\lambda_{\mathrm{CV}})\)
+  \State \(\hat\beta\gets\mathrm{lasso}(\X,\y;\lambda_{\mathrm{CV}})\)
   \For{\(j=1,\dots,p\)}
     \State \(\r_{-j}\gets \y - \X_{-j}\,\bbh_{-j}\)
     \State \(z_j\gets \tfrac{1}{n}\,\x_j^\top \r_{-j}\)

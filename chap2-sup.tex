@@ -1,7 +1,7 @@
 \section{Supplemental Materials}
 
 \subsection{Traditional Bootstrap Example}
-\label{sec:boot-fail}
+\label{sup:boot-fail}
 
 Figure~\ref{fig:A1} shows the coverage as a function of the value of $\beta$ (solid line) and the average coverage (dashed line) using a traditional pairs bootstrapping approach on the simulation setup described in Section~\ref{Sec:coverage}. Compare to the right side of Figure~\ref{fig:1}.
 
@@ -14,7 +14,7 @@ Figure~\ref{fig:A1} shows the coverage as a function of the value of $\beta$ (so
 
 \clearpage
 
-\subsection{Computing Quantiles from the Conditional Posterior}\label{Sup:A}
+\subsection{Computing Quantiles from the Conditional Posterior}\label{sup:A}
 
 Here we assume $\X$ has been standardized s.t. $\x_j^T\x_j = n$. Define $\Q_{\hat{S}_j}$ as $\I - \X_{\hat{S}_j}(\X_{\hat{S}_j}^T \X_{\hat{S}_j})^{-1} \X_{\hat{S}_j}^T$, the projection matrix onto the features selected by the lasso. For $\beta_j$ conditional on the selected features
 \as{
@@ -45,14 +45,14 @@ C_{+} \exp\{-\frac{\tilde{n}}{2\sigma^2} (\beta_j - (\tilde{\beta}_j - \lambda))
 }
 where $C_{-} = \exp(\tilde{\beta}_j \lambda \tilde{n}/\sigma^2)$ and $C_{+} = \exp(-\tilde{\beta}_j \lambda \tilde{n}/\sigma^2)$.
 
-The piecewise defined distribution is made up of scaled left and right truncated Normal distributions. This can be leveraged and draws can be analytically obtained through a mapping onto the respective underlying unscaled Normal distributions, $\Norm(\mu \pm \lam, s^2)$. Note, the use of ``tails'' in what follows refers to the entirety of a distribution between 0 and $\pm \infty$. That is, the negative tail is any part of the distribution below 0 and the positive tail is any part greater than 0. With this defined, then more specifically the piecewise defined Laplace-Normal is made up of the negative tail of a right scaled Normal and the positive tail of a left scaled Normal. Accordingly, we will let the mass in the unscaled Normal tails be denoted $Pr_{-}$ and $Pr_{+}$ respectively and the mass in each of the tails of the Laplace-Normal be denoted $Post_{-}$ and $Post_{+}$ respectively. $Pr_{\pm}$ is trivial to compute with any statistical software. $Post_- = (C_{-} Pr_{-})/(C_{-} Pr_{-} + C_{+} Pr_{+})$ and similarly for $Post_+$. So, $Post_{\pm}$ is conceptually simple, although care must be taken to avoid numerical instability (see \ref{alg:quantile} for details).
+The piecewise defined distribution is made up of scaled left and right truncated Normal distributions. This can be leveraged and draws can be analytically obtained through a mapping onto the respective underlying unscaled Normal distributions, $\Norm(\mu \pm \lam, s^2)$. Note, the use of ``tails'' in what follows refers to the entirety of a distribution between 0 and $\pm \infty$. That is, the negative tail is any part of the distribution below 0 and the positive tail is any part greater than 0. With this defined, then more specifically the piecewise defined Laplace-Normal is made up of the negative tail of a right scaled Normal and the positive tail of a left scaled Normal. Accordingly, we will let the mass in the unscaled Normal tails be denoted $Pr_{-}$ and $Pr_{+}$ respectively and the mass in each of the tails of the Laplace-Normal be denoted $Post_{-}$ and $Post_{+}$ respectively. $Pr_{\pm}$ is trivial to compute with any statistical software. $Post_- = (C_{-} Pr_{-})/(C_{-} Pr_{-} + C_{+} Pr_{+})$ and similarly for $Post_+$. So, $Post_{\pm}$ is conceptually simple, although care must be taken to avoid numerical instability (see Algorithm~\ref{alg:quantile} for details).
 
 With $Pr_\pm$ and $Post_\pm$ defined, we can compute a quantile by mapping the respective probability $p$ for the Laplace-Normal onto the probability $p^*$ for the corresponding Normal. Which Normal the quantile of interest ultimately comes from is determined based on $Post_{\pm}$. If $p \leq Post_{-}$, then $p$ would be mapped onto the negative tail of the right Normal. If $p > Post_{-}$, then $p$ would be mapped onto the positive tail of the left Normal.  For example, if $Post_{+} = 0.98$ and $p = 0.1$ then $p$ would be mapped onto the left Normal. The transformation to map a given probability from the Laplace-Normal depends on which tail the quantile resides in. This map is simply
 $$
 p^* = \frac{Pr_{\pm}}{Post_{\pm}} p.
 $$
 
-\noindent Once the respective probability is mapped, one can simply use the inverse of the Normal CDF that the probability was mapped to. That being said, there is a nuance worth pointing out. When mapping the probabilities, the step to determine which tail the respective quantile comes from occurs first. With this, the probability must be adjusted so that it refers to the probability between the quantile of interest and the respective tail (i.e., $1-p$ for the positive tail). After this, then the map can be applied and the quantile computed. Note, in practice the mapping and quantile computation are also performed on the log scale, but are described here on the non-log scale for conceptual clarity. Computing a quantile from a Laplace-Normal distribution is summarized in \ref{alg:quantile}.
+\noindent Once the respective probability is mapped, one can simply use the inverse of the Normal CDF that the probability was mapped to. That being said, there is a nuance worth pointing out. When mapping the probabilities, the step to determine which tail the respective quantile comes from occurs first. With this, the probability must be adjusted so that it refers to the probability between the quantile of interest and the respective tail (i.e., $1-p$ for the positive tail). After this, then the map can be applied and the quantile computed. Note, in practice the mapping and quantile computation are also performed on the log scale, but are described here on the non-log scale for conceptual clarity. Computing a quantile from a Laplace-Normal distribution is summarized in Algorithm~\ref{alg:quantile}.
 
 \begin{algorithm}
 \caption{Compute Quantile for RL-P Laplace-Normal Distribution}
@@ -87,7 +87,7 @@ $$
 
 \clearpage
 
-\subsection{Coverage Behavior Under Alternative Sample Sizes}\label{Sup:alt_ns}
+\subsection{Coverage Behavior Under Alternative Sample Sizes}\label{sup:alt_ns}
 
 Figure~\ref{fig:C1} displays coverage estimates as a smooth function of $\beta$ for three values of n: 50, 100, and 400 but otherwise uses the same setup as the simulation described in Section~\ref{Sec:coverage}.
 
@@ -102,7 +102,7 @@ For $n = 50$, coverage is overconservative with the characteristic high coverage
 
 \clearpage
 
-\subsection{Selective Inference Intervals}\label{Sup:si_int_info}
+\subsection{Selective Inference Intervals}\label{sup:si_int_info}
 
 
 \begin{table}[hb]
@@ -121,7 +121,7 @@ For the intervals that were constructed, the third and fourth columns provide th
 \clearpage
 
 
-\subsection{MCP Example}\label{Sup:MCP}
+\subsection{MCP Example}\label{sup:MCP}
 
 \begin{table}[hbtp]
   \centering
@@ -133,7 +133,7 @@ The results here provide an example of a version of the RL-P method but with an 
 
 \clearpage
 
-\subsection{Additional Details on Bootstrap Bias}\label{Sup:proof}
+\subsection{Additional Details on Bootstrap Bias}\label{sup:proof}
 
 \begin{figure}[htb!]
   \begin{center}
@@ -298,7 +298,7 @@ While the derivation above suggests that increasing correlation is the main cont
 
 \clearpage
 \subsection{A note about stability selection}
-\label{sec:stability}
+\label{sup:stability}
 
 It is no secret that bootstrapping lasso has fundamental issues. The related work in this manuscript is simply meant to show easy to comprehend details to this end. With these issues in mind, it is not common to see a traditional bootstrapping approach applied to the lasso for the purposes of interval construction. Rather, the popular use of resampling techniques for the lasso is in stability selection introduced by  \cite{Meinshausen2010}. However, here, we show that stability selection is still affected by bootstrap bias.
 
@@ -342,7 +342,7 @@ After we computed $\bar{\mathbf A}\gets\tfrac1R\sum_{i=1}^{R}\mathbf A_{i,\cdot}
 \begin{table}[hbtp]
   \centering
   \input{code/out/tableG1}
-  \caption{\label{tab:G1} Results for simulation described in \ref{sec:stability} showing that stability selection also suffers from bootstrap bias. Original selection(\%) provides the empirical selection probabilities for the 4 parameters while Bootstrap stability gives the bootstrap estimate for selection.}
+  \caption{\label{tab:G1} Results for simulation described in Supplement~\ref{sup:stability} showing that stability selection also suffers from bootstrap bias. Original selection(\%) provides the empirical selection probabilities for the 4 parameters while Bootstrap stability gives the bootstrap estimate for selection.}
 \end{table}
 
 Clearly, there is a fundamental bias for stability selection. That said, further exploration is necessary to understand if this contradicts the claims of \cite{Meinshausen2010} as they primarily focus on FDR control for finite sample problems like the one considered here.
