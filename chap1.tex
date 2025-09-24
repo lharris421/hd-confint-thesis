@@ -174,7 +174,7 @@ $$
 Extending this idea to the lasso, let $\bbh$ be the coefficient estimates from lasso. Now let $\tilde{\x}_j$ be the residuals for $\x_j$ regressed on $\X_{-j}$ through $p$ additional lasso fits. Then $\y$ can be projected onto these residuals:
 $$
 \begin{aligned}
-\hat{\beta}'_j &= \frac{\tilde{\x}_j \Tr \y}{\tilde{\x}_j \Tr \x_j} \\
+\bh'_j &= \frac{\tilde{\x}_j \Tr \y}{\tilde{\x}_j \Tr \x_j} \\
 &= \beta_j +  \sum_{k \neq j} \frac{\tilde{\x}_j \Tr \x_k}{\tilde{\x}_j \Tr \x_j}\beta_k + \frac{\tilde{\x}_j \Tr \epsilon}{\tilde{\x}_j \Tr \x_j}
 \end{aligned}
 $$
@@ -182,14 +182,14 @@ $$
 \noindent Because the projection of $\x_j$ onto $Col(\X_{-j})$ is approximated using lasso fits, the middle term here is not 0. The introduced bias term, $\sum_{k \neq j} \frac{\tilde{\x}_j \Tr \x_k}{\tilde{\x}_j \Tr \x_j}\beta_k$ can instead be estimated and corrected for by plugging in the lasso estimates, $\bbh$. This leads to the following definition for the desparsified lasso:
 $$
 \begin{aligned}
-\tilde{\beta}_j &= \hat{\beta}'_j - \sum_{k \neq j} \frac{\tilde{\x}_j \Tr \x_k}{\tilde{\x}_j \Tr \x_j}\hat{\beta}_k \\
-&= \beta_j + \sum_{k \neq j} \frac{\tilde{\x}_j \Tr \x_k}{\tilde{\x}_j \Tr \x_j}(\beta_k - \hat{\beta}_k) + \frac{\tilde{\x}_j \Tr \epsilon}{\tilde{\x}_j \Tr \x_j} 
+\tilde{\beta}_j &= \bh'_j - \sum_{k \neq j} \frac{\tilde{\x}_j \Tr \x_k}{\tilde{\x}_j \Tr \x_j}\bh_k \\
+&= \beta_j + \sum_{k \neq j} \frac{\tilde{\x}_j \Tr \x_k}{\tilde{\x}_j \Tr \x_j}(\beta_k - \bh_k) + \frac{\tilde{\x}_j \Tr \epsilon}{\tilde{\x}_j \Tr \x_j} 
 \end{aligned}
 $$
 
 \noindent The desparsified lasso can also be written as
 $$
-\hat{\beta}_j + \frac{\tilde{\x}_j \Tr (\y - \X \bbh)}{\tilde{\x}_j \Tr \x_j} 
+\bh_j + \frac{\tilde{\x}_j \Tr (\y - \X \bbh)}{\tilde{\x}_j \Tr \x_j} 
 $$
 
 \noindent which shows that it is equal to the lasso plus a one step bias correction.

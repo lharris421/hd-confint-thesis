@@ -27,6 +27,7 @@ wildcard_constraints:
 rule all:
     input:
         "build/thesis.pdf",
+        "code/out/figure0.pdf",
         "code/out/figure1.pdf",
         "code/out/figure2.pdf",
         "code/out/figure3.png",
@@ -195,6 +196,15 @@ rule multiple:
         "Rscript {input.script} "
         "--iterations {ITER} "
         "--seed {SEED} "
+        "--loc {LOC}"
+
+rule figure0:
+    input:
+        script = "code/figure0.R",
+    output:
+        "code/out/figure0.pdf"
+    shell:
+        "Rscript {input.script} "
         "--loc {LOC}"
 
 rule figure1:
@@ -735,6 +745,7 @@ rule manuscript:
         "chap5.tex",
         "chap2-sup.tex",
         "chap4-sup.tex",
+        "code/out/figure0.pdf",
         "code/out/figure1.pdf",
         "code/out/figure2.pdf",
         "code/out/figure3.png",

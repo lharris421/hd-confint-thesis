@@ -89,7 +89,7 @@ As with other penalized regression approaches, the lasso can be formulated as a 
 For the lasso, the corresponding prior is a Laplace distribution, also referred to as the double-exponential distribution:
 \as{p(\bb) = \prod_{j = 1}^{p} \tfrac{\gamma}{2}\exp(-\gamma \abs{\beta_j}), \gamma > 0.}
 
-Let $\hat{S} = \lbrace k: \hat{\beta}_k \neq  0 \rbrace$ denote the set of selected features. Then, let $\hat{S}_j$ denote the set of selected features that excludes feature $j$, so that $\hat{S}_j = \hat{S} \text{ if } j \notin \hat{S}$ and $\hat{S}_j = \hat{S} - \lbrace j \rbrace \text{ if } j \in \hat{S}$. Define $\Q_{\hat{S}_j}$ as $\I - \X_{\hat{S}_j}(\X_{\hat{S}_j} \Tr \X_{\hat{S}_j})^{-1} \X_{\hat{S}_j} \Tr$, the projection matrix onto the features selected by the lasso. The likelihood for $\beta_j$ conditional on the selected features is:
+Let $\hat{S} = \lbrace k: \bh_k \neq  0 \rbrace$ denote the set of selected features. Then, let $\hat{S}_j$ denote the set of selected features that excludes feature $j$, so that $\hat{S}_j = \hat{S} \text{ if } j \notin \hat{S}$ and $\hat{S}_j = \hat{S} - \lbrace j \rbrace \text{ if } j \in \hat{S}$. Define $\Q_{\hat{S}_j}$ as $\I - \X_{\hat{S}_j}(\X_{\hat{S}_j} \Tr \X_{\hat{S}_j})^{-1} \X_{\hat{S}_j} \Tr$, the projection matrix onto the features selected by the lasso. The likelihood for $\beta_j$ conditional on the selected features is:
 \as{L(\beta_j|\hat{S}_j) \propto \exp\left(-\frac{\x_j \Tr \Q_{\hat{S}_j} \x_j}{2\sigma^2}(\beta_{j} - \tilde{\beta}_{j})^2\right)}
 
 \noindent where $\tilde{\beta}_j = (\x_j \Tr \Q_{\hat{S}_j} \x_j)^{-1} \x_j \Tr \Q_{\hat{S}_j} \y$.  This can be seen as a mild extension of the relaxed lasso. It is equivalent to the relaxed lasso for features in $\hat{S}$ but also is capable of providing intervals for features in $\hat{S}^C$.
@@ -114,6 +114,17 @@ $$
 \noindent where $|\hat{S}_{\CV}|$ = $\sum \left( \bbh({\lambda_{\CV}}) \neq 0 \right)$.
 
 The Relaxed Lasso Posterior intervals are available through \texttt{intervals(fit, relaxed = TRUE)} in the current version of the R package \texttt{ncvreg} (3.16.0) where \texttt{fit} is an \texttt{ncvreg} or \texttt{cv.ncvreg} object.
+
+The shape of a Laplace-Normal distribution varies considerably based on the relative size of $\mu$ and $\lam$ which has direct implications on the resulting intervals. Intervals arising from Laplace-Normal distributions are often skewed away from zero unless $\mu$ is small or large relative to $\lam$, in which cases the intervals are more symmetric. Figure~\ref{fig:0} gives examples of the densities for 4 Laplace-Normal distributions with increasing values of $\mu$ = 0.1, 0.3, 0.6 and 1. For this figure, $\lam = 0.5$ and $s^2 = 1$. This figures highlights that the distribution is made up of two scaled truncated Normal distributions. The solid portion of each scaled Normal density is what is ``used'' in the whereas the dotted portion is the ``unused'' portion.
+
+\begin{figure}[hbt!]
+    \begin{center}
+    \includegraphics[width=0.6\linewidth]{figure0}
+    \caption{\label{fig:0} Examples of four Laplace-Normal distributions with increasing likelihood means ($\mu$ = 0.1, 0.3, 0.6, 1) and fixed values of $s^2 = 1$ and $\lambda = 0.5$.}
+    \end{center}
+\end{figure}
+
+In all three panels, the density is continuous but non-differentiable at zero. When $\mu < \lam$, the distribution has a sharp spike at zero for the mode. The larger $\mu$ is relative to $\lam$, the more the distribution resembles that of a Normal distribution. In fact, if $\mu$ is large enough relative to $\lam$, the distribution is \emph{essentially} a Normal distribution. 
 
 \section{Results}
 \label{Sec:results}

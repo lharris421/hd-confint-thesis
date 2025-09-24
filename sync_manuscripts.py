@@ -30,7 +30,7 @@ PAPERS = [
     {
         "name": "chap3",
         "dir": "../man-alt-post",
-        "title": "Alternative Likelihood Approximations for High-Dimensional Intervals for Lasso"
+        "title": "Alternative Likelihoods for Lasso High-Dimensional Intervals"
     },
     {
         "name": "chap4",

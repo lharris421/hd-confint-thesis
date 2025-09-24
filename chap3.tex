@@ -1,4 +1,4 @@
-\chapter{Alternative Likelihood Approximations for High-Dimensional Intervals for Lasso}\label{sec:chap3}
+\chapter{Alternative Likelihoods for Lasso High-Dimensional Intervals}\label{sec:chap3}
 
 \section{Introduction}
 
@@ -8,36 +8,34 @@ The classical frequentist definition of coverage insists that a confidence inter
 
 The RL-P method performs well in a wide range of scenarios under the newly proposed definition of coverage. However, the Relaxed Lasso likelihood is not the only --- and not necessarily the most appropriate --- one with which to construct parameter intervals for the lasso. In particular, its posterior mode is not equal to the lasso point estimate. In severe cases, this inconsistency can lead to situations in which the interval does not contain its corresponding lasso point estimate.
 
-In Section~\ref{sec:proj-int}, we propose two alternative interval construction methods. These methods use the same posterior construction as the RL-P intervals, but with different likelihoods. The construction guarantees that the resulting HDIs always contain the lasso estimates, as the lasso estimates are the modes of the distributions used to construct the intervals. In Section~\ref{sec:results}, we then compare these methods to the RL-P intervals. In Section~\ref{sec:biased-intervals}, we compare biased vs unbiased approaches to interval construction and show that debiasing does not necessarily lead to superior coverage in practice. Finally, in Section~\ref{Sec:Scheetz2006-2}, we compare the three average coverage methods proposed so far using an application to a data set on gene expression data in mammalian eyes.
+In Section~\ref{sec:proj-int}, we propose two alternative interval construction methods. These methods use the same posterior construction as the RL-P intervals, but with different likelihoods. The construction results in HDIs that are centered on the lasso estimates. In Section~\ref{sec:results}, we then compare these methods to the RL-P intervals. In Section~\ref{sec:biased-intervals}, we compare biased vs unbiased approaches to interval construction and show that debiasing does not necessarily lead to superior coverage in practice. Finally, in Section~\ref{Sec:Scheetz2006-2}, we compare the three average coverage methods proposed so far using an application to a data set on gene expression data in mammalian eyes.
 
 \section{Projection Based High-Dimensional Intervals}
 \label{sec:proj-int}
 
-Viewed from a Bayesian perspective, the lasso penalty corresponds to a Laplace (double-exponential) prior on the regression coefficients. Combined with the normal likelihood from linear regression, this formulation provides a probabilistic framework that can be used to construct intervals. Because the prior is determined by the penalty once $\lam$ has been selected, improving upon RL-P intervals requires modifying the likelihood. Although the lasso objective also implies a likelihood, it is difficult to work with directly --- when constructing an interval for $\beta_j$, the remaining $p-1$ elements of $\bb$ act as nuisance parameters. \logan{One way to view this problem is as a continuum of possible likelihood constructions. At one end is the plug-in likelihood, where the nuisance parameters are replaced by their estimates; at the other is the profile likelihood, which eliminates nuisance parameters by maximizing over them. While the profile likelihood is not feasible in high dimensions, the plug-in approach is often too naive. Our aim here is to develop intermediate likelihoods that balance tractability with fidelity to the underlying model structure.}
+Viewed from a Bayesian perspective, the lasso penalty corresponds to a Laplace (double-exponential) prior on the regression coefficients. Combined with the normal likelihood from linear regression, this formulation provides a probabilistic framework that can be used to construct intervals. Because the prior is determined by the penalty once $\lam$ has been selected, improving upon RL-P intervals requires modifying the likelihood. Although the lasso objective also implies a likelihood, it is difficult to work with directly --- when constructing an interval for $\beta_j$, the remaining $p-1$ elements of $\bb$ act as nuisance parameters. \logan{The question, then, is how to account for the uncertainty introduced by the nuisance parameters for $\beta_j$. One way to view this problem is as a continuum of possible likelihood constructions. At one end is the plug-in likelihood, where the nuisance parameters are replaced by their estimates; at the other is the profile likelihood, which eliminates nuisance parameters by maximizing over them. In high dimensions, the profile likelihood results intervals that are infinitly wide while the plug-in approach is naive, assuming no additional uncertainty is introduced by the nuisance parameters, effectively treating the parameters as orthogonal. Our aim here is to develop intermediate likelihoods that balance tractability with fidelity to the underlying model structure.}
 
-\begin{figure}[h!]
-\centering
 \begin{tikzpicture}[x=0.8cm,y=0.8cm]
 
 % continuum baseline
-\draw[thick] (0,0) -- (14,0);
+\draw[thick] (1,0) -- (13,0);
 
 % end ticks + labels
-\draw[thick] (0,0) -- ++(0,0.15)
+\draw[thick] (1,0) -- ++(0,0.15)
   node[above=4pt,align=center] {\small Plug-in likelihood\\[-1pt]\footnotesize(replace nuisance with estimates)};
-\draw[thick] (14,0) -- ++(0,0.15)
+\draw[thick] (13,0) -- ++(0,0.15)
   node[above=4pt,align=center] {\small Profile likelihood\\[-1pt]\footnotesize(infeasible in high $p$)};
 
-\node at (3.5,0) {\Large (};                  % left parenthesis
-\node at (10.5,0) {\Large )};                 % right parenthesis
+\node at (4.5,0) {\Large (};                  % left parenthesis
+\node at (9.5,0) {\Large )};                 % right parenthesis
 
 \node[align=center] at (7,-1.0) {\small Intermediate likelihoods\\[-1pt]\footnotesize(ours live here)};
 
 \end{tikzpicture}
-\caption{Conceptual continuum between plug-in and profile likelihood; the parenthesized region marks a range of feasible intermediate likelihoods balancing tractability and fidelity.}
-\end{figure}
 
-\noindent The central question then is which aspects of the selected model should be conditioned on when \logan{constructing} the likelihood for an individual $\beta_j$. If we further require that the lasso estimate represents the posterior mode, the likelihood's center is also fixed. What remains is to determine an appropriate variance in this likelihood, and in this section, we consider two approaches. In Section~\ref{sec:pipep}, we propose a likelihood based on work in \cite{dai2019}. In both this method (PIPE-P) and RL-P, the variance is based on a full projection onto the active features. However, in penalized regression, the active features can also be seen as existing on a continuum between inactive and fully active, so in Section~\ref{Sec:LQAP} we propose a method that estimates the likelihood variance based on partial projections onto the active set.
+\noindent The central question then is which aspects of the selected model should be conditioned on when constructing the likelihood for an individual $\beta_j$. If we further require that the lasso estimate represents the posterior mode, the likelihood's center is also fixed. What remains is to determine an appropriate variance in this likelihood, and in this section, we consider two approaches. In Section~\ref{sec:pipep}, we propose a likelihood based on work in \cite{dai2019}. In both this method (PIPE-P) and RL-P, the variance is based on a full projection onto the active features. However, in penalized regression, the active features can also be seen as existing on a continuum between inactive and fully active, so in Section~\ref{Sec:LQAP} we propose a method that estimates the likelihood variance based on partial projections onto the active set.
+
+
 
 Without loss of generality, we assume $\X$ is standardized so that $\x_j \Tr \x_j = n$ and $\y$ is centered, so no intercept is required.
 
@@ -76,7 +74,7 @@ The details can be found in Chapter 2, but this formulation is attractive becaus
 
 Of course, the above formulation depends on a specific value of $\lam$. We recommend performing cross validation and selecting the $\lam$ which minimizes the cross validation error ($\lam_{\CV}$). Likewise, the resulting posterior also depends on an estimate for $\sigma^2$. Here, as in the original PIPE manuscript, we take the suggestion of \cite{Reid2016} and estimate $\sigma^2$ with $\hat{\sigma}^2 = ||\y - \X\bbh({\lambda_{\CV}})||_2^2 / (n - |\hat{S}_{\CV}|)$, where $\abs{\hat{S}_{\CV}} = \#\{ \bh_j({\lambda_{\CV}}) \neq 0 \}$.
 
-Putting this all together we can arrive at the following implementation to construct HDIs with significance level $\alpha$:
+Putting this all together we can arrive at the following implementation to construct HDIs with significance level $\alpha$, where $P^{-1}$ is the quantile computation detailed in Chapter 2.
 
 \begin{algorithm}[!ht]
 \caption{PIPE-P Intervals at a single CV-chosen \(\lambda\)}
@@ -86,11 +84,12 @@ Putting this all together we can arrive at the following implementation to const
 \Ensure \(\{\mathrm{CI}_j\}_{j=1}^p\)
   \State \(\lambda_{\mathrm{CV}}\gets\arg\min_{\lambda}\mathrm{CV\mbox{-}Error}(\lambda)\) 
     \Comment{10-fold CV on \((\X,\y)\)}
-  \State \(\hat\beta\gets\mathrm{lasso}(\X,\y;\lambda_{\mathrm{CV}})\)
+  \State \(\bbh\gets\mathrm{lasso}(\X,\y;\lambda_{\mathrm{CV}})\)
+  \State $\hat{\sigma}^2 \gets ||\y - \X\bbh({\lambda_{\CV}})||_2^2 / (n - |\hat{S}_{\CV}|)$ 
   \For{\(j=1,\dots,p\)}
     \State \(\r_{-j}\gets \y - \X_{-j}\,\bbh_{-j}\)
     \State \(z_j\gets \tfrac{1}{n}\,\x_j^\top \r_{-j}\)
-    \State \(\hat S_j\gets\{\,k\neq j : \hat\beta_k\neq0\}\)
+    \State \(\hat S_j\gets\{\,k\neq j : \bh_k\neq0\}\)
     \State \(\Q_{\hat S_j}\gets I_n - \X_{\hat S_j}(\X_{\hat S_j}^\top \X_{\hat S_j})^{-1}\X_{\hat S_j}^\top\)
     \State \(\mathrm{CI}_j\gets \bigl[P^{-1}(\tfrac{\alpha}{2}\mid\hat S_j),\,P^{-1}(1-\tfrac{\alpha}{2}\mid\hat S_j)\bigr]\)
   \EndFor
@@ -157,6 +156,8 @@ $$
 
 \noindent where $\tilde{\W} = \diag\left(|\bh_k| / (|\bh_k| + \lam)\right)_{k \in \hat{S}_j}$. So, when features are orthogonal, the projection weights reflect the proportion of the lasso estimate relative to its pre-shrinkage value ($|\bh_k| + \lam = |z_k|$).
 
+\logan{Note that while both RL-P and LQA-P intervals come from distributions centered on the lasso estimates, this does not guarantee they contain the lasso point estimates. Laplace-Normal distributions are in general not symmetric and so equal tailed interval need not contain the mode. Alternatively, highest posterior density (HPD) intervals would carry this guarantee. That being said, for reasonable confidence levels, equal tailed intervals almost always contain the lasso point estimates. But, if this is a concern, while computationally more burdensome, HPD intervals could be implemented with relative ease.}
+
 \section{Results}
 \label{sec:results}
 
@@ -199,7 +200,7 @@ Other than the addition of an autoregressive correlation structure in which $\co
 \begin{figure}[hbt!]
     \begin{center}
     \includegraphics[width=\linewidth]{figure2-man2}
-    \caption{\label{fig:2-man2} Presents results for the simulation described in Section~\ref{Sec:correlation2}. The violin plots are the distributions of average coverages across 1000 simulated datasets for the three methods and across three different levels of autoregressive correlation among the covariates, $\rho = 0 \text{ (no correlation)}, 0.5, 0.8$. For this simulation, p = 101 with $\bb$ set to be equally spaced quantiles from a Laplace distribution. The results for each level of correlation are presented across four different sample sizes, n = p/2, p, 4p, 10p. The horizontal black line provides reference for the 80\% nominal coverage rate.}
+    \caption{\label{fig:2-man2} Presents results for the simulation described in Section~\ref{Sec:correlation2}. The violin plots are the distributions of average coverages across 1000 simulated datasets for the three methods and across three different levels of autoregressive correlation among the covariates, $\rho = 0 \text{ (no correlation)}, 0.5, 0.8$. For this simulation, p = 101 with $\bb$ set to be equally spaced quantiles from a Laplace distribution. The results for each level of correlation are presented across four different sample sizes, n = 50, 100, 400, 1000. The horizontal black line provides reference for the 80\% nominal coverage rate.}
     \end{center}
 \end{figure}
 
@@ -210,7 +211,7 @@ Figure~\ref{fig:3-man2} is based on the same simulation results as Figure~\ref{f
 \begin{figure}[hbt!]
     \begin{center}
     \includegraphics[width=0.8\linewidth]{figure3-man2}
-    \caption{\label{fig:3-man2} Presents results for the simulation described in Section~\ref{Sec:correlation2}. The plots give the median and Q1 and Q3 widths of the intervals across 1000 simulated datasets for the three methods, varying both the level of autoregressive correlation among the covariates, $\rho = 0$ (no correlation), $0.5$, $0.8$ and the sample size, n = p/2, p, 4p, 10p. For this simulation, p = 101 and $\bb$ was set to be equally spaced quantiles from a Laplace distribution.}
+    \caption{\label{fig:3-man2} Presents results for the simulation described in Section~\ref{Sec:correlation2}. The plots give the median and Q1 and Q3 widths of the intervals across 1000 simulated datasets for the three methods, varying both the level of autoregressive correlation among the covariates, $\rho = 0$ (no correlation), $0.5$, $0.8$ and the sample size, n = 50, 100, 400, 1000. For this simulation, p = 101 and $\bb$ was set to be equally spaced quantiles from a Laplace distribution.}
     \end{center}
 \end{figure}
 
@@ -242,7 +243,7 @@ Consider the case of two highly correlated features selected into the model, as 
 
 The intervals developed in this manuscript are biased and designed to achieve nominal average coverage, which by definition allows coverage to vary across coefficients. A practitioner focused only on the selected variables might view this unevenness as problematic: perhaps average coverage is preserved only because null coefficients enjoy high coverage while the selected coefficients --- the ones of substantive interest --- have much lower coverage. From this perspective of ``relevant'' average coverage, defined as the average coverage among the selected variables, biased intervals might seem unsatisfactory, since the greatest bias typically occurs for the largest effects. To address this concern, we examine whether the proposed PIPE-P and LQA-P intervals provide adequate relevant average coverage compared to commonly used debiased methods including Selective Inference, the De-sparsified Lasso, and the Relaxed Lasso.
 
-The De-sparsified Lasso \citep{ZhangZhang2014}, as the name suggests, modifies the original point estimates from the lasso in such a way that they are no longer sparse or shrunk towards zero, thereby facilitating classical approaches to inference. Alternatively, Selective Inference \citep{Lee2016,Tibshirani2016} aims to account for the uncertainty in model selection by conditioning on the selected model. This conditioning is also a form of bias correction, albeit indirectly. Note that through conditioning on the selected model, Selective Inference only provides intervals for the covariates that were selected. Lastly, the Relaxed Lasso is a is a two-step procedure which uses the lasso for variable selection, then refits using only the selected variables with a reduced penalty (commonly no penalty) \citep{Meinshausen2007}.
+The De-sparsified Lasso \citep{ZhangZhang2014}, as the name suggests, modifies the original point estimates from the lasso in such a way that they are no longer sparse or shrunk towards zero, thereby facilitating classical approaches to inference. Alternatively, Selective Inference \citep{Lee2016,Tibshirani2016} aims to account for the uncertainty in model selection by conditioning on the selected model. This conditioning is also a form of bias correction, albeit indirectly. Note that through conditioning on the selected model, Selective Inference only provides intervals for the covariates that were selected. Lastly, the Relaxed Lasso is a two-step procedure which uses the lasso for variable selection, then refits using only the selected variables with a reduced penalty (commonly no penalty) \citep{Meinshausen2007}.
 
 For this simulation, 4 different distributions were considered for $\bb$:
 \begin{enumerate}
@@ -276,7 +277,7 @@ In this section, we analyze data from a gene expression study in mammalian eyes.
     \end{center}
 \end{figure}
 
-This analysis reveals that RL-P intervals can behave in undesirable ways in high-dimensional problems. Recall that RL-P intervals, unlike PIPE-P and LQA-P intervals, are not guaranteed to contain the lasso point estimate. In particular, Figure~\ref{fig:5-man2} reveals that for 70 genes, the RL-P interval does not contain 0 despite the fact that the lasso point estimate is zero. By construction, this cannot occur for PIPE-P or LQA-P.
+This analysis reveals that RL-P intervals can behave in undesirable ways in high-dimensional problems. Recall that RL-P intervals, unlike PIPE-P and LQA-P intervals, are not centered on the lasso point estimate. In particular, Figure~\ref{fig:5-man2} reveals that for 70 genes, the RL-P interval does not contain 0 despite the fact that the lasso point estimate is zero. By construction, this unlikely to occur for PIPE-P or LQA-P.
 
 Comparing PIPE-P and LQA-P, the LQA-P intervals are considerably narrower, consistent with the simulation results. In particular, while both intervals are centered at the same points (the lasso estimates), 20 of the LQA-P intervals exclude zero compared to only 3 of the PIPE-P intervals. While it is difficult to say which approach is ``correct'', the PIPE-P intervals are based on a full projection onto the column space of all 66 genes selected by the lasso, which accounts for the wide intervals given that $n$ is only 120.
 
@@ -284,7 +285,7 @@ Comparing PIPE-P and LQA-P, the LQA-P intervals are considerably narrower, consi
 
 Our motivation in constructing high-dimensional intervals is to produce a single, coherent set of coefficient estimates, predictions, and intervals that are all consistent with each other. In our earlier paper Chapter 2, we introduced the idea of average coverage, arguing that high-dimensional intervals would be more consistent with lasso estimates if we dropped the requirement that every interval had to maintain correct coverage --- this can never be consistent with regularized estimation --- and replaced it with a requirement that the average coverage of all the intervals is maintained at a prespecified rate. 
 
-Although the Relaxed Lasso Posterior approach proposed in that manuscript improved alignment between high-dimensional intervals and corresponding point estimates, the intervals were not completely satisfying in the sense that they were not guaranteed to contain the lasso point estimates. To address this, we have now introduced two methods, PIPE-P and LQA-P, for constructing high-dimensional intervals that are centered on the lasso estimates. The two methods condition on the features selected by the lasso in different ways, and as a result the widths of the intervals can differ substantially. Nevertheless, both approaches provide meaningful ways to represent our uncertainty about the penalized estimates and bring us closer to the goal of a coherent inferential framework.
+Although the Relaxed Lasso Posterior approach proposed in that manuscript improved alignment between high-dimensional intervals and corresponding point estimates, the intervals were not completely satisfying in the sense that they were not centered on the lasso point estimates. To address this, we have now introduced two methods, PIPE-P and LQA-P, for constructing high-dimensional intervals that are centered on the lasso estimates. The two methods condition on the features selected by the lasso in different ways, and as a result the widths of the intervals can differ substantially. Nevertheless, both approaches provide meaningful ways to represent our uncertainty about the penalized estimates and bring us closer to the goal of a coherent inferential framework.
 
 \newpage
 
