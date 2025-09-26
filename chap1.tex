@@ -3,17 +3,17 @@
 
 The availability of data only continues to grow. With that, datasets often contain a large number of features which pose a challenging problem for the statistician. One example would be the goal of predicting a disease outcome based on the medical records for patients in the University of Iowa Hospital system. With the increasing interest of multi-omic data, lab results are becoming widely available for analysis and are linked back to the patient's medical records. If the number of observations is large relative to the number of biomarkers in this example, then classical methods are a viable (but likely less than ideal) option. This is not the case if the number of variables exceeds the number of observations. However, penalized regression, the general topic of this thesis, has become one of the most used tools in statistics, in part because it can handle when the number of variables exceeds the number of observations. Particularly, this thesis is concerned with producing intervals for sparse penalized regression. Sparse simply meaning that many of the estimates are 0. 
 
-While penalized regression is extremely popular, there is a gap in constructing intervals. While there have been a number of methods proposed, all such methods can be seen as debiasing procedures. The details of these methods are covered in Section~\ref{sec:cm}. Unfortunately, a clear disconnect arises when penalized regression is used to obtain point estimates and then one of these methods is used to construct intervals and the two are put side-by-side. Nevertheless, it appears the foregone conclusion is that biased intervals are bad and that the behavior of intervals in high dimensions should have traditional frequentist properties, which requires debiasing. That being said, the statistical community has grown comfortable with biased estimators, so why not allow intervals to also be biased, especially when a biased estimator has been selected for a particular problem. To my knowledge, there have been no methods proposed for constructing intervals for penalized regression that actually align with the point estimates. The closest thing proposed has been the suggestion of using the bootstrap to obtain such intervals. However, we discuss in Chapter~\ref{sec:chap2} why this is not a good idea, agreeing with the work in \cite{Chatterjee2010}. Any successful bootstrap based approaches have focused on the de-sparsified (de-biased) lasso which will also be discussed further in Section~\ref{sec:cm}. 
+While penalized regression is extremely popular, there is a gap in constructing intervals. There have been a number of methods proposed, but all such methods can be seen as debiasing procedures. The details of these methods are covered in Section~\ref{sec:cm}. Unfortunately, a clear disconnect arises when penalized regression is used to obtain point estimates and then one of these methods is used to construct intervals and the two are put side-by-side. Nevertheless, it appears the foregone conclusion is that biased intervals are bad and that the behavior of intervals in high dimensions should have traditional frequentist properties, which requires debiasing. That being said, the statistical community has grown comfortable with biased estimators, so why not allow intervals to also be biased when a biased estimator has been selected for a particular problem. To my knowledge, there have been no methods proposed for constructing intervals for penalized regression that actually align with the point estimates. The closest thing proposed has been the suggestion of using the bootstrap to obtain such intervals. However, we discuss in Chapter~\ref{sec:chap2} why this is not a good idea, agreeing with the work in \cite{Chatterjee2010}. Any successful bootstrap based approaches have focused on the de-sparsified (de-biased) lasso which will also be discussed further in Section~\ref{sec:cm}. 
 
 The goal of this thesis is to develop a cohesive framework for high-dimensional intervals that are consistent with corresponding point estimates and predictions. This has three parts. First, it is to argue for the acceptance of biased intervals. Second, it is to begin to define what properties biased intervals should have. Third, it is to provide methods that align with the criteria put forth in part 2. 
 
-To this end, Chapter~\ref{sec:chap2} will start the argument for the reasonableness of average coverage and the role it plays in allowing intervals to be constructed that more closely reflect the penalized regression estimates. In this Chapter, the first of three methods will be introduced. This method produces reasonable average coverage while being built on the idea of the Relaxed Lasso, a familiar concept in high dimensional regression.
+To this end, Chapter~\ref{sec:chap2} will introduce an alternative coverage target and the role it plays in allowing intervals to be constructed that more closely reflect the penalized regression estimates. In this Chapter, the first of three methods will be introduced. This method is built on the idea of the Relaxed Lasso, a familiar concept in high dimensional regression.
 
 In Chapter~\ref{sec:chap3} a new property for biased intervals will be introduced. The intervals proposed in Chapter~\ref{sec:chap2} do not satisfy this new property, so two additional methods will be proposed and compared to the method introduced in Chapter~\ref{sec:chap2}. This chapter will also continue the argument in favor of constructing biased intervals for a biased estimation method.
 
 Chapter~\ref{sec:chap4} extends the three methods proposed in Chapters~\ref{sec:chap2}~and~\ref{sec:chap3} to various penalties and outcome types. 
 
-For the remainder of this section, I provide an overview of lasso penalized linear regression before discussing a number of different penalties along with penalized regression for other outcome types. Lasso penalized linear regression will be the main focus for Chapters~\ref{sec:chap2}~and~\ref{sec:chap3}, but, as mentioned, Chapter~\ref{sec:chap4} will extend the methods introduced to other penalties and outcome types. Then, I will provide a review of the current interval construction methods used for the lasso. Finally, I will provide a brief discussion on Frequentist vs Bayesian inference in high dimensions which will serve as a primer for the work to follow in Chapter~\ref{sec:chap2}.
+For the remainder of this Chapter, I provide an overview of lasso penalized linear regression before discussing a number of different penalties along with penalized regression for other outcome types. Lasso penalized linear regression will be the main focus for Chapters~\ref{sec:chap2}~and~\ref{sec:chap3}, but, as mentioned, Chapter~\ref{sec:chap4} will extend the methods introduced to other penalties and outcome types. Then, I will provide a review of the current interval construction methods used for the lasso. Finally, I will provide a brief discussion on Frequentist vs Bayesian inference in high dimensions which will serve as a primer for the work to follow in Chapter~\ref{sec:chap2}.
 
 \section{Lasso Penalized Linear Regression}
 
@@ -111,25 +111,26 @@ It should be noted that compared to the lasso, non-convex penalties tend to be m
 
 So far the focus has been on gaussian outcomes, however, there are many other important outcome types. In the previous section we discussed alternative options for the second part of the objective function, now we turn our attention to the first component: the loss. Particularly of interest for this thesis is logistic and poisson penalized regression.
 
-The details will be covered fully in Chapter~\ref{sec:chap4}, however, the key point is that the the form of the penalties discussed do not change and the loss is just the same as in unpenalized regression. That is the corresponding objective functions are:
+The details will be covered fully in Chapter~\ref{sec:chap4}, however, the key point is that the the form of the penalties discussed do not change and the loss is just the same as in unpenalized regression. Let $\boldsymbol{\eta} = \beta_0 + \X \bb$ and $\eta_i$ be the $i^{th}$ element of $\boldsymbol{\eta}$, The penalized objectives are
+
 $$
 \begin{aligned}
 \text{Logistic:}\quad
-Q_{\text{bin}}(\bb\mid\X,\y,\lambda)
+Q_{\text{bern}}(\bb\mid\X,\y,\lambda)
   &= \tfrac{1}{n}\sum_{i=1}^{n}
      \Bigl[
-       \log\!\bigl(1+e^{\X_i^{\!\top}\bb}\bigr)
-       - y_i\,\X_i^{\!\top}\bb
+       \log\!\bigl(1+e^{\eta_i}\bigr)
+       - y_i\eta_i
      \Bigr]
-     + \sum_{j = 1}^p \rho(\beta_j, \lambda, \ldots), \\[6pt]
+     + p_\lam(\bb|\lam, \ldots), \\[6pt]
 \text{Poisson:}\quad
 Q_{\text{pois}}(\bb\mid\X,\y,\lambda)
   &= \tfrac{1}{n}\sum_{i=1}^{n}
      \Bigl[
-       e^{\X_i^{\!\top}\bb}
-       - y_i\,\X_i^{\!\top}\bb
+       e^{\eta_i}
+       - y_i\eta_i
      \Bigr]
-     + \sum_{j = 1}^p \rho(\beta_j, \lambda, \ldots).
+     + p_\lam(\bb|\lam, \ldots).
 \end{aligned}
 $$
 
@@ -210,7 +211,7 @@ There are a few reasons, but nevertheless this will be considered as an alternat
 
 \section{Frequentist vs Bayesian in High Dimensions}
 
-This thesis asks the question of what properties high-dimensional intervals should have. Treating them as a separate entity, should they behave more like single parameter Frequentist confidence intervals or Bayesian credible intervals?
+This thesis asks the question of what properties high-dimensional intervals should have. Should they behave more like single parameter Frequentist confidence intervals or Bayesian credible intervals?
 
 In low dimensional settings there is a considerable difference in the motivation behind Frequentist and Bayesian inference. Notably, the Bayesian believes that the parameter under study follows some distribution and imposes their beliefs about this parameter on the problem via a prior. On the other hand, the Frequentist believes that the parameter has some true fixed but unknown quantity which we want to estimate, often in a way that jointly minimizes bias and variance. 
 

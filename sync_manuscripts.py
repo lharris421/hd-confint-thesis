@@ -25,7 +25,7 @@ PAPERS = [
     {
         "name": "chap2",
         "dir": "../man-avg-cov",
-        "title": "A New Perspective on High Dimensional Intervals"
+        "title": "A New Perspective on High-Dimensional Intervals"
     },
     {
         "name": "chap3",
@@ -73,18 +73,27 @@ def copy_r_scripts():
 def normalize_citations(text: str) -> str:
     """Replace specific citations with chapter/author references."""
 
-    # Mapping from citation key to replacement
     citation_map = {
         "AvgCov": "Chapter 2",
         "PIPEP": "Chapter 3",
+        "AvgCov,PIPEP": "Chapter 2 and Chapter 3"
     }
 
-    # Pattern matches \cite{key}, \citet{key}, or \citep{key}
-    pattern = re.compile(r"\\cite[t|p]?{([^}]+)}")
+    # Match \cite{...}, \citet{...}, or \citep{...}
+    pattern = re.compile(r"\\cite(t|p)?{([^}]+)}")
 
     def replacer(match):
-        key = match.group(1)
-        return citation_map.get(key, match.group(0))  # fallback to original if not mapped
+        kind = match.group(1)   # "t", "p", or None
+        key  = match.group(2)
+
+        if key in citation_map:   # only replace mapped citations
+            replacement = citation_map[key]
+            if kind == "p":       # add () for citep
+                return f"({replacement})"
+            else:                 # leave raw for cite/citet
+                return replacement
+        else:
+            return match.group(0) # untouched
 
     return pattern.sub(replacer, text)
 

@@ -1,4 +1,4 @@
-\chapter{A New Perspective on High Dimensional Intervals}\label{sec:chap2}
+\chapter{A New Perspective on High-Dimensional Intervals}\label{sec:chap2}
 
 \section{Introduction}
 
@@ -84,7 +84,7 @@ In recent years, \cite{Nie2022} proposed the Bayesian Bootstrap for Spike and Sl
 
 While the bootstrap is not a viable option as outlined in Section~\ref{Sec:boot-bias}, this section and the discourse around Theorem~\ref{Thm:bcc} suggest that if intervals are constructed from a distribution resembling a Bayesian posterior that they should have correct average coverage. We propose the \textbf{Relaxed Lasso Posterior} (RL-P), which constructs intervals from the distribution of $\beta_j$ conditional on the selected features, viewed as a Bayesian posterior. The use of ``Posterior'' here is a nod to the construction, rather than suggesting the resulting intervals are credible intervals. The remainder of this section presents its specific application to lasso-penalized linear regression. Specifically, we define and derive the conditional distributions needed for the interval construction. In this section, we provide a high level derivation of the conditional posterior distributions for lasso-penalized regression. Complete details, including how to calculate quantiles, are provided in Supplement~\ref{sup:A}.
 
-As with other penalized regression approaches, the lasso can be formulated as a Bayesian regression model by setting an appropriate prior. This was initially noted by \cite{Tibshirani1996} and explored more extensively by \cite{Park2008}.  For Ridge regression, the prior is a Normal distribution which leads to conjugacy allowing for straightforward interval construction. As seen in both the left side of Figure~\ref{fig:1} and the Ridge Posterior results in \ref{fig:F1}, these intervals achieve correct average coverage in ideal settings. Here, for lasso, we derive the conditional distribution of $\bh_j(\lam)$ in attempts to provide intervals analogous to those produced by Ridge.
+As with other penalized regression approaches, the lasso can be formulated as a Bayesian regression model by setting an appropriate prior. This was initially noted by \cite{Tibshirani1996} and explored more extensively by \cite{Park2008}.  For Ridge regression, the prior is a Normal distribution which leads to conjugacy allowing for straightforward interval construction. As seen in both the left side of Figure~\ref{fig:1} and the Ridge Posterior results in Figure~\ref{fig:F1}, these intervals achieve correct average coverage in ideal settings. Here, for lasso, we derive the conditional distribution of $\bh_j(\lam)$ in attempts to provide intervals analogous to those produced by Ridge.
 
 For the lasso, the corresponding prior is a Laplace distribution, also referred to as the double-exponential distribution:
 \as{p(\bb) = \prod_{j = 1}^{p} \tfrac{\gamma}{2}\exp(-\gamma \abs{\beta_j}), \gamma > 0.}
@@ -94,19 +94,19 @@ Let $\hat{S} = \lbrace k: \bh_k \neq  0 \rbrace$ denote the set of selected feat
 
 \noindent where $\tilde{\beta}_j = (\x_j \Tr \Q_{\hat{S}_j} \x_j)^{-1} \x_j \Tr \Q_{\hat{S}_j} \y$.  This can be seen as a mild extension of the relaxed lasso. It is equivalent to the relaxed lasso for features in $\hat{S}$ but also is capable of providing intervals for features in $\hat{S}^C$.
 
-A normal likelihood and Laplace prior are not conjugate. However, the distribution of $\beta_j$ conditional on $\hat{S}_j $ can be shown to be a composition of right and left truncated normals where the truncation occurs at zero for right and left tails respectively. In this manuscript, we assume that $\X$ has been standardized s.t. $\x_j \Tr\x_j = n$ and that $\y$ has been centered. Then for $\beta_j$ (see Supplement~\ref{sup:A} for details),
+A normal likelihood and Laplace prior are not conjugate. However, the distribution of $\beta_j$ conditional on $\hat{S}_j $ can be shown to be a composition of two scaled truncated normals. In this manuscript, we assume that $\X$ has been standardized s.t. $\x_j \Tr\x_j = n$ and that $\y$ has been centered. Then for $\beta_j$ (see Supplement~\ref{sup:A} for details),
 \al{eq:fcp}{
 p(\beta_j | \hat{S}_j) &\propto
 \begin{cases}
-  C_{-} \exp\{-\frac{\tilde{n}}{2\sigma^2} (\beta_j - (\tilde{\beta}_j + \lambda))^2\}, \text{ if } \beta_j < 0, \\
-  C_{+} \exp\{-\frac{\tilde{n}}{2\sigma^2} (\beta_j - (\tilde{\beta}_j - \lambda))^2\}, \text{ if } \beta_j \geq 0 \\
+  C_{1} \exp\{-\frac{\tilde{n}}{2\sigma^2} (\beta_j - (\tilde{\beta}_j + \lambda))^2\}, \text{ if } \beta_j < 0, \\
+  C_{2} \exp\{-\frac{\tilde{n}}{2\sigma^2} (\beta_j - (\tilde{\beta}_j - \lambda))^2\}, \text{ if } \beta_j \geq 0 \\
 \end{cases}
 }
-where $\tilde{n} = \x_j \Tr \Q_{\hat{S}_j} \x_j$, $C_{-} = \exp(\tilde{\beta}_j \lambda \tilde{n}/\sigma^2)$ and $C_{+} = \exp(-\tilde{\beta}_j \lambda \tilde{n}/\sigma^2)$. $\tilde{n}$ can be interpreted as the effective sample size.
+where $\tilde{n} = \x_j \Tr \Q_{\hat{S}_j} \x_j$, $C_{1} = \exp(\tilde{\beta}_j \lambda \tilde{n}/\sigma^2)$ and $C_{2} = \exp(-\tilde{\beta}_j \lambda \tilde{n}/\sigma^2)$. $\tilde{n}$ can be interpreted as the effective sample size.
 
-This formulation is attractive because it allows efficient computation of quantiles. This consists of first determining which normal distribution (left or right tail) the probability corresponds to, then calculating the quantile from the corresponding normal distribution. Again, full details are provided in Supplement~\ref{sup:A}.
+This formulation is attractive because it allows efficient computation of quantiles. This consists of first determining which side of the Laplace-Normal (left or right) the probability corresponds to, then calculating the quantile from the corresponding unscaled normal distribution. Again, full details are provided in Supplement~\ref{sup:A}.
 
-This solution corresponds to a particular value of $\lam$ and $\hat{\sigma}^2$. Throughout, we select the value of $\lam$ that minimizes cross validation error (CVE), and we estimate $\sigma^2$ as recommended by \citep{Reid2016}:
+This solution corresponds to a particular value of $\lam$ and $\hat{\sigma}^2$. Throughout, we select the value of $\lam$ that minimizes cross validation error (CVE), and we estimate $\sigma^2$ as recommended by \cite{Reid2016}:
 $$
 \hat{\sigma}^2 = \frac{1}{n - |\hat{S}_{\CV}|} ||\y - \X\bbh({\lambda_{\CV}})||_2^2,
 $$
@@ -115,16 +115,14 @@ $$
 
 The Relaxed Lasso Posterior intervals are available through \texttt{intervals(fit, relaxed = TRUE)} in the current version of the R package \texttt{ncvreg} (3.16.0) where \texttt{fit} is an \texttt{ncvreg} or \texttt{cv.ncvreg} object.
 
-The shape of a Laplace-Normal distribution varies considerably based on the relative size of $\mu$ and $\lam$ which has direct implications on the resulting intervals. Intervals arising from Laplace-Normal distributions are often skewed away from zero unless $\mu$ is small or large relative to $\lam$, in which cases the intervals are more symmetric. Figure~\ref{fig:0} gives examples of the densities for 4 Laplace-Normal distributions with increasing values of $\mu$ = 0.1, 0.3, 0.6 and 1. For this figure, $\lam = 0.5$ and $s^2 = 1$. This figures highlights that the distribution is made up of two scaled truncated Normal distributions. The solid portion of each scaled Normal density is what is ``used'' in the whereas the dotted portion is the ``unused'' portion.
+The shape of a Laplace-Normal distribution varies considerably based on the relative size of $\mu$ and $\lam$ which has direct implications on the resulting intervals. Figure~\ref{fig:0} gives examples of the densities for 4 Laplace-Normal distributions with increasing values of $\mu$ = 0.1, 0.3, 0.6 and 1. For this figure, $\lam = 0.5$ and $\hat{\sigma}^2 / \tilde{n} = 1$. This figure highlights that the distribution is made up of two scaled truncated Normal distributions. The solid portion of each scaled Normal density is what is ``used'' in the Laplace-Normal whereas the dotted portion is the ``unused'' portion. In all four panels, the density is continuous but non-differentiable at 0. When $\mu < \lam$, the distribution has a sharp spike at 0 for the mode. The larger $\mu$ is relative to $\lam$, the more the distribution resembles that of a Normal distribution. In fact, if $\mu$ is large enough relative to $\lam$, the distribution is \emph{essentially} a Normal distribution. 
 
 \begin{figure}[hbt!]
     \begin{center}
     \includegraphics[width=0.6\linewidth]{figure0}
-    \caption{\label{fig:0} Examples of four Laplace-Normal distributions with increasing likelihood means ($\mu$ = 0.1, 0.3, 0.6, 1) and fixed values of $s^2 = 1$ and $\lambda = 0.5$.}
+    \caption{\label{fig:0} Examples of four Laplace-Normal distributions with increasing likelihood means ($\mu$ = 0.1, 0.3, 0.6, 1) and fixed values of $\hat{\sigma}^2 / \tilde{n} = 1$ and $\lambda = 0.5$.}
     \end{center}
 \end{figure}
-
-In all four panels, the density is continuous but non-differentiable at zero. When $\mu < \lam$, the distribution has a sharp spike at zero for the mode. The larger $\mu$ is relative to $\lam$, the more the distribution resembles that of a Normal distribution. In fact, if $\mu$ is large enough relative to $\lam$, the distribution is \emph{essentially} a Normal distribution. 
 
 \section{Results}
 \label{Sec:results}
@@ -143,7 +141,7 @@ The RL-P method has average coverage nearly exactly equal to the nominal 80\%. R
 
 Low coverage for large values of $\beta$ arises from the bias introduced by the lasso penalty. However, as $n$ increases, the value of $\lambda_{\CV}$ decreases, reducing the bias. Consequently, coverage becomes flatter and closer to the nominal level across the range of $\beta$, as shown in Supplement~\ref{sup:alt_ns}.
 
-Bias can also be reduced by choosing an alternative penalty. For example, the method described in Section~\ref{Sec:methods} can be extended to the Minimax Concave Penalty (MCP) to construct Relaxed MCP Posterior (RM-P) intervals. These intervals exhibit coverage that remains closer to the nominal level for larger values of $\beta$ compared to the RL-P intervals (Supplement~\ref{sup:MCP}). This demonstrates that the phenomenon of uneven coverage across $\beta$ is not inherent to the proposed interval method, but rather, reflects properties of the penalty used in estimation.
+Bias can also be reduced by choosing an alternative penalty. For example, the method described in Section~\ref{Sec:methods} can be extended to the Minimax Concave Penalty (MCP) to construct Relaxed MCP Posterior (RM-P) intervals. These intervals exhibit coverage that remains closer to the nominal level for larger values of $\beta$ compared to the RL-P intervals (Supplement~\ref{sup:MCP}). This demonstrates that the phenomenon of uneven coverage across $\beta$ is not inherent to the proposed interval approach, but rather, reflects properties of the penalty used in estimation.
 
 \subsection{Robustness for Average Coverage}
 \label{Sec:robustness}

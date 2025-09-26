@@ -16,7 +16,7 @@ Figure~\ref{fig:A1} shows the coverage as a function of the value of $\beta$ (so
 
 \subsection{Computing Quantiles from the Conditional Posterior}\label{sup:A}
 
-Here we assume $\X$ has been standardized s.t. $\x_j\Tr\x_j = n$. Define $\Q_{\hat{S}_j}$ as $\I - \X_{\hat{S}_j}(\X_{\hat{S}_j}\Tr \X_{\hat{S}_j})^{-1} \X_{\hat{S}_j}\Tr$, the projection matrix onto the features selected by the lasso. For $\beta_j$ conditional on the selected features
+Let $\y$ be a length $n$ vector of independent outcomes and $\X$ be an $n \times p$ matrix of features. Here we assume $\X$ has been standardized s.t. $\x_j\Tr\x_j = n$.  Let $\hat{S} = \lbrace k: \bh_k \neq  0 \rbrace$ denote the set of selected features. Then, let $\hat{S}_j$ denote the set of selected features that excludes feature $j$, so that $\hat{S}_j = \hat{S} \text{ if } j \notin \hat{S}$ and $\hat{S}_j = \hat{S} - \lbrace j \rbrace \text{ if } j \in \hat{S}$. Define $\Q_{\hat{S}_j}$ as $\I - \X_{\hat{S}_j}(\X_{\hat{S}_j}\Tr \X_{\hat{S}_j})^{-1} \X_{\hat{S}_j}\Tr$, the projection matrix onto the features selected by the lasso. The likelihood for $\beta_j$ conditional on the selected features is
 \as{
   \begin{aligned}
   L(\beta_j|\hat{S}_j) &\propto \exp(-\tfrac{\tilde{n}}{2\sigma^2}(\beta_{j}^2 - 2\tilde{\beta}_{j}\beta_{j})), \\
@@ -25,7 +25,7 @@ Here we assume $\X$ has been standardized s.t. $\x_j\Tr\x_j = n$. Define $\Q_{\h
 
 \noindent where $\tilde{\beta}_j = (\x_j\Tr \Q_{\hat{S}_j} \x_j)^{-1} \x_j\Tr \Q_{\hat{S}_j} \y$ and $\tilde{n} = \x_j\Tr \Q_{\hat{S}_j} \x_j$.
 
-The lasso can be formulated as a Bayesian regression model with a Laplace (double exponential) prior. In this case, the prior for $\beta_j$ is proportional to $\exp(-\frac{\tilde{n} \lambda} {\sigma^2} \abs{\beta_j})$. This prior is consistent with the value of $\lam$ using during estimation.
+The lasso can be formulated as a Bayesian regression model with a Laplace (double exponential) prior. In this case, the prior for $\beta_j$ is proportional to $\exp(-\frac{\tilde{n} \lambda} {\sigma^2} \abs{\beta_j})$. This prior keeps the value of $\lam$ consistent with the estimation procedure.
 
 With this the form of the conditional posterior can be worked out as follows:
 \as{
@@ -39,47 +39,59 @@ p(\beta_j | \hat{S}_j) &\propto \exp(-\tfrac{\tilde{n}}{2\sigma^2} (\beta_j^2 - 
 \end{cases} \\
 &\propto
 \begin{cases}
-C_{-} \exp\{-\frac{\tilde{n}}{2\sigma^2} (\beta_j - (\tilde{\beta}_j + \lambda))^2\}, \text{ if } \beta_j < 0, \\
-C_{+} \exp\{-\frac{\tilde{n}}{2\sigma^2} (\beta_j - (\tilde{\beta}_j - \lambda))^2\}, \text{ if } \beta_j \geq 0 \\
+C_{1} \exp\{-\frac{\tilde{n}}{2\sigma^2} (\beta_j - (\tilde{\beta}_j + \lambda))^2\}, \text{ if } \beta_j < 0, \\
+C_{2} \exp\{-\frac{\tilde{n}}{2\sigma^2} (\beta_j - (\tilde{\beta}_j - \lambda))^2\}, \text{ if } \beta_j \geq 0 \\
 \end{cases}
 }
-where $C_{-} = \exp(\tilde{\beta}_j \lambda \tilde{n}/\sigma^2)$ and $C_{+} = \exp(-\tilde{\beta}_j \lambda \tilde{n}/\sigma^2)$.
+where $C_{1} = \exp(\tilde{\beta}_j \lambda \tilde{n}/\sigma^2)$ and $C_{2} = \exp(-\tilde{\beta}_j \lambda \tilde{n}/\sigma^2)$. The piecewise distribution is made up of two scaled truncated Normal distributions. 
 
-The piecewise defined distribution is made up of scaled left and right truncated Normal distributions. This can be leveraged and draws can be analytically obtained through a mapping onto the respective underlying unscaled Normal distributions, $\Norm(\mu \pm \lam, s^2)$. Note, the use of ``tails'' in what follows refers to the entirety of a distribution between 0 and $\pm \infty$. That is, the negative tail is any part of the distribution below 0 and the positive tail is any part greater than 0. With this defined, then more specifically the piecewise defined Laplace-Normal is made up of the negative tail of a right scaled Normal and the positive tail of a left scaled Normal. Accordingly, we will let the mass in the unscaled Normal tails be denoted $Pr_{-}$ and $Pr_{+}$ respectively and the mass in each of the tails of the Laplace-Normal be denoted $Post_{-}$ and $Post_{+}$ respectively. $Pr_{\pm}$ is trivial to compute with any statistical software. $Post_- = (C_{-} Pr_{-})/(C_{-} Pr_{-} + C_{+} Pr_{+})$ and similarly for $Post_+$. So, $Post_{\pm}$ is conceptually simple, although care must be taken to avoid numerical instability (see Algorithm~\ref{alg:quantile} for details).
+The general idea to compute the quantiles is to map $p$ corresponding to a quantile of interest $q$ to a corresponding $p_*$ on one of the underlying (unscaled) Normal distributions ($\Norm(\tilde{\beta}_j \pm \lam, \sigma^2 / \tilde{n})$) where the CDF can be inverted to compute the quantile $q$.
 
-With $Pr_\pm$ and $Post_\pm$ defined, we can compute a quantile by mapping the respective probability $p$ for the Laplace-Normal onto the probability $p^*$ for the corresponding Normal. Which Normal the quantile of interest ultimately comes from is determined based on $Post_{\pm}$. If $p \leq Post_{-}$, then $p$ would be mapped onto the negative tail of the right Normal. If $p > Post_{-}$, then $p$ would be mapped onto the positive tail of the left Normal.  For example, if $Post_{+} = 0.98$ and $p = 0.1$ then $p$ would be mapped onto the left Normal. The transformation to map a given probability from the Laplace-Normal depends on which tail the quantile resides in. This map is simply
+While the process will be described on the standard scale, in practice all computations occur on the log scale. Assume $\hat{\sigma}^2$ has been estimated. Let $i = 1$ refer to the left half of the Laplace-Normal and $i = 2$ refer to the right half. Then let $I_i = [\ell_i, u_i]$ be the support for the respective half, that is $I_1=[-\infty,0)$ and $I_2=[0,\infty]$. Let $\Phi_i(x)$ and $\Phi_i^{-1}(x)$ be the CDF and its inverse for the $i^{th}$ underlying Normal, again that is $\Norm(\tilde{\beta}_j \pm \lambda, \hat{\sigma}^2 / \tilde{n})$. On their respective support, let the total probability in the underlying unscaled Normals be $U_i = \Phi_i(u_i) - \Phi_i(\ell_i)$. Additionally let the probability in the left and right halves of the Laplace-Normal be denoted $P_i$. $P_i$ can be computed stably as follows. Let $r_i = \log(C_iU_i)$ and $m = \max\{r_1, r_2\}$, then $c = m + \log(\exp(r_1 - m) + \exp(r_2 - m))$ and $P_i = \exp(r_i - c)$. Note $P_1 + P_2 = 1$. Using $P_i$, we can determine which half $q$ comes from. If $p < P_1$ then the quantile comes from the left otherwise it comes from the right.
+
+Then, the transformation to map $p$ to $p_*$ if $q$ comes from the left side of the Laplace-Normal is simply: 
+
 $$
-p^* = \frac{Pr_{\pm}}{Post_{\pm}} p.
+p_* = \frac{U_{1}}{P_{1}}p.
 $$
 
-\noindent Once the respective probability is mapped, one can simply use the inverse of the Normal CDF that the probability was mapped to. That being said, there is a nuance worth pointing out. When mapping the probabilities, the step to determine which tail the respective quantile comes from occurs first. With this, the probability must be adjusted so that it refers to the probability between the quantile of interest and the respective tail (i.e., $1-p$ for the positive tail). After this, then the map can be applied and the quantile computed. Note, in practice the mapping and quantile computation are also performed on the log scale, but are described here on the non-log scale for conceptual clarity. Computing a quantile from a Laplace-Normal distribution is summarized in Algorithm~\ref{alg:quantile}.
+The weight $U_{1} / P_{1}$ indicates how much probability in the underlying Normal transformed onto counts relative to the probability in the Laplace-Normal over support $I_1$. If the quantile is in the right side, the map is a bit more complicated:
+
+$$
+p_* = \frac{U_{2}}{P_{2}} (p - P_1) + \Phi_{2}(0).
+$$
+
+Again, the weight $U_{2} / P_{2}$ indicates how much probability in the underlying Normal transformed onto counts relative to the probability in the Laplace-Normal over the respective support. $P_1$ tells how much probability has already been accounted for in the left half of the Laplace-Normal. Together, these tell how much probability is needed in the Normal being transformed onto to get to the quantile. However, we need to accumulate this probability from $0$, so $\Phi_{2}(0)$ tells us how far we need to shift over to start at $0$. 
+
+Once $p_*$ has been computed, then $q = \Phi_1^{-1}(p_*)$ if the quantile comes from the left side and $q = \Phi_2^{-1}(p_*)$ if it comes from the right.
 
 \begin{algorithm}
 \caption{Compute Quantile for RL-P Laplace-Normal Distribution}
 \label{alg:quantile}
 \begin{algorithmic}[1]
   \Require
-    $\tilde{\beta}_j,\;\sigma^2,\;\tilde{n};\lambda,\;p$ \Comment{mean, variance, effective sample size, penalty, probability of interest}
+    $\tilde{\beta}_j,\;\hat{\sigma}^2,\;\tilde{n},\lambda,\;p$ \Comment{mean, variance, effective sample size, penalty, probability of interest}
   \Statex
-  \State // 1. Compute log negative/positive tail mass of right/left Normals
-  \State $\log Pr_{-} \gets \log \left(\Phi\bigl(0;\,\tilde{\beta}_j + \lambda,\;\tfrac{\sigma^2}{\tilde{n}}\bigr)\right)$
-  \State $\log Pr_{+} \gets \log \left(1 - \Phi\bigl(0;\,\tilde{\beta}_j - \lambda,\;\tfrac{\sigma^2}{\tilde{n}}\bigr)\right)$
+  \State // 1. Compute total log probability in left/right Normals over respective supports
+  \State $U_{1} \gets \log \left(\Phi\bigl(0;\,\tilde{\beta}_j + \lambda,\;\tfrac{\hat{\sigma}^2}{\tilde{n}}\bigr)\right)$
+  \State $U_{2} \gets \log \left(1 - \Phi\bigl(0;\,\tilde{\beta}_j - \lambda,\;\tfrac{\hat{\sigma}^2}{\tilde{n}}\bigr)\right)$
   \Statex
-  \State // 2. Compute $Post_{-}, Post_{+}$
-  \State $\ell_{-} \gets \log C_{-} + \log Pr_{-}$
-  \State $\ell_{+} \gets \log C_{+} + \log Pr_{+}$
-  \State $m \gets \max \lbrace \ell_{-}, \ell_{+} \rbrace$
-  \State $c \gets m + \log\left(\exp(\ell_{-} - m) + \exp(\ell_{+} - m)\right)$
-  \State $Post_{-} \gets \exp(\ell_{-} - c)$
-  \State $Post_{+} \gets 1 - Post_{-}$
+  \State // 2. Compute $P_{1}, P_{2}$
+  \State $r_{1} \gets \log C_{1} + U_{1}$
+  \State $r_{2} \gets \log C_{2} + U_{2}$
+  \State $m \gets \max \lbrace r_{1}, r_{2} \rbrace$
+  \State $c \gets m + \log\left(\exp(r_{1} - m) + \exp(r_{2} - m)\right)$
+  \State $P_{1} \gets \exp(r_{1} - c)$
+  \State $P_{2} \gets 1 - P_{1}$
   \Statex
-  \State // 3. Invert CDF on the appropriate unscaled Normal (on log scale)
-  \If{$p \le Post_{-}$}
-    \State $w \gets \dfrac{Pr_{-}}{Post_{-}}$
-    \State $q \gets \Phi^{-1}\bigl(p \,w;\;\tilde{\beta}_j + \lambda,\;\tfrac{\sigma^2}{n}\bigr)$
+  \State // 3. Invert CDF on the appropriate unscaled Normal
+  \If{$p \le P_{1}$}
+    \State $w \gets \dfrac{U_{1}}{P_{1}}$
+    \State $q \gets \Phi^{-1}\bigl(p \,w;\;\tilde{\beta}_j + \lambda,\;\tfrac{\hat{\sigma}^2}{n}\bigr)$
   \Else
-    \State $w \gets \dfrac{Pr_{+}}{Post_{+}}$
-    \State $q \gets \Phi^{-1}\!\Bigl(1 - (1-p)\,w;\;\tilde{\beta}_j - \lambda,\;\tfrac{\sigma^2}{n}\Bigr)$
+    \State $w \gets \dfrac{U_{2}}{P_{2}}$
+    \State $s \gets \Phi(0; \tilde{\beta}_j - \lambda, \tfrac{\hat{\sigma}^2}{n})$
+    \State $q \gets \Phi^{-1}\!\Bigl(w(p - P_{1}) + s;\tilde{\beta}_j - \lambda,\;\tfrac{\hat{\sigma}^2}{n}\Bigr)$
   \EndIf
   \State \Return $q$
 \end{algorithmic}
@@ -103,7 +115,6 @@ For $n = 50$, coverage is overconservative with the characteristic high coverage
 \clearpage
 
 \subsection{Selective Inference Intervals}\label{sup:si_int_info}
-
 
 \begin{table}[hb]
   \singlespace
